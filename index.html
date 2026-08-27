@@ -316,11 +316,46 @@
             margin-top: 0.8rem;
         }
 
-        /* قسم التعليقات والردود */
+        .post-actions-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--text-color);
+        }
+
+        .action-btn.liked {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* قسم التعليقات والردود (مخفي افتراضياً) */
         .comments-section {
             border-top: 1px solid var(--border);
             padding-top: 1rem;
             margin-top: 1rem;
+            display: none;
+        }
+
+        .comments-section.active {
+            display: block;
         }
 
         .comment-item {
@@ -708,14 +743,19 @@
         let posts = [];
         let visitorChats = [];
 
-        // تتبع الزوار الفريدين
-        async function trackVisitor() {
+        // الحصول على معرف فريد للزائر من متصفحه
+        function getVisitorId() {
             let visitorId = localStorage.getItem('site_visitor_uuid');
             if (!visitorId) {
                 visitorId = 'user_' + Math.random().toString(36).substr(2, 9) + Date.now();
                 localStorage.setItem('site_visitor_uuid', visitorId);
             }
+            return visitorId;
+        }
 
+        // تتبع الزوار الفريدين
+        async function trackVisitor() {
+            let visitorId = getVisitorId();
             const visitorRef = doc(db, "visitors", visitorId);
             await setDoc(visitorRef, { lastSeen: Date.now() }, { merge: true });
 
@@ -888,6 +928,8 @@
                 image: image,
                 date: "الآن",
                 createdAt: Date.now(),
+                likes: 0,
+                likedUsers: [],
                 comments: []
             });
             document.getElementById('postText').value = '';
@@ -929,19 +971,68 @@
             }
         };
 
+        // نظام الإعجابات (لايك واحد لكل هاتف)
+        window.toggleLike = async function(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            let visitorId = getVisitorId();
+            let likedUsers = post.likedUsers || [];
+            let currentLikes = post.likes || 0;
+
+            if (likedUsers.includes(visitorId)) {
+                // إلغاء اللايك
+                likedUsers = likedUsers.filter(id => id !== visitorId);
+                currentLikes = Math.max(0, currentLikes - 1);
+            } else {
+                // إضافة لايك
+                likedUsers.push(visitorId);
+                currentLikes += 1;
+            }
+
+            await updateDoc(doc(db, "posts", postId), {
+                likes: currentLikes,
+                likedUsers: likedUsers
+            });
+        };
+
+        // تبديل إظهار/إخفاء قسم التعليقات
+        window.toggleCommentsSection = function(postId) {
+            const section = document.getElementById(`commentsSection_${postId}`);
+            if (section) {
+                section.classList.toggle('active');
+            }
+        };
+
+        // إضافة أو تحديث تعليق الزائر (تعليق واحد لكل زائر)
         window.addComment = async function(postId) {
             const inputField = document.getElementById(`commentInput_${postId}`);
             const commentText = inputField.value.trim();
             if (!commentText) return;
 
             const post = posts.find(p => p.id === postId);
-            if (post) {
-                const authorName = isAdmin ? "الأدمن" : "زائر";
-                const newComment = { id: Date.now(), author: authorName, text: commentText, replies: [] };
-                const updatedComments = [...(post.comments || []), newComment];
-                await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
-                inputField.value = '';
+            if (!post) return;
+
+            let visitorId = getVisitorId();
+            let comments = post.comments || [];
+
+            if (isAdmin) {
+                // الأدمن يمكنه إضافة عدة تعليقات
+                const newComment = { id: Date.now(), visitorId: 'admin', author: "الأدمن", text: commentText, replies: [] };
+                comments.push(newComment);
+            } else {
+                // الزائر له تعليق واحد فقط يتم تحديثه إن وجد
+                let existingCommentIndex = comments.findIndex(c => c.visitorId === visitorId);
+                if (existingCommentIndex !== -1) {
+                    comments[existingCommentIndex].text = commentText;
+                } else {
+                    const newComment = { id: Date.now(), visitorId: visitorId, author: "زائر", text: commentText, replies: [] };
+                    comments.push(newComment);
+                }
             }
+
+            await updateDoc(doc(db, "posts", postId), { comments: comments });
+            inputField.value = '';
         };
 
         window.addFakeComment = async function(e) {
@@ -953,7 +1044,7 @@
 
             const post = posts.find(p => p.id === postId);
             if (post) {
-                const newComment = { id: Date.now(), author: author, text: text, replies: [] };
+                const newComment = { id: Date.now(), visitorId: 'fake_' + Date.now(), author: author, text: text, replies: [] };
                 const updatedComments = [...(post.comments || []), newComment];
                 await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
                 document.getElementById('fakeAuthorName').value = '';
@@ -1101,6 +1192,7 @@
         function renderPosts() {
             const container = document.getElementById('postsContainer');
             const fakeSelect = document.getElementById('fakeCommentPostId');
+            let visitorId = getVisitorId();
             
             container.innerHTML = '';
             fakeSelect.innerHTML = '<option value="">اختر المنشور المطلوب</option>';
@@ -1114,13 +1206,21 @@
                 fakeSelect.innerHTML += `<option value="${post.id}">${post.text.substring(0, 30)}...</option>`;
 
                 let commentsHtml = '';
+                let hasUserCommented = false;
+                let userCommentText = '';
+
                 (post.comments || []).forEach(c => {
+                    if (!isAdmin && c.visitorId === visitorId) {
+                        hasUserCommented = true;
+                        userCommentText = c.text;
+                    }
+
                     let repliesHtml = '';
                     (c.replies || []).forEach(r => {
                         repliesHtml += `
                             <div class="reply-item">
                                 <div><strong>${r.author}:</strong> ${linkifyText(r.text)}</div>
-                                ${isAdmin ? `<button class="btn btn-danger btn-sm" style="padding: 0.1rem 0.3rem; font-size: 0.7rem;" onclick="deleteReply('${post.id}', ${c.id}, ${r.id})"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                                ${isAdmin || c.visitorId === visitorId ? `<button class="btn btn-danger btn-sm" style="padding: 0.1rem 0.3rem; font-size: 0.7rem;" onclick="deleteReply('${post.id}', ${c.id}, ${r.id})"><i class="fa-solid fa-xmark"></i></button>` : ''}
                             </div>
                         `;
                     });
@@ -1133,7 +1233,7 @@
                                 <span class="comment-author">${c.author}</span>
                                 <div class="comment-actions">
                                     ${messageUserBtn}
-                                    ${isAdmin ? `<button class="btn btn-danger btn-sm" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="deleteComment('${post.id}', ${c.id})"><i class="fa-solid fa-trash"></i> حذف</button>` : ''}
+                                    ${isAdmin || c.visitorId === visitorId ? `<button class="btn btn-danger btn-sm" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="deleteComment('${post.id}', ${c.id})"><i class="fa-solid fa-trash"></i> حذف</button>` : ''}
                                 </div>
                             </div>
                             <div style="font-size: 0.9rem; line-height: 1.4;">${linkifyText(c.text)}</div>
@@ -1156,6 +1256,12 @@
                     </div>
                 ` : '';
 
+                // فحص حالة الإعجاب للزائر الحالي
+                const likedUsers = post.likedUsers || [];
+                const isLiked = likedUsers.includes(visitorId);
+                const likeCount = post.likes || 0;
+                const commentsCount = (post.comments || []).length;
+
                 container.innerHTML += `
                     <div class="post-card">
                         <div class="post-header">
@@ -1164,17 +1270,37 @@
                         </div>
                         <div class="post-content">${linkifyText(post.text)}</div>
                         ${post.image ? `<img src="${post.image}" class="post-image" alt="صورة المنشور">` : ''}
+                        
+                        <!-- أزرار التفاعل (لايك وزر إظهار التعليقات) -->
+                        <div class="post-actions-bar">
+                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                                <i class="fa-solid fa-heart"></i> <span>${likeCount}</span> أعجبني
+                            </button>
+                            <button class="action-btn" onclick="toggleCommentsSection('${post.id}')">
+                                <i class="fa-solid fa-comments"></i> عرض التعليقات (${commentsCount})
+                            </button>
+                        </div>
+
                         <div class="post-footer-actions">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">هل لديك استفسار عن هذا المنشور؟</span>
                             <button class="btn btn-outline btn-sm" onclick="toggleChat()"><i class="fa-solid fa-headset"></i> تواصل للحجز</button>
                         </div>
-                        <div class="comments-section">
-                            <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-muted);">التعليقات (${(post.comments || []).length})</h4>
+
+                        <!-- قسم التعليقات (مخفي افتراضياً) -->
+                        <div class="comments-section" id="commentsSection_${post.id}">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-muted);">التعليقات (${commentsCount})</h4>
                             <div class="comments-list">${commentsHtml}</div>
+                            
+                            ${isAdmin || !hasUserCommented ? `
                             <div class="comment-form">
-                                <input type="text" id="commentInput_${post.id}" class="form-control" placeholder="اكتب تعليقاً..." onkeypress="if(event.key==='Enter') addComment('${post.id}')">
+                                <input type="text" id="commentInput_${post.id}" class="form-control" placeholder="اكتب تعليقك (مسموح بتعليق واحد)..." onkeypress="if(event.key==='Enter') addComment('${post.id}')">
                                 <button class="btn" onclick="addComment('${post.id}')">تعليق</button>
                             </div>
+                            ` : `
+                            <div style="font-size: 0.85rem; color: var(--success); margin-top: 0.8rem; text-align: center; background: var(--bg-color); padding: 0.6rem; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check"></i> لقد قمت بالتعليق على هذا المنشور مسبقاً. يمكنك تعديل تعليقك بالأعلى إذا أردت.
+                            </div>
+                            `}
                         </div>
                     </div>
                 `;
