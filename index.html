@@ -595,6 +595,22 @@
             background: var(--card-bg);
         }
 
+        /* نافذة طلب الاسم للزائر عند فتح الدردشة لأول مرة */
+        .name-prompt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            z-index: 10;
+        }
+
         /* نافذة رسائل الأدمن المنبثقة للهواتف */
         .admin-inbox-modal {
             position: fixed;
@@ -779,6 +795,14 @@
             <span id="chatTitle">التواصل والحجز الآلي</span>
             <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="toggleChat()"></i>
         </div>
+        
+        <!-- واجهة إدخال اسم الزائر لأول مرة -->
+        <div class="name-prompt-overlay" id="namePromptOverlay" style="display: none;">
+            <h3 style="margin-bottom: 1rem; color: var(--text-color); font-size: 1.1rem;"><i class="fa-solid fa-user-pen"></i> أرجو إدخال اسمك للبدء بالدردشة</h3>
+            <input type="text" id="visitorNameInput" class="form-control" placeholder="اكتب اسمك هنا..." style="margin-bottom: 1rem;">
+            <button class="btn" onclick="saveVisitorName()"><i class="fa-solid fa-check"></i> بدء المحادثة</button>
+        </div>
+
         <div class="chat-body" id="chatBody">
             <div class="message bot">مرحباً بك! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.</div>
         </div>
@@ -920,7 +944,6 @@
             });
         }
 
-        // تحديث الوقت المنقضي كل دقيقة تلقائياً للمنشورات
         setInterval(() => {
             if (posts.length > 0) {
                 renderPosts();
@@ -973,29 +996,19 @@
             }
         }
 
-        // دالة تحويل التاريخ إلى صيغة زمنية فعلية متغيرة (منذ دقيقة، منذ ساعة، إلخ)
         function formatTimeAgo(timestamp) {
             if (!timestamp) return "الآن";
             const now = Date.now();
             const elapsedSeconds = Math.floor((now - timestamp) / 1000);
 
-            if (elapsedSeconds < 60) {
-                return "الآن";
-            }
+            if (elapsedSeconds < 60) return "الآن";
             const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-            if (elapsedMinutes < 60) {
-                return `منذ ${elapsedMinutes} ${elapsedMinutes === 1 ? 'دقيقة' : 'دقائق'}`;
-            }
+            if (elapsedMinutes < 60) return `منذ ${elapsedMinutes} دقيقة`;
             const elapsedHours = Math.floor(elapsedMinutes / 60);
-            if (elapsedHours < 24) {
-                return `منذ ${elapsedHours} ${elapsedHours === 1 ? 'ساعة' : 'ساعات'}`;
-            }
+            if (elapsedHours < 24) return `منذ ${elapsedHours} ساعة`;
             const elapsedDays = Math.floor(elapsedHours / 24);
-            if (elapsedDays < 7) {
-                return `منذ ${elapsedDays} ${elapsedDays === 1 ? 'يوم' : 'أيام'}`;
-            }
+            if (elapsedDays < 7) return `منذ ${elapsedDays} يوم`;
             
-            // إذا مر أكثر من أسبوع، يعرض التاريخ العادي
             const dateObj = new Date(timestamp);
             return dateObj.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
@@ -1318,6 +1331,7 @@
             if (!chat) {
                 const newChatRef = await addDoc(collection(db, "chats"), {
                     visitorName: userName,
+                    visitorUuid: 'admin_target_' + Date.now(),
                     messages: [{ sender: 'bot', text: `محادثة مع ${userName}` }]
                 });
                 currentChatSessionId = newChatRef.id;
@@ -1385,7 +1399,7 @@
             const chatTitle = document.getElementById('chatTitle');
             const chatBody = document.getElementById('chatBody');
 
-            chatTitle.innerText = isAdmin ? `محادثة: ${titleName}` : "التواصل والحجز";
+            chatTitle.innerText = isAdmin ? `محادثة: ${titleName}` : `مرحباً، ${titleName}`;
             chatBody.innerHTML = '';
             (chatObj.messages || []).forEach(msg => {
                 const cssClass = msg.sender === 'user' ? 'user' : 'bot';
@@ -1425,6 +1439,98 @@
                 `;
             });
         }
+
+        window.toggleChat = async function() {
+            const chatModal = document.getElementById('chatModal');
+            const nameOverlay = document.getElementById('namePromptOverlay');
+
+            if (chatModal.style.display === 'flex') {
+                chatModal.style.display = 'none';
+                currentChatSessionId = null;
+                nameOverlay.style.display = 'none';
+            } else {
+                if (!isAdmin) {
+                    let savedName = localStorage.getItem('visitor_chat_name');
+                    let visitorUuid = getVisitorId();
+
+                    if (!savedName) {
+                        nameOverlay.style.display = 'flex';
+                        chatModal.style.display = 'flex';
+                        return;
+                    }
+
+                    let chat = visitorChats.find(c => c.visitorUuid === visitorUuid);
+                    if (!chat) {
+                        const newChatRef = await addDoc(collection(db, "chats"), {
+                            visitorName: savedName,
+                            visitorUuid: visitorUuid,
+                            messages: [{ sender: 'bot', text: `مرحباً ${savedName}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }]
+                        });
+                        currentChatSessionId = newChatRef.id;
+                    } else {
+                        currentChatSessionId = chat.id;
+                    }
+                    const activeChat = visitorChats.find(c => c.id === currentChatSessionId);
+                    openChatModalForSession(savedName, activeChat);
+                } else {
+                    chatModal.style.display = 'flex';
+                }
+            }
+        };
+
+        window.saveVisitorName = async function() {
+            const nameInput = document.getElementById('visitorNameInput');
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert('الرجاء إدخال الاسم بشكل صحيح.');
+                return;
+            }
+
+            localStorage.setItem('visitor_chat_name', name);
+            document.getElementById('namePromptOverlay').style.display = 'none';
+            let visitorUuid = getVisitorId();
+
+            const newChatRef = await addDoc(collection(db, "chats"), {
+                visitorName: name,
+                visitorUuid: visitorUuid,
+                messages: [{ sender: 'bot', text: `مرحباً ${name}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }]
+            });
+            currentChatSessionId = newChatRef.id;
+
+            const activeChat = visitorChats.find(c => c.id === currentChatSessionId) || { visitorName: name, messages: [{ sender: 'bot', text: `مرحباً ${name}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }] };
+            openChatModalForSession(name, activeChat);
+        };
+
+        window.handleChatKey = function(e) { if (e.key === 'Enter') sendChatMessage(); };
+
+        window.sendChatMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!currentChatSessionId) {
+                if (isAdmin) {
+                    alert('اختر محادثة للرد عليها.');
+                    return;
+                }
+            }
+
+            let currentChat = visitorChats.find(c => c.id === currentChatSessionId);
+            if (!currentChat) return;
+
+            const senderType = isAdmin ? 'bot' : 'user';
+            const updatedMessages = [...(currentChat.messages || []), { sender: senderType, text: text }];
+
+            if (!isAdmin && isAutoReplyEnabled) {
+                updatedMessages.push({ sender: 'bot', text: autoReplyMessage });
+            }
+
+            await updateDoc(doc(db, "chats", currentChatSessionId), { messages: updatedMessages });
+            input.value = '';
+            if (isAdmin) {
+                showBrowserNotification("رد جديد", "وصلتك رسالة جديدة.");
+            }
+        };
 
         function renderPosts() {
             const container = document.getElementById('postsContainer');
@@ -1552,66 +1658,6 @@
                 `;
             });
         }
-
-        window.toggleChat = async function() {
-            const chatModal = document.getElementById('chatModal');
-            if (chatModal.style.display === 'flex') {
-                chatModal.style.display = 'none';
-                currentChatSessionId = null;
-                document.getElementById('chatTitle').innerText = 'التواصل والحجز';
-            } else {
-                if (!isAdmin) {
-                    let defaultVisitorName = "زائر الموقع";
-                    let chat = visitorChats.find(c => c.visitorName === defaultVisitorName);
-                    if (!chat) {
-                        const newChatRef = await addDoc(collection(db, "chats"), {
-                            visitorName: defaultVisitorName,
-                            messages: [{ sender: 'bot', text: 'مرحباً بك! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.' }]
-                        });
-                        currentChatSessionId = newChatRef.id;
-                    } else {
-                        currentChatSessionId = chat.id;
-                    }
-                    const activeChat = visitorChats.find(c => c.id === currentChatSessionId);
-                    openChatModalForSession(defaultVisitorName, activeChat);
-                } else {
-                    chatModal.style.display = 'flex';
-                }
-            }
-        };
-
-        window.handleChatKey = function(e) { if (e.key === 'Enter') sendChatMessage(); };
-
-        window.sendChatMessage = async function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            if (!currentChatSessionId) {
-                let defaultVisitorName = isAdmin ? "أدمن" : "زائر الموقع";
-                const newChatRef = await addDoc(collection(db, "chats"), {
-                    visitorName: defaultVisitorName,
-                    messages: []
-                });
-                currentChatSessionId = newChatRef.id;
-            }
-
-            let currentChat = visitorChats.find(c => c.id === currentChatSessionId);
-            if (!currentChat) return;
-
-            const senderType = isAdmin ? 'bot' : 'user';
-            const updatedMessages = [...(currentChat.messages || []), { sender: senderType, text: text }];
-
-            if (!isAdmin && isAutoReplyEnabled) {
-                updatedMessages.push({ sender: 'bot', text: autoReplyMessage });
-            }
-
-            await updateDoc(doc(db, "chats", currentChatSessionId), { messages: updatedMessages });
-            input.value = '';
-            if (isAdmin) {
-                showBrowserNotification("رد جديد", "وصلتك رسالة جديدة.");
-            }
-        };
     </script>
 </body>
 </html>
