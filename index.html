@@ -846,10 +846,11 @@
         <div id="postsContainer"></div>
     </div>
 
-    <!-- نافذة منبثقة للتعليقات (بدون علامة X للإغلاق بناءً على طلبك) -->
+    <!-- نافذة منبثقة للتعليقات -->
     <div class="comments-modal" id="commentsModal">
         <div class="comments-modal-header">
             <span id="commentsModalTitle">التعليقات</span>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="closeCommentsModalManually()"></i>
         </div>
         <div class="comments-modal-body" id="commentsModalBody">
             <!-- سيتم تعبئة التعليقات ديناميكياً هنا -->
@@ -990,33 +991,31 @@
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            // إذا كانت نافذة التعليقات مفتوحة، نغلقها فقط عند ضغط زر الرجوع ونمنع خروج المتصفح
             if (commentsModal.style.display === 'flex') {
                 commentsModal.style.display = 'none';
                 currentActivePostIdForModal = null;
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
                 return;
             } else if (chatModal.style.display === 'flex') {
                 chatModal.style.display = 'none';
                 document.getElementById('namePromptOverlay').style.display = 'none';
                 currentChatSessionId = null;
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
                 return;
             } else if (authModal.style.display === 'flex') {
                 authModal.style.display = 'none';
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
                 return;
             } else if (editModal.style.display === 'flex') {
                 editModal.style.display = 'none';
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
                 return;
             } else if (adminInboxModal.style.display === 'flex') {
                 adminInboxModal.style.display = 'none';
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
                 return;
             } else {
-                // إعادة حقن الحالة لمنع إغلاق متصفح فيسبوك بالخطأ إذا لم تكن هناك نافذة مفتوحة
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                window.history.replaceState({ page: "main_home" }, "", window.location.href);
             }
         });
 
@@ -1432,6 +1431,15 @@
             modal.style.display = 'flex';
             if (!isFromSnapshot) {
                 pushModalState('commentsModal');
+            }
+        };
+
+        window.closeCommentsModalManually = function() {
+            const modal = document.getElementById('commentsModal');
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+                currentActivePostIdForModal = null;
+                window.history.back();
             }
         };
 
