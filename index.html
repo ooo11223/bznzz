@@ -850,7 +850,7 @@
     <div class="comments-modal" id="commentsModal">
         <div class="comments-modal-header">
             <span id="commentsModalTitle">التعليقات</span>
-            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="closeCommentsModal()"></i>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="closeCommentsModalManually()"></i>
         </div>
         <div class="comments-modal-body" id="commentsModalBody">
             <!-- سيتم تعبئة التعليقات ديناميكياً هنا -->
@@ -972,45 +972,52 @@
 
         let isModalOpening = false;
 
-        // تهيئة السجل الأولي لمنع خروج متصفح فيسبوك عند أول ضغطة رجوع
+        // تهيئة السجل الأولي لتتبع الحالات
         window.history.replaceState({ page: "main_home" }, "", window.location.href);
 
-        function pushModalState(modalName, closeFunction) {
+        function pushModalState(modalName) {
             isModalOpening = true;
-            // إضافة حالة جديدة للسجل لامتصاص ضغطة زر الرجوع الخاصة بالهاتف/متصفح فيسبوك
             window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
             setTimeout(() => { isModalOpening = false; }, 300);
         }
 
+        // التعامل مع زر الرجوع الخاص بالهواتف وفيسبوك
         window.addEventListener('popstate', (e) => {
             if (isModalOpening) return;
 
-            // التحقق من النوافذ المفتوحة وإغلاقها بدلاً من السماح بالخروج من الموقع
             const commentsModal = document.getElementById('commentsModal');
             const chatModal = document.getElementById('chatModal');
             const authModal = document.getElementById('authModal');
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
+            // إذا كانت نافذة التعليقات مفتوحة، نغلقها فقط ونمنع خروج المتصفح
             if (commentsModal.style.display === 'flex') {
-                closeCommentsModal(true);
+                commentsModal.style.display = 'none';
+                currentActivePostIdForModal = null;
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
+                return;
             } else if (chatModal.style.display === 'flex') {
-                closeChatModal(true);
+                chatModal.style.display = 'none';
+                document.getElementById('namePromptOverlay').style.display = 'none';
+                currentChatSessionId = null;
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
+                return;
             } else if (authModal.style.display === 'flex') {
-                closeAuthModal(true);
+                authModal.style.display = 'none';
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
+                return;
             } else if (editModal.style.display === 'flex') {
-                closeEditModal(true);
+                editModal.style.display = 'none';
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
+                return;
             } else if (adminInboxModal.style.display === 'flex') {
-                closeAdminInboxModal(true);
+                adminInboxModal.style.display = 'none';
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
+                return;
             } else {
-                // إذا لم تكن هناك نافذة مفتوحة، نعيد حقن الحالة لمنع خروج متصفح فيسبوك بالخطأ
+                // إعادة حقن الحالة لمنع إغلاق متصفح فيسبوك بالخطأ إذا لم تكن هناك نافذة مفتوحة
                 window.history.pushState({ page: "main_home" }, "", window.location.href);
-                showInAppNotification('تنبيه', 'اضغط على أزرار الموقع للتنقل.');
             }
         });
 
@@ -1209,7 +1216,7 @@
             pushModalState('authModal');
         };
 
-        window.closeAuthModal = function(fromPopState = false) {
+        window.closeAuthModal = function() {
             document.getElementById('authModal').style.display = 'none';
             document.getElementById('adminPassword').value = '';
         };
@@ -1301,7 +1308,7 @@
             pushModalState('editModal');
         };
 
-        window.closeEditModal = function(fromPopState = false) { 
+        window.closeEditModal = function() { 
             document.getElementById('editModal').style.display = 'none'; 
         };
 
@@ -1429,9 +1436,11 @@
             }
         };
 
-        window.closeCommentsModal = function(fromPopState = false) {
+        window.closeCommentsModalManually = function() {
             document.getElementById('commentsModal').style.display = 'none';
             currentActivePostIdForModal = null;
+            // التراجع عن الحالة المضافة في history عند الإغلاق اليدوي لكي يتزامن السجل
+            window.history.back();
         };
 
         window.addCommentFromModal = async function(postId) {
@@ -1605,15 +1614,12 @@
         window.toggleAdminInboxModal = function() {
             const modal = document.getElementById('adminInboxModal');
             if (modal.style.display === 'flex') {
-                closeAdminInboxModal();
+                modal.style.display = 'none';
+                window.history.back();
             } else {
                 modal.style.display = 'flex';
                 pushModalState('adminInboxModal');
             }
-        };
-
-        window.closeAdminInboxModal = function(fromPopState = false) {
-            document.getElementById('adminInboxModal').style.display = 'none';
         };
 
         function renderAdminInboxModalContent() {
@@ -1661,49 +1667,15 @@
             }
         }
 
-        window.closeChatModal = function(fromPopState = false) {
-            document.getElementById('chatModal').style.display = 'none';
-            document.getElementById('namePromptOverlay').style.display = 'none';
-            currentChatSessionId = null;
-        };
-
-        function renderAdminMessages() {
-            const listContainer = document.getElementById('adminMessagesList');
-            if (!isAdmin) return;
-
-            if (visitorChats.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">لا توجد رسائل.</p>';
-                return;
-            }
-
-            listContainer.innerHTML = '';
-            visitorChats.forEach(chat => {
-                const lastMsg = (chat.messages && chat.messages.length > 0) ? chat.messages[chat.messages.length - 1].text : 'محادثة جديدة';
-                listContainer.innerHTML += `
-                    <div class="visitor-thread-item">
-                        <div>
-                            <strong style="color: var(--primary); font-size: 0.85rem;">${chat.visitorName}</strong>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">${lastMsg.substring(0, 30)}...</p>
-                        </div>
-                        <div style="display: flex; gap: 0.3rem;">
-                            <button class="btn btn-sm btn-success" onclick="openAdminChatSession('${chat.id}')">
-                                <i class="fa-solid fa-comments"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteChatSession('${chat.id}')">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
         window.toggleChat = async function() {
             const chatModal = document.getElementById('chatModal');
             const nameOverlay = document.getElementById('namePromptOverlay');
 
             if (chatModal.style.display === 'flex') {
-                closeChatModal();
+                chatModal.style.display = 'none';
+                nameOverlay.style.display = 'none';
+                currentChatSessionId = null;
+                window.history.back();
             } else {
                 if (!isAdmin) {
                     let savedName = localStorage.getItem('visitor_chat_name');
@@ -1833,6 +1805,37 @@
                 showInAppNotification("رد جديد", "وصلتك رسالة جديدة.");
             }
         };
+
+        function renderAdminMessages() {
+            const listContainer = document.getElementById('adminMessagesList');
+            if (!isAdmin) return;
+
+            if (visitorChats.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">لا توجد رسائل.</p>';
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            visitorChats.forEach(chat => {
+                const lastMsg = (chat.messages && chat.messages.length > 0) ? chat.messages[chat.messages.length - 1].text : 'محادثة جديدة';
+                listContainer.innerHTML += `
+                    <div class="visitor-thread-item">
+                        <div>
+                            <strong style="color: var(--primary); font-size: 0.85rem;">${chat.visitorName}</strong>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">${lastMsg.substring(0, 30)}...</p>
+                        </div>
+                        <div style="display: flex; gap: 0.3rem;">
+                            <button class="btn btn-sm btn-success" onclick="openAdminChatSession('${chat.id}')">
+                                <i class="fa-solid fa-comments"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteChatSession('${chat.id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         function renderPosts() {
             const container = document.getElementById('postsContainer');
