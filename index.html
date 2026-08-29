@@ -825,7 +825,7 @@
             <div class="form-group">
                 <label>إعدادات المساعد الآلي</label>
                 <div style="display: flex; gap: 0.4rem; margin-top: 0.3rem; margin-bottom: 0.6rem;">
-                    <input type="text" id="autoReplyInput" class="form-control" value="أهلاً بك! تم استلام رسالتك وسنتواصل معك قريباً.">
+                    <input type="text" id="autoReplyInput" class="form-control" value="أهلاً بك! تم استلاستلام رسالتك وسنتواصل معك قريباً.">
                     <button class="btn btn-sm" onclick="saveAutoReply()">حفظ</button>
                 </div>
                 <button type="button" class="btn btn-sm btn-warning" id="toggleAutoReplyStatusBtn" onclick="toggleAutoReplySystem()">
@@ -981,7 +981,7 @@
             setTimeout(() => { isModalOpening = false; }, 300);
         }
 
-        // التعامل الشامل مع زر الرجوع لمتصفحات الهواتف وتطبيقات السوشيال ميديا (فيسبوك، انستغرام، تويتر)
+        // معالجة زر الرجوع لمتصفحات الهواتف ومنع خروج الزائر من الموقع
         window.addEventListener('popstate', (e) => {
             if (isModalOpening) return;
 
@@ -1017,10 +1017,8 @@
                 closedAnyModal = true;
             }
 
-            if (!closedAnyModal) {
-                // إعادة حقن الحالة لمنع إغلاق متصفح فيسبوك بالخطأ
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            }
+            // ضمان بقاء الزائر داخل الموقع وحبس الحدث لمنع إغلاق متصفح فيسبوك بالكامل
+            window.history.pushState({ page: "main_home" }, "", window.location.href);
         });
 
         // ميزات منع السكرين شوت وحفظ المحتوى للزائر
@@ -1219,7 +1217,7 @@
         };
 
         window.closeAuthModal = function() {
-            window.history.back();
+            document.getElementById('authModal').style.display = 'none';
         };
 
         function logoutAdmin() {
@@ -1244,7 +1242,7 @@
                 document.getElementById('userStatus').innerText = 'أدمن';
                 document.getElementById('authBtn').style.display = 'inline-flex';
                 document.getElementById('adminPassword').value = '';
-                window.history.back();
+                document.getElementById('authModal').style.display = 'none';
                 
                 renderPosts();
                 renderAdminMessages();
@@ -1312,7 +1310,7 @@
         };
 
         window.closeEditModal = function() { 
-            window.history.back();
+            document.getElementById('editModal').style.display = 'none';
         };
 
         window.updatePost = async function() {
@@ -1336,7 +1334,7 @@
             }
 
             await updateDoc(postRef, updateData);
-            window.history.back();
+            document.getElementById('editModal').style.display = 'none';
         };
 
         window.toggleLike = async function(postId) {
@@ -1440,7 +1438,8 @@
         };
 
         window.closeCommentsModalManually = function() {
-            window.history.back();
+            document.getElementById('commentsModal').style.display = 'none';
+            currentActivePostIdForModal = null;
         };
 
         window.addCommentFromModal = async function(postId) {
@@ -1596,7 +1595,6 @@
             if (chat) {
                 currentChatSessionId = chat.id;
                 document.getElementById('adminInboxModal').style.display = 'none';
-                window.history.back();
                 openChatModalForSession(chat.visitorName, chat);
             }
         };
@@ -1607,7 +1605,6 @@
                 await deleteDoc(doc(db, "chats", chatId));
                 if (currentChatSessionId === chatId) {
                     currentChatSessionId = null;
-                    window.history.back();
                 }
             }
         };
@@ -1615,7 +1612,7 @@
         window.toggleAdminInboxModal = function() {
             const modal = document.getElementById('adminInboxModal');
             if (modal.style.display === 'flex') {
-                window.history.back();
+                modal.style.display = 'none';
             } else {
                 modal.style.display = 'flex';
                 pushModalState('adminInboxModal');
@@ -1672,7 +1669,9 @@
             const nameOverlay = document.getElementById('namePromptOverlay');
 
             if (chatModal.style.display === 'flex') {
-                window.history.back();
+                chatModal.style.display = 'none';
+                nameOverlay.style.display = 'none';
+                currentChatSessionId = null;
             } else {
                 if (!isAdmin) {
                     let savedName = localStorage.getItem('visitor_chat_name');
