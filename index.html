@@ -846,11 +846,10 @@
         <div id="postsContainer"></div>
     </div>
 
-    <!-- نافذة منبثقة للتعليقات -->
+    <!-- نافذة منبثقة للتعليقات (بدون علامة X للإغلاق بناءً على طلبك) -->
     <div class="comments-modal" id="commentsModal">
         <div class="comments-modal-header">
             <span id="commentsModalTitle">التعليقات</span>
-            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="closeCommentsModalManually()"></i>
         </div>
         <div class="comments-modal-body" id="commentsModalBody">
             <!-- سيتم تعبئة التعليقات ديناميكياً هنا -->
@@ -991,7 +990,7 @@
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            // إذا كانت نافذة التعليقات مفتوحة، نغلقها فقط ونمنع خروج المتصفح
+            // إذا كانت نافذة التعليقات مفتوحة، نغلقها فقط عند ضغط زر الرجوع ونمنع خروج المتصفح
             if (commentsModal.style.display === 'flex') {
                 commentsModal.style.display = 'none';
                 currentActivePostIdForModal = null;
@@ -1434,13 +1433,6 @@
             if (!isFromSnapshot) {
                 pushModalState('commentsModal');
             }
-        };
-
-        window.closeCommentsModalManually = function() {
-            document.getElementById('commentsModal').style.display = 'none';
-            currentActivePostIdForModal = null;
-            // التراجع عن الحالة المضافة في history عند الإغلاق اليدوي لكي يتزامن السجل
-            window.history.back();
         };
 
         window.addCommentFromModal = async function(postId) {
