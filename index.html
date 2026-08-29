@@ -35,7 +35,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* منع التحديد والسكرين شوت قدر الإمكان للزوار */
         body.protected-mode {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -49,10 +48,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center; /* تمركز المحتوى ليشبه التطبيق */
+            align-items: center;
         }
 
-        /* الهيدر المتوافق مع الهواتف */
         header {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -65,7 +63,7 @@
             top: 0;
             z-index: 1000;
             width: 100%;
-            max-width: 480px; /* تقييد العرض ليحاكي تصميم الهاتف */
+            max-width: 480px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
@@ -100,51 +98,17 @@
             font-size: 0.9rem;
         }
 
-        .btn:hover {
-            background: var(--primary-hover);
-        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-color); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: var(--warning-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: var(--success-hover); }
+        .btn-sm { padding: 0.3rem 0.5rem; font-size: 0.75rem; }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-color);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        .btn-danger:hover {
-            background: var(--danger-hover);
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        .btn-warning:hover {
-            background: var(--warning-hover);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        .btn-success:hover {
-            background: var(--success-hover);
-        }
-
-        .btn-sm {
-            padding: 0.3rem 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        /* شريط الإعلانات بأول الموقع */
         .site-announcement-bar {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
@@ -159,16 +123,14 @@
             max-width: 480px;
         }
 
-        /* المحتوى الرئيسي مخصص للهواتف */
         .container {
-            max-width: 480px; /* العرض القياسي للشاشات الذكية */
+            max-width: 480px;
             margin: 1rem auto;
             padding: 0 0.8rem;
             width: 100%;
             flex: 1;
         }
 
-        /* لوحة تحكم الأدمن */
         .admin-panel {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -200,23 +162,10 @@
             font-size: 0.85rem;
         }
 
-        .stats-badge span {
-            color: var(--success);
-            font-weight: 700;
-            font-size: 1rem;
-        }
+        .stats-badge span { color: var(--success); font-weight: 700; font-size: 1rem; }
 
-        .form-group {
-            margin-bottom: 0.8rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.3rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
+        .form-group { margin-bottom: 0.8rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.85rem; }
         .form-control {
             width: 100%;
             padding: 0.7rem;
@@ -226,28 +175,11 @@
             color: var(--text-color);
             font-size: 0.95rem;
         }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        textarea.form-control { resize: vertical; min-height: 70px; }
+        select.form-control { cursor: pointer; }
+        input[type="file"] { padding: 0.4rem; cursor: pointer; font-size: 0.8rem; }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 70px;
-        }
-
-        select.form-control {
-            cursor: pointer;
-        }
-
-        input[type="file"] {
-            padding: 0.4rem;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* صندوق إدارة رسائل الزوار للأدمن */
         .admin-messages-box {
             background: var(--bg-color);
             border: 1px solid var(--border);
@@ -270,7 +202,6 @@
             align-items: center;
         }
 
-        /* تصميم المنشورات */
         .post-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -280,73 +211,20 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
         }
 
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .post-author-area { display: flex; flex-direction: column; }
+        .post-date { font-size: 0.75rem; color: var(--text-muted); }
+        .admin-post-actions { display: flex; gap: 0.3rem; }
+        .post-content { margin-bottom: 0.8rem; line-height: 1.5; word-break: break-word; font-size: 0.95rem; }
+        .post-content a { color: var(--primary); text-decoration: underline; }
 
-        .post-author-area {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .post-date {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .admin-post-actions {
-            display: flex;
-            gap: 0.3rem;
-        }
-
-        .post-content {
-            margin-bottom: 0.8rem;
-            line-height: 1.5;
-            word-break: break-word;
-            font-size: 0.95rem;
-        }
-
-        .post-content a {
-            color: var(--primary);
-            text-decoration: underline;
-        }
-        .post-content a:hover {
-            color: var(--accent);
-        }
-
-        /* عرض الصور المتعددة */
-        .post-images-grid {
-            display: grid;
-            gap: 6px;
-            margin-bottom: 0.8rem;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .post-images-grid.count-1 {
-            grid-template-columns: 1fr;
-        }
-        .post-images-grid.count-2 {
-            grid-template-columns: 1fr 1fr;
-        }
-        .post-images-grid.count-3 {
-            grid-template-columns: 2fr 1fr;
-        }
-
-        .post-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-        .post-images-grid.count-3 .post-image:first-child {
-            height: 250px;
-        }
-        .post-images-grid.count-3 .post-image:not(:first-child) {
-            height: 122px;
-        }
+        .post-images-grid { display: grid; gap: 6px; margin-bottom: 0.8rem; border-radius: 10px; overflow: hidden; }
+        .post-images-grid.count-1 { grid-template-columns: 1fr; }
+        .post-images-grid.count-2 { grid-template-columns: 1fr 1fr; }
+        .post-images-grid.count-3 { grid-template-columns: 2fr 1fr; }
+        .post-image { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; }
+        .post-images-grid.count-3 .post-image:first-child { height: 250px; }
+        .post-images-grid.count-3 .post-image:not(:first-child) { height: 122px; }
 
         .post-footer-actions {
             display: flex;
@@ -358,12 +236,7 @@
             font-size: 0.8rem;
         }
 
-        .post-actions-bar {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 0.6rem;
-        }
-
+        .post-actions-bar { display: flex; gap: 0.8rem; margin-top: 0.6rem; }
         .action-btn {
             background: transparent;
             border: 1px solid var(--border);
@@ -377,18 +250,9 @@
             gap: 0.3rem;
             transition: all 0.2s;
         }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .action-btn.liked { color: var(--accent); border-color: var(--accent); }
 
-        .action-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .action-btn.liked {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        /* نافذة منبثقة للتعليقات */
         .comments-modal {
             position: fixed;
             bottom: 0;
@@ -441,30 +305,9 @@
             border: 1px solid var(--border);
             word-break: break-word;
         }
-
-        .comment-item a {
-            color: var(--primary);
-            text-decoration: underline;
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.3rem;
-        }
-
-        .comment-author {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 0.85rem;
-        }
-
-        .comment-actions {
-            display: flex;
-            gap: 0.3rem;
-            align-items: center;
-        }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+        .comment-author { font-weight: 700; color: var(--primary); font-size: 0.85rem; }
+        .comment-actions { display: flex; gap: 0.3rem; align-items: center; }
 
         .replies-container {
             margin-right: 1rem;
@@ -488,36 +331,11 @@
             word-break: break-word;
         }
 
-        .comment-form, .reply-form {
-            display: flex;
-            gap: 0.4rem;
-            margin-top: 0.5rem;
-        }
+        .comment-form, .reply-form { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+        .reply-form-container { display: none; margin-top: 0.4rem; }
+        .reply-toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; margin-top: 0.2rem; }
+        .comments-modal-footer { padding: 0.8rem; border-top: 1px solid var(--border); background: var(--card-bg); }
 
-        .reply-form-container {
-            display: none;
-            margin-top: 0.4rem;
-        }
-
-        .reply-toggle-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-top: 0.2rem;
-        }
-        .reply-toggle-btn:hover {
-            color: var(--primary);
-        }
-
-        .comments-modal-footer {
-            padding: 0.8rem;
-            border-top: 1px solid var(--border);
-            background: var(--card-bg);
-        }
-
-        /* نظام الإشعارات المنبثقة العائمة الداخلي */
         .in-app-toast-container {
             position: fixed;
             top: 70px;
@@ -542,15 +360,8 @@
             align-items: center;
             justify-content: space-between;
             pointer-events: auto;
-            animation: slideDown 0.3s ease;
         }
 
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* زر الدردشة العائم وزر رسائل الأدمن المنبثق */
         .chat-float-btn {
             position: fixed;
             bottom: 20px;
@@ -566,12 +377,7 @@
             font-size: 1.3rem;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(219, 39, 119, 0.3);
-            transition: transform 0.3s ease;
             z-index: 1001;
-        }
-
-        .chat-float-btn:hover {
-            transform: scale(1.1);
         }
 
         .admin-inbox-float-btn {
@@ -589,16 +395,10 @@
             font-size: 1.1rem;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-            transition: transform 0.3s ease;
             z-index: 1001;
         }
 
-        .admin-inbox-float-btn:hover {
-            transform: scale(1.1);
-        }
-
-        /* نافذة الدردشة ملائمة لشاشات الهواتف */
-        .chat-modal {
+        .chat-modal, .admin-inbox-modal {
             position: fixed;
             bottom: 0;
             left: 0;
@@ -636,41 +436,12 @@
             word-break: break-word;
         }
 
-        .message {
-            max-width: 85%;
-            padding: 0.6rem 0.9rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
+        .message { max-width: 85%; padding: 0.6rem 0.9rem; border-radius: 10px; font-size: 0.85rem; line-height: 1.4; }
+        .message a { color: #fff; text-decoration: underline; }
+        .message.user { background: var(--primary); color: white; align-self: flex-start; }
+        .message.bot { background: var(--bg-color); border: 1px solid var(--border); color: var(--text-color); align-self: flex-end; }
+        .chat-footer { padding: 0.6rem; border-top: 1px solid var(--border); display: flex; gap: 0.4rem; background: var(--card-bg); }
 
-        .message a {
-            color: #fff;
-            text-decoration: underline;
-        }
-
-        .message.user {
-            background: var(--primary);
-            color: white;
-            align-self: flex-start;
-        }
-
-        .message.bot {
-            background: var(--bg-color);
-            border: 1px solid var(--border);
-            color: var(--text-color);
-            align-self: flex-end;
-        }
-
-        .chat-footer {
-            padding: 0.6rem;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 0.4rem;
-            background: var(--card-bg);
-        }
-
-        /* نافذة طلب الاسم للزائر عند فتح الدردشة لأول مرة */
         .name-prompt-overlay {
             position: absolute;
             top: 0;
@@ -686,25 +457,6 @@
             z-index: 10;
         }
 
-        /* نافذة رسائل الأدمن المنبثقة للهواتف */
-        .admin-inbox-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 75vh;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
-            z-index: 1003;
-            overflow: hidden;
-        }
-
-        /* النوافذ المنبثقة العامة */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -729,24 +481,17 @@
             max-width: 380px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-
-        .modal-box h3 {
-            margin-bottom: 1.2rem;
-            text-align: center;
-            font-size: 1.1rem;
-        }
+        .modal-box h3 { margin-bottom: 1.2rem; text-align: center; font-size: 1.1rem; }
     </style>
 </head>
 <body class="protected-mode">
 
-    <!-- حاوية الإشعارات المنبثقة الداخلية العائمة -->
     <div class="in-app-toast-container" id="toastContainer"></div>
 
-    <!-- هيدر الموقع -->
     <header>
         <div class="logo" onclick="handleLogoClicks()"><i class="fa-solid fa-shapes"></i> موقع بزنس الاردن</div>
         <div class="header-actions">
-            <button class="btn btn-outline btn-sm" onclick="showInAppNotification('التنبيهات', 'التنبيهات المنبثقة مفعلة وتعمل بنجاح.')" id="notificationBtn" title="تفعيل الإشعارات">
+            <button class="btn btn-outline btn-sm" onclick="showInAppNotification('التنبيهات', 'التنبيهات المنبثقة مفعلة وتعمل بنجاح.')" title="تفعيل الإشعارات">
                 <i class="fa-solid fa-bell"></i>
             </button>
             <button class="btn btn-outline btn-sm" onclick="goBackPage()">
@@ -759,18 +504,13 @@
         </div>
     </header>
 
-    <!-- شريط إعلام الأدمن -->
     <div id="announcementBar" class="site-announcement-bar">
         <i class="fa-solid fa-bullhorn"></i> <span id="announcementTextContent"></span>
     </div>
 
-    <!-- المحتوى -->
     <div class="container">
-        
-        <!-- لوحة تحكم الأدمن -->
         <div id="adminPanel" class="admin-panel">
             <h3><i class="fa-solid fa-gauge-high"></i> لوحة التحكم</h3>
-            
             <div class="stats-badge">
                 <span><i class="fa-solid fa-users"></i> إجمالي الزوار:</span>
                 <span id="visitorCountDisplay">0</span>
@@ -786,7 +526,6 @@
 
             <hr style="border: 0; border-top: 1px solid var(--border); margin: 1rem 0;">
 
-            <!-- نشر منشور -->
             <form id="postForm" onsubmit="createPost(event)">
                 <h4 style="font-size: 0.9rem; color: var(--text-color); margin-bottom: 0.4rem;">نشر منشور جديد</h4>
                 <div class="form-group">
@@ -803,7 +542,6 @@
 
             <hr style="border: 0; border-top: 1px solid var(--border); margin: 1rem 0;">
 
-            <!-- إضافة تعليق وهمي -->
             <form onsubmit="addFakeComment(event)">
                 <h4 style="font-size: 0.9rem; color: var(--text-color); margin-bottom: 0.4rem;">إضافة تعليق وهمي</h4>
                 <div class="form-group">
@@ -846,31 +584,23 @@
         <div id="postsContainer"></div>
     </div>
 
-    <!-- نافذة منبثقة للتعليقات -->
     <div class="comments-modal" id="commentsModal">
         <div class="comments-modal-header">
             <span id="commentsModalTitle">التعليقات</span>
             <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="closeCommentsModal()"></i>
         </div>
-        <div class="comments-modal-body" id="commentsModalBody">
-            <!-- سيتم تعبئة التعليقات ديناميكياً هنا -->
-        </div>
-        <div class="comments-modal-footer" id="commentsModalFooter">
-            <!-- سيتم تعبئة حقل إضافة التعليق هنا -->
-        </div>
+        <div class="comments-modal-body" id="commentsModalBody"></div>
+        <div class="comments-modal-footer" id="commentsModalFooter"></div>
     </div>
 
-    <!-- زر صندوق رسائل الأدمن المنبثق -->
     <div class="admin-inbox-float-btn" id="adminInboxFloatBtn" title="رسائل الزوار" onclick="toggleAdminInboxModal()">
         <i class="fa-solid fa-envelope"></i>
     </div>
 
-    <!-- زر دردشة الحجز العائم -->
     <div class="chat-float-btn" onclick="toggleChat()">
         <i class="fa-solid fa-headset"></i>
     </div>
 
-    <!-- نافذة رسائل الأدمن المنبثقة للهواتف -->
     <div class="admin-inbox-modal" id="adminInboxModal">
         <div class="chat-header">
             <span>صندوق رسائل الزوار</span>
@@ -881,14 +611,12 @@
         </div>
     </div>
 
-    <!-- نافذة الدردشة للهواتف -->
     <div class="chat-modal" id="chatModal">
         <div class="chat-header">
             <span id="chatTitle">التواصل والحجز الآلي</span>
             <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 1.2rem;" onclick="toggleChat()"></i>
         </div>
         
-        <!-- واجهة إدخال اسم الزائر لأول مرة -->
         <div class="name-prompt-overlay" id="namePromptOverlay" style="display: none;">
             <h3 style="margin-bottom: 1rem; color: var(--text-color); font-size: 1.1rem;"><i class="fa-solid fa-user-pen"></i> أرجو إدخال اسمك للبدء بالدردشة</h3>
             <input type="text" id="visitorNameInput" class="form-control" placeholder="اكتب اسمك هنا..." style="margin-bottom: 1rem;">
@@ -904,7 +632,6 @@
         </div>
     </div>
 
-    <!-- نافذة تسجيل دخول الأدمن -->
     <div class="modal-overlay" id="authModal" onclick="if(event.target === this) closeAuthModal()">
         <div class="modal-box">
             <h3>تسجيل دخول المشرف</h3>
@@ -919,7 +646,6 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل المنشور -->
     <div class="modal-overlay" id="editModal" onclick="if(event.target === this) closeEditModal()">
         <div class="modal-box">
             <h3>تعديل المنشور</h3>
@@ -941,10 +667,9 @@
         </div>
     </div>
 
-    <!-- جافاسكريبت وربط فايربيز (Firebase SDKs عبر CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, setDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDrGpXFcw1G1yFzLDkHbzwTccxWMkyhKkQ",
@@ -969,59 +694,40 @@
         let posts = [];
         let visitorChats = [];
         let lastPostCount = 0;
+        const HOME_URL = "https://ooo11223.github.io/bznzz/";
 
-        let isModalOpening = false;
+        // تهيئة السجل وتثبيت الحالة الأساسية لمتصفح فيسبوك
+        if (!window.history.state || window.history.state.page !== "main_home") {
+            window.history.replaceState({ page: "main_home" }, "", HOME_URL);
+        }
 
-        // تهيئة السجل الأولي لمنع خروج متصفح فيسبوك عند أول ضغطة رجوع
-        window.history.replaceState({ page: "main_home" }, "", window.location.href);
-
-        function pushModalState(modalName, closeFunction) {
-            isModalOpening = true;
-            // إضافة حالة جديدة للسجل لامتصاص ضغطة زر الرجوع الخاصة بالهاتف/متصفح فيسبوك
-            window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
-            setTimeout(() => { isModalOpening = false; }, 300);
+        function pushModalState(modalName) {
+            // دفع حالة وهمية للسجل حتى يستجيب زر الرجوع في فيسبوك لإغلاق النافذة
+            window.history.pushState({ modal: modalName, time: Date.now() }, "", HOME_URL);
         }
 
         window.addEventListener('popstate', (e) => {
-            if (isModalOpening) return;
-
-            // التحقق من النوافذ المفتوحة وإغلاقها بدلاً من السماح بالخروج من الموقع
             const commentsModal = document.getElementById('commentsModal');
             const chatModal = document.getElementById('chatModal');
             const authModal = document.getElementById('authModal');
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            if (commentsModal.style.display === 'flex') {
-                closeCommentsModal(true);
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            } else if (chatModal.style.display === 'flex') {
-                closeChatModal(true);
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            } else if (authModal.style.display === 'flex') {
-                closeAuthModal(true);
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            } else if (editModal.style.display === 'flex') {
-                closeEditModal(true);
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            } else if (adminInboxModal.style.display === 'flex') {
-                closeAdminInboxModal(true);
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-            } else {
-                // إذا لم تكن هناك نافذة مفتوحة، نعيد حقن الحالة لمنع خروج متصفح فيسبوك بالخطأ
-                window.history.pushState({ page: "main_home" }, "", window.location.href);
-                showInAppNotification('تنبيه', 'اضغط على أزرار الموقع للتنقل.');
+            // إغلاق أي نافذة مفتوحة عند الضغط على زر الرجوع في الهاتف أو فيسبوك
+            let modalClosed = false;
+            if (commentsModal.style.display === 'flex') { closeCommentsModal(true); modalClosed = true; }
+            if (chatModal.style.display === 'flex') { closeChatModal(true); modalClosed = true; }
+            if (authModal.style.display === 'flex') { closeAuthModal(true); modalClosed = true; }
+            if (editModal.style.display === 'flex') { closeEditModal(true); modalClosed = true; }
+            if (adminInboxModal.style.display === 'flex') { closeAdminInboxModal(true); modalClosed = true; }
+
+            // إذا لم تكن هناك نافذة مفتوحة، نقوم بإجبار متصفح فيسبوك على إعادة تعيين الرابط أو تحديثه لمنع العودة لحالة مخزنة قديمة
+            if (!modalClosed) {
+                window.location.replace(HOME_URL);
             }
         });
 
-        // ميزات منع السكرين شوت وحفظ المحتوى للزائر
         document.addEventListener('contextmenu', e => { if (!isAdmin) e.preventDefault(); });
-        document.addEventListener('keydown', e => {
-            if (!isAdmin && (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u' || e.key === 'c'))) {
-                e.preventDefault();
-                alert('هذا المحتوى محمي ولا يمكن حفظه أو طباعته.');
-            }
-        });
 
         function getVisitorId() {
             let visitorId = localStorage.getItem('site_visitor_uuid');
@@ -1038,8 +744,7 @@
             await setDoc(visitorRef, { lastSeen: Date.now() }, { merge: true });
 
             const snapshot = await getDocs(collection(db, "visitors"));
-            const count = snapshot.size;
-            document.getElementById('visitorCountDisplay').innerText = count;
+            document.getElementById('visitorCountDisplay').innerText = snapshot.size;
         }
 
         async function fetchSettings() {
@@ -1085,12 +790,6 @@
             });
         }
 
-        setInterval(() => {
-            if (posts.length > 0) {
-                renderPosts();
-            }
-        }, 60000);
-
         function listenToChats() {
             const q = query(collection(db, "chats"));
             onSnapshot(q, (snapshot) => {
@@ -1130,19 +829,14 @@
                 </div>
                 <i class="fa-solid fa-xmark" style="cursor: pointer; color: var(--text-muted); padding: 5px;" onclick="document.getElementById('${toastId}').remove()"></i>
             `;
-            
             container.appendChild(toastEl);
-            setTimeout(() => {
-                const el = document.getElementById(toastId);
-                if (el) el.remove();
-            }, 5000);
+            setTimeout(() => { const el = document.getElementById(toastId); if (el) el.remove(); }, 5000);
         };
 
         function formatTimeAgo(timestamp) {
             if (!timestamp) return "الآن";
             const now = Date.now();
             const elapsedSeconds = Math.floor((now - timestamp) / 1000);
-
             if (elapsedSeconds < 60) return "الآن";
             const elapsedMinutes = Math.floor(elapsedSeconds / 60);
             if (elapsedMinutes < 60) return `منذ ${elapsedMinutes} دقيقة`;
@@ -1150,29 +844,21 @@
             if (elapsedHours < 24) return `منذ ${elapsedHours} ساعة`;
             const elapsedDays = Math.floor(elapsedHours / 24);
             if (elapsedDays < 7) return `منذ ${elapsedDays} يوم`;
-            
-            const dateObj = new Date(timestamp);
-            return dateObj.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return new Date(timestamp).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         window.handleLogoClicks = function() {
             if (isAdmin) return;
             logoClickCount++;
-            if (logoClickCount >= 5) {
-                logoClickCount = 0;
-                openAuthModal();
-            }
+            if (logoClickCount >= 5) { logoClickCount = 0; openAuthModal(); }
             setTimeout(() => { logoClickCount = 0; }, 3000);
         };
 
-        window.goBackPage = function() {
-            showInAppNotification('تنبيه', 'أنت في الصفحة الرئيسية بالفعل.');
-        };
+        window.goBackPage = function() { window.location.href = HOME_URL; };
 
         window.saveAnnouncement = async function() {
             if (!isAdmin) return;
-            const text = document.getElementById('announcementInput').value.trim();
-            siteAnnouncement = text;
+            siteAnnouncement = document.getElementById('announcementInput').value.trim();
             await setDoc(doc(db, "settings", "general"), { announcement: siteAnnouncement }, { merge: true });
             renderAnnouncementBar();
             alert('تم التحديث بنجاح!');
@@ -1193,10 +879,7 @@
             if (!text) return '';
             const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]|www\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return text.replace(urlRegex, (url) => {
-                let fullUrl = url;
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    fullUrl = 'http://' + url;
-                }
+                let fullUrl = url.startsWith('http') ? url : 'http://' + url;
                 return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
             });
         }
@@ -1212,6 +895,9 @@
         window.closeAuthModal = function(fromPopState = false) {
             document.getElementById('authModal').style.display = 'none';
             document.getElementById('adminPassword').value = '';
+            if (!fromPopState) {
+                window.history.replaceState({ page: "main_home" }, "", HOME_URL);
+            }
         };
 
         function logoutAdmin() {
@@ -1228,8 +914,7 @@
         window.handlePasswordKey = function(e) { if (e.key === 'Enter') loginAdmin(); };
 
         window.loginAdmin = function() {
-            const pass = document.getElementById('adminPassword').value;
-            if (pass === 'oday') {
+            if (document.getElementById('adminPassword').value === 'oday') {
                 isAdmin = true;
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('adminInboxFloatBtn').style.display = 'flex';
@@ -1257,34 +942,18 @@
             e.preventDefault();
             if (!isAdmin) return;
             const text = document.getElementById('postText').value;
-            
-            const file1 = document.getElementById('postImageFile1').files[0];
-            const file2 = document.getElementById('postImageFile2').files[0];
-            const file3 = document.getElementById('postImageFile3').files[0];
-            
             let imagesArray = [];
-            if (file1) imagesArray.push(await getBase64(file1));
-            if (file2) imagesArray.push(await getBase64(file2));
-            if (file3) imagesArray.push(await getBase64(file3));
-
-            await addDoc(collection(db, "posts"), {
-                text: text,
-                images: imagesArray,
-                createdAt: Date.now(),
-                likes: 0,
-                likedUsers: [],
-                comments: []
-            });
-
+            for (let i = 1; i <= 3; i++) {
+                const file = document.getElementById(`postImageFile${i}`).files[0];
+                if (file) imagesArray.push(await getBase64(file));
+            }
+            await addDoc(collection(db, "posts"), { text, images: imagesArray, createdAt: Date.now(), likes: 0, likedUsers: [], comments: [] });
             document.getElementById('postText').value = '';
-            document.getElementById('postImageFile1').value = '';
-            document.getElementById('postImageFile2').value = '';
-            document.getElementById('postImageFile3').value = '';
+            for (let i = 1; i <= 3; i++) document.getElementById(`postImageFile${i}`).value = '';
         };
 
         window.deletePost = async function(postId) {
-            if (!isAdmin) return;
-            if (confirm('هل أنت متأكد من الحذف؟')) {
+            if (isAdmin && confirm('هل أنت متأكد من الحذف؟')) {
                 await deleteDoc(doc(db, "posts", postId));
             }
         };
@@ -1294,45 +963,32 @@
             if (!post) return;
             document.getElementById('editPostId').value = post.id;
             document.getElementById('editText').value = post.text;
-            document.getElementById('editImageFile1').value = '';
-            document.getElementById('editImageFile2').value = '';
-            document.getElementById('editImageFile3').value = '';
             document.getElementById('editModal').style.display = 'flex';
             pushModalState('editModal');
         };
 
         window.closeEditModal = function(fromPopState = false) { 
             document.getElementById('editModal').style.display = 'none'; 
+            if (!fromPopState) window.history.replaceState({ page: "main_home" }, "", HOME_URL);
         };
 
         window.updatePost = async function() {
             const postId = document.getElementById('editPostId').value;
             const newText = document.getElementById('editText').value.trim();
-            
-            const file1 = document.getElementById('editImageFile1').files[0];
-            const file2 = document.getElementById('editImageFile2').files[0];
-            const file3 = document.getElementById('editImageFile3').files[0];
-            
-            const postRef = doc(db, "posts", postId);
             let updateData = { text: newText };
-
             let newImagesArray = [];
-            if (file1) newImagesArray.push(await getBase64(file1));
-            if (file2) newImagesArray.push(await getBase64(file2));
-            if (file3) newImagesArray.push(await getBase64(file3));
-
-            if (newImagesArray.length > 0) {
-                updateData.images = newImagesArray;
+            for (let i = 1; i <= 3; i++) {
+                const file = document.getElementById(`editImageFile${i}`).files[0];
+                if (file) newImagesArray.push(await getBase64(file));
             }
-
-            await updateDoc(postRef, updateData);
+            if (newImagesArray.length > 0) updateData.images = newImagesArray;
+            await updateDoc(doc(db, "posts", postId), updateData);
             closeEditModal();
         };
 
         window.toggleLike = async function(postId) {
             const post = posts.find(p => p.id === postId);
             if (!post) return;
-
             let visitorId = getVisitorId();
             let likedUsers = post.likedUsers || [];
             let currentLikes = post.likes || 0;
@@ -1344,11 +1000,7 @@
                 likedUsers.push(visitorId);
                 currentLikes += 1;
             }
-
-            await updateDoc(doc(db, "posts", postId), {
-                likes: currentLikes,
-                likedUsers: likedUsers
-            });
+            await updateDoc(doc(db, "posts", postId), { likes: currentLikes, likedUsers });
         };
 
         window.openCommentsModal = function(postId, isFromSnapshot = false) {
@@ -1357,29 +1009,22 @@
             if (!post) return;
 
             const modal = document.getElementById('commentsModal');
-            const titleEl = document.getElementById('commentsModalTitle');
+            document.getElementById('commentsModalTitle').innerText = `التعليقات (${(post.comments || []).length})`;
             const bodyEl = document.getElementById('commentsModalBody');
             const footerEl = document.getElementById('commentsModalFooter');
             let visitorId = getVisitorId();
-
-            titleEl.innerText = `التعليقات (${(post.comments || []).length})`;
-            
             let commentsHtml = '';
             let hasUserCommented = false;
 
             (post.comments || []).forEach(c => {
-                if (!isAdmin && c.visitorId === visitorId) {
-                    hasUserCommented = true;
-                }
-
+                if (!isAdmin && c.visitorId === visitorId) hasUserCommented = true;
                 let repliesHtml = '';
                 (c.replies || []).forEach(r => {
                     repliesHtml += `
                         <div class="reply-item">
                             <div><strong>${r.author}:</strong> ${linkifyText(r.text)}</div>
                             ${isAdmin || c.visitorId === visitorId ? `<button class="btn btn-danger btn-sm" style="padding: 0.1rem 0.3rem; font-size: 0.65rem;" onclick="deleteReply('${post.id}', ${c.id}, ${r.id})"><i class="fa-solid fa-xmark"></i></button>` : ''}
-                        </div>
-                    `;
+                        </div>`;
                 });
 
                 let messageUserBtn = isAdmin ? `<button class="btn btn-success btn-sm" style="padding: 0.15rem 0.3rem; font-size: 0.7rem;" onclick="messageSpecificUser('${c.author}')"><i class="fa-solid fa-paper-plane"></i></button>` : '';
@@ -1402,64 +1047,47 @@
                                 <button class="btn btn-sm" onclick="addReply('${post.id}', ${c.id})">إرسال</button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
 
-            bodyEl.innerHTML = commentsHtml.length > 0 ? commentsHtml : '<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem;">لا توجد تعليقات بعد، كن أول المعلقين!</p>';
+            bodyEl.innerHTML = commentsHtml.length > 0 ? commentsHtml : '<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem;">لا توجد تعليقات بعد!</p>';
 
             if (isAdmin || !hasUserCommented) {
                 footerEl.innerHTML = `
                     <div class="comment-form" style="margin: 0;">
                         <input type="text" id="modalCommentInput" class="form-control" placeholder="اكتب تعليقك..." style="font-size: 0.9rem; padding: 0.6rem;" onkeypress="if(event.key==='Enter') addCommentFromModal('${post.id}')">
                         <button class="btn" onclick="addCommentFromModal('${post.id}')"><i class="fa-solid fa-paper-plane"></i></button>
-                    </div>
-                `;
+                    </div>`;
             } else {
-                footerEl.innerHTML = `
-                    <div style="font-size: 0.8rem; color: var(--success); text-align: center; background: var(--bg-color); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border);">
-                        <i class="fa-solid fa-circle-check"></i> لقد قمت بالتعليق مسبقاً على هذا المنشور.
-                    </div>
-                `;
+                footerEl.innerHTML = `<div style="font-size: 0.8rem; color: var(--success); text-align: center; background: var(--bg-color); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border);"><i class="fa-solid fa-circle-check"></i> لقد قمت بالتعليق مسبقاً على هذا المنشور.</div>`;
             }
 
             modal.style.display = 'flex';
-            if (!isFromSnapshot) {
-                pushModalState('commentsModal');
-            }
+            if (!isFromSnapshot) pushModalState('commentsModal');
         };
 
         window.closeCommentsModal = function(fromPopState = false) {
             document.getElementById('commentsModal').style.display = 'none';
             currentActivePostIdForModal = null;
+            if (!fromPopState) window.history.replaceState({ page: "main_home" }, "", HOME_URL);
         };
 
         window.addCommentFromModal = async function(postId) {
             const inputField = document.getElementById('modalCommentInput');
-            if (!inputField) return;
-            const commentText = inputField.value.trim();
-            if (!commentText) return;
-
+            if (!inputField || !inputField.value.trim()) return;
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
             let visitorId = getVisitorId();
             let comments = post.comments || [];
-
             if (isAdmin) {
-                const newComment = { id: Date.now(), visitorId: 'admin', author: "الأدمن", text: commentText, replies: [] };
-                comments.push(newComment);
+                comments.push({ id: Date.now(), visitorId: 'admin', author: "الأدمن", text: inputField.value.trim(), replies: [] });
             } else {
-                let existingCommentIndex = comments.findIndex(c => c.visitorId === visitorId);
-                if (existingCommentIndex !== -1) {
-                    comments[existingCommentIndex].text = commentText;
-                } else {
-                    const newComment = { id: Date.now(), visitorId: visitorId, author: "زائر", text: commentText, replies: [] };
-                    comments.push(newComment);
-                }
+                let existingIndex = comments.findIndex(c => c.visitorId === visitorId);
+                if (existingIndex !== -1) comments[existingIndex].text = inputField.value.trim();
+                else comments.push({ id: Date.now(), visitorId, author: "زائر", text: inputField.value.trim(), replies: [] });
             }
-
-            await updateDoc(doc(db, "posts", postId), { comments: comments });
+            await updateDoc(doc(db, "posts", postId), { comments });
             inputField.value = '';
             openCommentsModal(postId, true);
         };
@@ -1470,12 +1098,9 @@
             const postId = document.getElementById('fakeCommentPostId').value;
             const author = document.getElementById('fakeAuthorName').value.trim();
             const text = document.getElementById('fakeCommentText').value.trim();
-
             const post = posts.find(p => p.id === postId);
             if (post) {
-                const newComment = { id: Date.now(), visitorId: 'fake_' + Date.now(), author: author, text: text, replies: [] };
-                const updatedComments = [...(post.comments || []), newComment];
-                await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
+                await updateDoc(doc(db, "posts", postId), { comments: [...(post.comments || []), { id: Date.now(), visitorId: 'fake_' + Date.now(), author, text, replies: [] }] });
                 document.getElementById('fakeAuthorName').value = '';
                 document.getElementById('fakeCommentText').value = '';
                 alert('تمت الإضافة بنجاح!');
@@ -1485,11 +1110,8 @@
         window.deleteComment = async function(postId, commentId) {
             const post = posts.find(p => p.id === postId);
             if (post) {
-                const updatedComments = (post.comments || []).filter(c => c.id !== commentId);
-                await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
-                if (currentActivePostIdForModal === postId) {
-                    openCommentsModal(postId, true);
-                }
+                await updateDoc(doc(db, "posts", postId), { comments: (post.comments || []).filter(c => c.id !== commentId) });
+                if (currentActivePostIdForModal === postId) openCommentsModal(postId, true);
             }
         };
 
@@ -1500,26 +1122,18 @@
 
         window.addReply = async function(postId, commentId) {
             const inputField = document.getElementById(`replyInput_${commentId}`);
-            const replyText = inputField.value.trim();
-            if (!replyText) return;
-
+            if (!inputField || !inputField.value.trim()) return;
             const post = posts.find(p => p.id === postId);
             if (post) {
                 const updatedComments = post.comments.map(c => {
                     if (c.id === commentId) {
-                        const authorName = isAdmin ? "الأدمن" : "زائر";
-                        const newReply = { id: Date.now(), author: authorName, text: replyText };
-                        c.replies = [...(c.replies || []), newReply];
+                        c.replies = [...(c.replies || []), { id: Date.now(), author: isAdmin ? "الأدمن" : "زائر", text: inputField.value.trim() }];
                     }
                     return c;
                 });
                 await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
-                if (!isAdmin) {
-                    showInAppNotification("رد جديد", "تم الرد على تعليقك.");
-                }
-                if (currentActivePostIdForModal === postId) {
-                    openCommentsModal(postId, true);
-                }
+                if (!isAdmin) showInAppNotification("رد جديد", "تم الرد على تعليقك.");
+                if (currentActivePostIdForModal === postId) openCommentsModal(postId, true);
             }
         };
 
@@ -1527,104 +1141,76 @@
             const post = posts.find(p => p.id === postId);
             if (post) {
                 const updatedComments = post.comments.map(c => {
-                    if (c.id === commentId) {
-                        c.replies = (c.replies || []).filter(r => r.id !== replyId);
-                    }
+                    if (c.id === commentId) c.replies = (c.replies || []).filter(r => r.id !== replyId);
                     return c;
                 });
                 await updateDoc(doc(db, "posts", postId), { comments: updatedComments });
-                if (currentActivePostIdForModal === postId) {
-                    openCommentsModal(postId, true);
-                }
+                if (currentActivePostIdForModal === postId) openCommentsModal(postId, true);
             }
         };
 
         window.saveAutoReply = async function() {
-            const newReply = document.getElementById('autoReplyInput').value.trim();
-            if (newReply) {
-                autoReplyMessage = newReply;
-                await setDoc(doc(db, "settings", "general"), { autoReply: autoReplyMessage }, { merge: true });
-                alert('تم التحديث بنجاح!');
-            }
+            autoReplyMessage = document.getElementById('autoReplyInput').value.trim();
+            await setDoc(doc(db, "settings", "general"), { autoReply: autoReplyMessage }, { merge: true });
+            alert('تم التحديث بنجاح!');
         };
 
         window.toggleAutoReplySystem = async function() {
             isAutoReplyEnabled = !isAutoReplyEnabled;
-            await setDoc(doc(db, "settings", "general"), { isAutoReplyEnabled: isAutoReplyEnabled }, { merge: true });
+            await setDoc(doc(db, "settings", "general"), { isAutoReplyEnabled }, { merge: true });
             updateAutoReplyButtonUI();
         };
 
         function updateAutoReplyButtonUI() {
             const btn = document.getElementById('toggleAutoReplyStatusBtn');
-            if (isAutoReplyEnabled) {
-                btn.innerHTML = '<i class="fa-solid fa-robot"></i> حالة الرد الآلي: مفعل';
-                btn.className = 'btn btn-sm btn-success';
-            } else {
-                btn.innerHTML = '<i class="fa-solid fa-robot"></i> حالة الرد الآلي: معطل';
-                btn.className = 'btn btn-sm btn-danger';
-            }
+            btn.innerHTML = `<i class="fa-solid fa-robot"></i> حالة الرد الآلي: ${isAutoReplyEnabled ? 'مفعل' : 'معطل'}`;
+            btn.className = `btn btn-sm ${isAutoReplyEnabled ? 'btn-success' : 'btn-danger'}`;
         }
 
         window.messageSpecificUser = async function(userName) {
             if (!isAdmin) return;
             let chat = visitorChats.find(c => c.visitorName === userName);
             if (!chat) {
-                const newChatRef = await addDoc(collection(db, "chats"), {
-                    visitorName: userName,
-                    visitorUuid: 'admin_target_' + Date.now(),
-                    messages: [{ sender: 'bot', text: `محادثة مع ${userName}` }]
-                });
-                currentChatSessionId = newChatRef.id;
-            } else {
-                currentChatSessionId = chat.id;
-            }
-            const activeChat = visitorChats.find(c => c.id === currentChatSessionId) || { visitorName: userName, messages: [] };
-            openChatModalForSession(userName, activeChat);
+                const ref = await addDoc(collection(db, "chats"), { visitorName: userName, visitorUuid: 'admin_target_' + Date.now(), messages: [] });
+                currentChatSessionId = ref.id;
+            } else { currentChatSessionId = chat.id; }
+            openChatModalForSession(userName, visitorChats.find(c => c.id === currentChatSessionId) || { visitorName: userName, messages: [] });
         };
 
         window.openAdminChatSession = function(chatId) {
             const chat = visitorChats.find(c => c.id === chatId);
             if (chat) {
                 currentChatSessionId = chat.id;
-                document.getElementById('adminInboxModal').style.display = 'none';
+                closeAdminInboxModal(true);
                 openChatModalForSession(chat.visitorName, chat);
             }
         };
 
         window.deleteChatSession = async function(chatId) {
-            if (!isAdmin) return;
-            if (confirm('هل أنت متأكد من الحذف؟')) {
+            if (isAdmin && confirm('هل أنت متأكد من الحذف؟')) {
                 await deleteDoc(doc(db, "chats", chatId));
-                if (currentChatSessionId === chatId) {
-                    document.getElementById('chatModal').style.display = 'none';
-                    currentChatSessionId = null;
-                }
+                if (currentChatSessionId === chatId) { closeChatModal(true); currentChatSessionId = null; }
             }
         };
 
         window.toggleAdminInboxModal = function() {
             const modal = document.getElementById('adminInboxModal');
-            if (modal.style.display === 'flex') {
-                closeAdminInboxModal();
-            } else {
-                modal.style.display = 'flex';
-                pushModalState('adminInboxModal');
-            }
+            if (modal.style.display === 'flex') closeAdminInboxModal();
+            else { modal.style.display = 'flex'; pushModalState('adminInboxModal'); }
         };
 
         window.closeAdminInboxModal = function(fromPopState = false) {
             document.getElementById('adminInboxModal').style.display = 'none';
+            if (!fromPopState) window.history.replaceState({ page: "main_home" }, "", HOME_URL);
         };
 
         function renderAdminInboxModalContent() {
             const inboxBody = document.getElementById('adminInboxBody');
             if (!isAdmin) return;
-
             if (visitorChats.length === 0) {
                 inboxBody.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">لا توجد رسائل.</p>';
                 return;
             }
-
             inboxBody.innerHTML = '';
             visitorChats.forEach(chat => {
                 const lastMsg = (chat.messages && chat.messages.length > 0) ? chat.messages[chat.messages.length - 1].text : 'محادثة جديدة';
@@ -1632,105 +1218,55 @@
                     <div class="visitor-thread-item" style="margin-bottom: 0.4rem;">
                         <div>
                             <strong style="color: var(--primary); font-size: 0.85rem;">${chat.visitorName}</strong>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">${lastMsg.substring(0, 25)}...</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted);">${lastMsg.substring(0, 25)}...</p>
                         </div>
                         <div style="display: flex; gap: 0.3rem;">
                             <button class="btn btn-sm btn-success" onclick="openAdminChatSession('${chat.id}')"><i class="fa-solid fa-comments"></i></button>
                             <button class="btn btn-sm btn-danger" onclick="deleteChatSession('${chat.id}')"><i class="fa-solid fa-trash"></i></button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
         function openChatModalForSession(titleName, chatObj, isFromSnapshot = false) {
-            const chatModal = document.getElementById('chatModal');
-            const chatTitle = document.getElementById('chatTitle');
+            document.getElementById('chatTitle').innerText = isAdmin ? `محادثة: ${titleName}` : `مرحباً، ${titleName}`;
             const chatBody = document.getElementById('chatBody');
-
-            chatTitle.innerText = isAdmin ? `محادثة: ${titleName}` : `مرحباً، ${titleName}`;
             chatBody.innerHTML = '';
             (chatObj.messages || []).forEach(msg => {
-                const cssClass = msg.sender === 'user' ? 'user' : 'bot';
-                chatBody.innerHTML += `<div class="message ${cssClass}">${linkifyText(msg.text)}</div>`;
+                chatBody.innerHTML += `<div class="message ${msg.sender === 'user' ? 'user' : 'bot'}">${linkifyText(msg.text)}</div>`;
             });
             chatBody.scrollTop = chatBody.scrollHeight;
-            chatModal.style.display = 'flex';
-            if (!isFromSnapshot) {
-                pushModalState('chatModal');
-            }
+            document.getElementById('chatModal').style.display = 'flex';
+            if (!isFromSnapshot) pushModalState('chatModal');
         }
 
         window.closeChatModal = function(fromPopState = false) {
             document.getElementById('chatModal').style.display = 'none';
             document.getElementById('namePromptOverlay').style.display = 'none';
             currentChatSessionId = null;
+            if (!fromPopState) window.history.replaceState({ page: "main_home" }, "", HOME_URL);
         };
-
-        function renderAdminMessages() {
-            const listContainer = document.getElementById('adminMessagesList');
-            if (!isAdmin) return;
-
-            if (visitorChats.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">لا توجد رسائل.</p>';
-                return;
-            }
-
-            listContainer.innerHTML = '';
-            visitorChats.forEach(chat => {
-                const lastMsg = (chat.messages && chat.messages.length > 0) ? chat.messages[chat.messages.length - 1].text : 'محادثة جديدة';
-                listContainer.innerHTML += `
-                    <div class="visitor-thread-item">
-                        <div>
-                            <strong style="color: var(--primary); font-size: 0.85rem;">${chat.visitorName}</strong>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem;">${lastMsg.substring(0, 30)}...</p>
-                        </div>
-                        <div style="display: flex; gap: 0.3rem;">
-                            <button class="btn btn-sm btn-success" onclick="openAdminChatSession('${chat.id}')">
-                                <i class="fa-solid fa-comments"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteChatSession('${chat.id}')">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
 
         window.toggleChat = async function() {
             const chatModal = document.getElementById('chatModal');
-            const nameOverlay = document.getElementById('namePromptOverlay');
-
             if (chatModal.style.display === 'flex') {
                 closeChatModal();
             } else {
                 if (!isAdmin) {
                     let savedName = localStorage.getItem('visitor_chat_name');
                     let visitorUuid = getVisitorId();
-
                     if (!savedName) {
-                        nameOverlay.style.display = 'flex';
+                        document.getElementById('namePromptOverlay').style.display = 'flex';
                         chatModal.style.display = 'flex';
                         pushModalState('chatModal');
                         return;
                     }
-
                     let chat = visitorChats.find(c => c.visitorUuid === visitorUuid);
                     if (!chat) {
-                        const newChatRef = await addDoc(collection(db, "chats"), {
-                            visitorName: savedName,
-                            visitorUuid: visitorUuid,
-                            messages: [{ sender: 'bot', text: `مرحباً ${savedName}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }]
-                        });
-                        currentChatSessionId = newChatRef.id;
-                    } else {
-                        currentChatSessionId = chat.id;
-                    }
-                    const activeChat = visitorChats.find(c => c.id === currentChatSessionId);
-                    if (activeChat) {
-                        openChatModalForSession(savedName, activeChat);
-                    }
+                        const ref = await addDoc(collection(db, "chats"), { visitorName: savedName, visitorUuid, messages: [{ sender: 'bot', text: `مرحباً ${savedName}! اكتب استفسارك.` }] });
+                        currentChatSessionId = ref.id;
+                    } else { currentChatSessionId = chat.id; }
+                    openChatModalForSession(savedName, visitorChats.find(c => c.id === currentChatSessionId));
                 } else {
                     openChatModalForSession('الأدمن', { messages: [] });
                 }
@@ -1738,36 +1274,17 @@
         };
 
         window.saveVisitorName = async function() {
-            const nameInput = document.getElementById('visitorNameInput');
-            const name = nameInput.value.trim();
-            if (!name) {
-                alert('الرجاء إدخال الاسم بشكل صحيح.');
-                return;
-            }
-
+            const name = document.getElementById('visitorNameInput').value.trim();
+            if (!name) return alert('الرجاء إدخال الاسم.');
             localStorage.setItem('visitor_chat_name', name);
             document.getElementById('namePromptOverlay').style.display = 'none';
             let visitorUuid = getVisitorId();
-
-            let existingChat = visitorChats.find(c => c.visitorUuid === visitorUuid);
-            if (existingChat) {
-                currentChatSessionId = existingChat.id;
-            } else {
-                const newChatRef = await addDoc(collection(db, "chats"), {
-                    visitorName: name,
-                    visitorUuid: visitorUuid,
-                    messages: [{ sender: 'bot', text: `مرحباً ${name}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }]
-                });
-                currentChatSessionId = newChatRef.id;
-            }
-
-            setTimeout(() => {
-                const activeChat = visitorChats.find(c => c.id === currentChatSessionId) || { 
-                    visitorName: name, 
-                    messages: [{ sender: 'bot', text: `مرحباً ${name}! اكتب استفسارك أو طلب حجزك وسأقوم بالرد عليك فوراً.` }] 
-                };
-                openChatModalForSession(name, activeChat, true);
-            }, 300);
+            let chat = visitorChats.find(c => c.visitorUuid === visitorUuid);
+            if (!chat) {
+                const ref = await addDoc(collection(db, "chats"), { visitorName: name, visitorUuid, messages: [{ sender: 'bot', text: `مرحباً ${name}! اكتب استفسارك.` }] });
+                currentChatSessionId = ref.id;
+            } else { currentChatSessionId = chat.id; }
+            openChatModalForSession(name, visitorChats.find(c => c.id === currentChatSessionId) || { visitorName: name, messages: [] }, true);
         };
 
         window.handleChatKey = function(e) { if (e.key === 'Enter') sendChatMessage(); };
@@ -1776,69 +1293,44 @@
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text) return;
+            if (!currentChatSessionId && !isAdmin) return;
 
-            if (!currentChatSessionId) {
-                if (!isAdmin) {
-                    let visitorUuid = getVisitorId();
-                    let chat = visitorChats.find(c => c.visitorUuid === visitorUuid);
-                    if (chat) {
-                        currentChatSessionId = chat.id;
-                    } else {
-                        let savedName = localStorage.getItem('visitor_chat_name') || 'زائر';
-                        const newChatRef = await addDoc(collection(db, "chats"), {
-                            visitorName: savedName,
-                            visitorUuid: visitorUuid,
-                            messages: []
-                        });
-                        currentChatSessionId = newChatRef.id;
-                    }
-                } else {
-                    alert('اختر محادثة للرد عليها.');
-                    return;
-                }
-            }
+            let chat = visitorChats.find(c => c.id === currentChatSessionId);
+            let updatedMessages = [...(chat ? chat.messages || [] : []), { sender: isAdmin ? 'bot' : 'user', text }];
+            if (!isAdmin && isAutoReplyEnabled) updatedMessages.push({ sender: 'bot', text: autoReplyMessage });
 
-            let currentChat = visitorChats.find(c => c.id === currentChatSessionId);
-            
-            if (!currentChat) {
-                let savedName = localStorage.getItem('visitor_chat_name') || 'زائر';
-                let visitorUuid = getVisitorId();
-                currentChat = {
-                    visitorName: savedName,
-                    visitorUuid: visitorUuid,
-                    messages: []
-                };
-            }
-
-            const senderType = isAdmin ? 'bot' : 'user';
-            let updatedMessages = [...(currentChat.messages || []), { sender: senderType, text: text }];
-
-            if (!isAdmin && isAutoReplyEnabled) {
-                updatedMessages.push({ sender: 'bot', text: autoReplyMessage });
-            }
-
-            if (currentChatSessionId && visitorChats.some(c => c.id === currentChatSessionId)) {
+            if (currentChatSessionId) {
                 await updateDoc(doc(db, "chats", currentChatSessionId), { messages: updatedMessages });
-            } else {
-                const docRef = await addDoc(collection(db, "chats"), {
-                    visitorName: currentChat.visitorName,
-                    visitorUuid: currentChat.visitorUuid,
-                    messages: updatedMessages
-                });
-                currentChatSessionId = docRef.id;
             }
-
             input.value = '';
-            if (isAdmin) {
-                showInAppNotification("رد جديد", "وصلتك رسالة جديدة.");
-            }
+            if (isAdmin) showInAppNotification("رد جديد", "وصلتك رسالة جديدة.");
         };
+
+        function renderAdminMessages() {
+            const listContainer = document.getElementById('adminMessagesList');
+            if (!isAdmin) return;
+            if (visitorChats.length === 0) { listContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">لا توجد رسائل.</p>'; return; }
+            listContainer.innerHTML = '';
+            visitorChats.forEach(chat => {
+                const lastMsg = (chat.messages && chat.messages.length > 0) ? chat.messages[chat.messages.length - 1].text : '';
+                listContainer.innerHTML += `
+                    <div class="visitor-thread-item">
+                        <div>
+                            <strong style="color: var(--primary); font-size: 0.85rem;">${chat.visitorName}</strong>
+                            <p style="font-size: 0.75rem; color: var(--text-muted);">${lastMsg.substring(0, 30)}...</p>
+                        </div>
+                        <div style="display: flex; gap: 0.3rem;">
+                            <button class="btn btn-sm btn-success" onclick="openAdminChatSession('${chat.id}')"><i class="fa-solid fa-comments"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteChatSession('${chat.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
+            });
+        }
 
         function renderPosts() {
             const container = document.getElementById('postsContainer');
             const fakeSelect = document.getElementById('fakeCommentPostId');
             let visitorId = getVisitorId();
-            
             container.innerHTML = '';
             fakeSelect.innerHTML = '<option value="">اختر المنشور</option>';
 
@@ -1849,56 +1341,31 @@
 
             posts.forEach(post => {
                 fakeSelect.innerHTML += `<option value="${post.id}">${post.text.substring(0, 25)}...</option>`;
-
-                let adminActionsHtml = isAdmin ? `
-                    <div class="admin-post-actions">
-                        <button class="btn btn-warning btn-sm" onclick="openEditModal('${post.id}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                ` : '';
-
-                const likedUsers = post.likedUsers || [];
-                const isLiked = likedUsers.includes(visitorId);
-                const likeCount = post.likes || 0;
-                const commentsCount = (post.comments || []).length;
-                const timeAgoFormatted = formatTimeAgo(post.createdAt);
-
+                let adminActions = isAdmin ? `<div class="admin-post-actions"><button class="btn btn-warning btn-sm" onclick="openEditModal('${post.id}')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')"><i class="fa-solid fa-trash"></i></button></div>` : '';
                 let imagesList = post.images || (post.image ? [post.image] : []);
-                let imagesHtml = '';
-                if (imagesList.length > 0) {
-                    let gridClass = `count-${Math.min(imagesList.length, 3)}`;
-                    imagesHtml += `<div class="post-images-grid ${gridClass}">`;
-                    imagesList.forEach(img => {
-                        imagesHtml += `<img src="${img}" class="post-image" alt="صورة المنشور">`;
-                    });
-                    imagesHtml += `</div>`;
-                }
+                let imagesHtml = imagesList.length > 0 ? `<div class="post-images-grid count-${Math.min(imagesList.length, 3)}">${imagesList.map(img => `<img src="${img}" class="post-image" alt="صورة">`).join('')}</div>` : '';
 
                 container.innerHTML += `
                     <div class="post-card">
                         <div class="post-header">
-                            <div class="post-author-area"><span class="post-date"><i class="fa-regular fa-clock"></i> ${timeAgoFormatted}</span></div>
-                            ${adminActionsHtml}
+                            <div class="post-author-area"><span class="post-date"><i class="fa-regular fa-clock"></i> ${formatTimeAgo(post.createdAt)}</span></div>
+                            ${adminActions}
                         </div>
                         <div class="post-content">${linkifyText(post.text)}</div>
                         ${imagesHtml}
-                        
-                        <!-- أزرار التفاعل -->
                         <div class="post-actions-bar">
-                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-                                <i class="fa-solid fa-heart"></i> <span>${likeCount}</span>
+                            <button class="action-btn ${post.likedUsers?.includes(visitorId) ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                                <i class="fa-solid fa-heart"></i> <span>${post.likes || 0}</span>
                             </button>
                             <button class="action-btn" onclick="openCommentsModal('${post.id}')">
-                                <i class="fa-solid fa-comments"></i> <span>(${commentsCount}) تعليقات</span>
+                                <i class="fa-solid fa-comments"></i> <span>(${(post.comments || []).length}) تعليقات</span>
                             </button>
                         </div>
-
                         <div class="post-footer-actions">
                             <span style="color: var(--text-muted);">استفسار حول المنشور؟</span>
                             <button class="btn btn-outline btn-sm" onclick="toggleChat()"><i class="fa-solid fa-headset"></i> تواصل</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
     </script>
