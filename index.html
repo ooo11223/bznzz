@@ -1219,9 +1219,6 @@
         };
 
         window.closeAuthModal = function() {
-            document.getElementById('authModal').style.display = 'none';
-            document.getElementById('adminPassword').value = '';
-            // تراجع عن الحالة في الهيستوري عند الإغلاق اليدوي
             window.history.back();
         };
 
@@ -1246,8 +1243,6 @@
                 document.getElementById('adminInboxFloatBtn').style.display = 'flex';
                 document.getElementById('userStatus').innerText = 'أدمن';
                 document.getElementById('authBtn').style.display = 'inline-flex';
-                // إغلاق مودال تسجيل الدخول عبر الـ back لضبط الهيستوري نظيفاً
-                document.getElementById('authModal').style.display = 'none';
                 document.getElementById('adminPassword').value = '';
                 window.history.back();
                 
@@ -1317,7 +1312,6 @@
         };
 
         window.closeEditModal = function() { 
-            document.getElementById('editModal').style.display = 'none';
             window.history.back();
         };
 
@@ -1342,9 +1336,6 @@
             }
 
             await updateDoc(postRef, updateData);
-            
-            // إغلاق نافذة التعديل بالاعتماد على الهيستوري
-            document.getElementById('editModal').style.display = 'none';
             window.history.back();
         };
 
@@ -1449,8 +1440,6 @@
         };
 
         window.closeCommentsModalManually = function() {
-            document.getElementById('commentsModal').style.display = 'none';
-            currentActivePostIdForModal = null;
             window.history.back();
         };
 
@@ -1607,7 +1596,6 @@
             if (chat) {
                 currentChatSessionId = chat.id;
                 document.getElementById('adminInboxModal').style.display = 'none';
-                // تراجع عن حالة نافذة الرسائل لتصبح نظيفة عند فتح الدردشة
                 window.history.back();
                 openChatModalForSession(chat.visitorName, chat);
             }
@@ -1618,7 +1606,6 @@
             if (confirm('هل أنت متأكد من الحذف؟')) {
                 await deleteDoc(doc(db, "chats", chatId));
                 if (currentChatSessionId === chatId) {
-                    document.getElementById('chatModal').style.display = 'none';
                     currentChatSessionId = null;
                     window.history.back();
                 }
@@ -1628,7 +1615,6 @@
         window.toggleAdminInboxModal = function() {
             const modal = document.getElementById('adminInboxModal');
             if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
                 window.history.back();
             } else {
                 modal.style.display = 'flex';
@@ -1686,9 +1672,6 @@
             const nameOverlay = document.getElementById('namePromptOverlay');
 
             if (chatModal.style.display === 'flex') {
-                chatModal.style.display = 'none';
-                nameOverlay.style.display = 'none';
-                currentChatSessionId = null;
                 window.history.back();
             } else {
                 if (!isAdmin) {
