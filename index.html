@@ -970,60 +970,63 @@
         let visitorChats = [];
         let lastPostCount = 0;
 
-        // تهيئة المتصفح بحالة أساسية عند التحميل
-        if (!window.history.state || !window.history.state.page) {
-            window.history.replaceState({ page: "main_home" }, "", window.location.href);
-        }
+        let isModalOpening = false;
 
-        // دالة آمنة لإضافة حالة جديدة في السجل عند فتح نافذة منبثقة
+        // تهيئة سجل المتصفح
+        window.history.replaceState({ page: "main_home" }, "", window.location.href);
+
         function pushModalState(modalName) {
+            isModalOpening = true;
             window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
+            setTimeout(() => { isModalOpening = false; }, 300);
         }
 
-        // معالجة زر الرجوع في المتصفحات (خصوصاً فيسبوك وهواتف أندرويد/آيفون)
+        // معالجة زر الرجوع: إغلاق النوافذ المنبثقة أولاً، وعند الضغط مجدداً التحويل للرابط المطلوب
         window.addEventListener('popstate', (e) => {
+            if (isModalOpening) return;
+
             const commentsModal = document.getElementById('commentsModal');
             const chatModal = document.getElementById('chatModal');
             const authModal = document.getElementById('authModal');
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            let modalClosed = false;
+            let closedAnyModal = false;
 
-            // إغلاق نافذة التعليقات إن كانت مفتوحة
             if (commentsModal.style.display === 'flex') {
                 commentsModal.style.display = 'none';
                 currentActivePostIdForModal = null;
-                modalClosed = true;
+                closedAnyModal = true;
             }
-            // إغلاق نافذة الدردشة إن كانت مفتوحة
-            else if (chatModal.style.display === 'flex') {
+            if (chatModal.style.display === 'flex') {
                 chatModal.style.display = 'none';
                 document.getElementById('namePromptOverlay').style.display = 'none';
                 currentChatSessionId = null;
-                modalClosed = true;
+                closedAnyModal = true;
             }
-            // إغلاق نافذة تسجيل دخول الأدمن
-            else if (authModal.style.display === 'flex') {
+            if (authModal.style.display === 'flex') {
                 authModal.style.display = 'none';
-                modalClosed = true;
+                closedAnyModal = true;
             }
-            // إغلاق نافذة تعديل المنشور
-            else if (editModal.style.display === 'flex') {
+            if (editModal.style.display === 'flex') {
                 editModal.style.display = 'none';
-                modalClosed = true;
+                closedAnyModal = true;
             }
-            // إغلاق صندوق رسائل الأدمن المنبثق
-            else if (adminInboxModal.style.display === 'flex') {
+            if (adminInboxModal.style.display === 'flex') {
                 adminInboxModal.style.display = 'none';
-                modalClosed = true;
+                closedAnyModal = true;
             }
 
-            // منع خروج المستخدم نهائياً من الموقع وتثبيت السجل على الصفحة الرئيسية
-            window.history.pushState({ page: "main_home" }, "", window.location.href);
+            if (closedAnyModal) {
+                // منع الخروج وإعادة ضبط الحالة الحالية
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else {
+                // إذا لم تكن هناك أي نافذة مفتوحة وضغط المستخدم زر الرجوع، يتم توجيهه للرابط المطلوب
+                window.location.href = "https://ooo11223.github.io/bznzz/";
+            }
         });
 
-        // ميزات منع السكرين شوت وحفظ المحتوى للزوار
+        // ميزات منع السكرين شوت وحفظ المحتوى للزائر
         document.addEventListener('contextmenu', e => { if (!isAdmin) e.preventDefault(); });
         document.addEventListener('keydown', e => {
             if (!isAdmin && (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u' || e.key === 'c'))) {
@@ -1175,7 +1178,7 @@
         };
 
         window.goBackPage = function() {
-            showInAppNotification('تنبيه', 'أنت في الصفحة الرئيسية بالفعل.');
+            window.location.href = "https://ooo11223.github.io/bznzz/";
         };
 
         window.saveAnnouncement = async function() {
