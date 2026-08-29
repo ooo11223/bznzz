@@ -969,59 +969,48 @@
         let posts = [];
         let visitorChats = [];
         let lastPostCount = 0;
-        let activeModalName = null; // تتبع النافذة المفتوحة حالياً لتنظيم السجل بدقة
 
-        // تهيئة الحالة الأساسية
-        window.history.replaceState({ modal: null }, "", window.location.href);
+        let isModalOpening = false;
 
-        function openModalState(modalName) {
-            activeModalName = modalName;
-            // إضافة حالة جديدة للسجل لكي يتم التقاطها عند زر الرجوع
-            window.history.pushState({ modal: modalName }, "", window.location.href);
+        // تهيئة السجل الأولي لمنع خروج متصفح فيسبوك عند أول ضغطة رجوع
+        window.history.replaceState({ page: "main_home" }, "", window.location.href);
+
+        function pushModalState(modalName, closeFunction) {
+            isModalOpening = true;
+            // إضافة حالة جديدة للسجل لامتصاص ضغطة زر الرجوع الخاصة بالهاتف/متصفح فيسبوك
+            window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
+            setTimeout(() => { isModalOpening = false; }, 300);
         }
 
         window.addEventListener('popstate', (e) => {
-            // التحقق مما إذا كانت هناك نافذة مفتوحة يتم إغلاقها عند الرجوع
+            if (isModalOpening) return;
+
+            // التحقق من النوافذ المفتوحة وإغلاقها بدلاً من السماح بالخروج من الموقع
             const commentsModal = document.getElementById('commentsModal');
             const chatModal = document.getElementById('chatModal');
             const authModal = document.getElementById('authModal');
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            let wasAnyModalOpen = false;
-
             if (commentsModal.style.display === 'flex') {
-                commentsModal.style.display = 'none';
-                currentActivePostIdForModal = null;
-                wasAnyModalOpen = true;
-            }
-            if (chatModal.style.display === 'flex') {
-                chatModal.style.display = 'none';
-                document.getElementById('namePromptOverlay').style.display = 'none';
-                currentChatSessionId = null;
-                wasAnyModalOpen = true;
-            }
-            if (authModal.style.display === 'flex') {
-                authModal.style.display = 'none';
-                document.getElementById('adminPassword').value = '';
-                wasAnyModalOpen = true;
-            }
-            if (editModal.style.display === 'flex') {
-                editModal.style.display = 'none';
-                wasAnyModalOpen = true;
-            }
-            if (adminInboxModal.style.display === 'flex') {
-                adminInboxModal.style.display = 'none';
-                wasAnyModalOpen = true;
-            }
-
-            if (wasAnyModalOpen) {
-                activeModalName = null;
-                // إعادة ضبط الحالة في السجل حتى تضمن ضغطة الرجوع التالية الخروج الطبيعي من الموقع
-                window.history.replaceState({ modal: null }, "", window.location.href);
+                closeCommentsModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (chatModal.style.display === 'flex') {
+                closeChatModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (authModal.style.display === 'flex') {
+                closeAuthModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (editModal.style.display === 'flex') {
+                closeEditModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (adminInboxModal.style.display === 'flex') {
+                closeAdminInboxModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
             } else {
-                // إذا لم تكن أي نافذة مفتوحة، اسمح بالرجوع للصفحة السابقة بشكل طبيعي
-                window.history.back();
+                // إذا لم تكن هناك نافذة مفتوحة، نعيد حقن الحالة لمنع خروج متصفح فيسبوك بالخطأ
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                showInAppNotification('تنبيه', 'اضغط على أزرار الموقع للتنقل.');
             }
         });
 
@@ -1177,7 +1166,7 @@
         };
 
         window.goBackPage = function() {
-            window.history.back();
+            showInAppNotification('تنبيه', 'أنت في الصفحة الرئيسية بالفعل.');
         };
 
         window.saveAnnouncement = async function() {
@@ -1217,19 +1206,12 @@
         window.openAuthModal = function() {
             document.getElementById('authModal').style.display = 'flex';
             document.getElementById('adminPassword').focus();
-            openModalState('authModal');
+            pushModalState('authModal');
         };
 
-        window.closeAuthModal = function() {
-            const modal = document.getElementById('authModal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                document.getElementById('adminPassword').value = '';
-                if (activeModalName === 'authModal') {
-                    activeModalName = null;
-                    window.history.back();
-                }
-            }
+        window.closeAuthModal = function(fromPopState = false) {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
         };
 
         function logoutAdmin() {
@@ -1316,18 +1298,11 @@
             document.getElementById('editImageFile2').value = '';
             document.getElementById('editImageFile3').value = '';
             document.getElementById('editModal').style.display = 'flex';
-            openModalState('editModal');
+            pushModalState('editModal');
         };
 
-        window.closeEditModal = function() { 
-            const modal = document.getElementById('editModal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                if (activeModalName === 'editModal') {
-                    activeModalName = null;
-                    window.history.back();
-                }
-            }
+        window.closeEditModal = function(fromPopState = false) { 
+            document.getElementById('editModal').style.display = 'none'; 
         };
 
         window.updatePost = async function() {
@@ -1450,20 +1425,13 @@
 
             modal.style.display = 'flex';
             if (!isFromSnapshot) {
-                openModalState('commentsModal');
+                pushModalState('commentsModal');
             }
         };
 
-        window.closeCommentsModal = function() {
-            const modal = document.getElementById('commentsModal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                currentActivePostIdForModal = null;
-                if (activeModalName === 'commentsModal') {
-                    activeModalName = null;
-                    window.history.back();
-                }
-            }
+        window.closeCommentsModal = function(fromPopState = false) {
+            document.getElementById('commentsModal').style.display = 'none';
+            currentActivePostIdForModal = null;
         };
 
         window.addCommentFromModal = async function(postId) {
@@ -1640,19 +1608,12 @@
                 closeAdminInboxModal();
             } else {
                 modal.style.display = 'flex';
-                openModalState('adminInboxModal');
+                pushModalState('adminInboxModal');
             }
         };
 
-        window.closeAdminInboxModal = function() {
-            const modal = document.getElementById('adminInboxModal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                if (activeModalName === 'adminInboxModal') {
-                    activeModalName = null;
-                    window.history.back();
-                }
-            }
+        window.closeAdminInboxModal = function(fromPopState = false) {
+            document.getElementById('adminInboxModal').style.display = 'none';
         };
 
         function renderAdminInboxModalContent() {
@@ -1696,21 +1657,14 @@
             chatBody.scrollTop = chatBody.scrollHeight;
             chatModal.style.display = 'flex';
             if (!isFromSnapshot) {
-                openModalState('chatModal');
+                pushModalState('chatModal');
             }
         }
 
-        window.closeChatModal = function() {
-            const chatModal = document.getElementById('chatModal');
-            if (chatModal.style.display === 'flex') {
-                chatModal.style.display = 'none';
-                document.getElementById('namePromptOverlay').style.display = 'none';
-                currentChatSessionId = null;
-                if (activeModalName === 'chatModal') {
-                    activeModalName = null;
-                    window.history.back();
-                }
-            }
+        window.closeChatModal = function(fromPopState = false) {
+            document.getElementById('chatModal').style.display = 'none';
+            document.getElementById('namePromptOverlay').style.display = 'none';
+            currentChatSessionId = null;
         };
 
         function renderAdminMessages() {
@@ -1758,7 +1712,7 @@
                     if (!savedName) {
                         nameOverlay.style.display = 'flex';
                         chatModal.style.display = 'flex';
-                        openModalState('chatModal');
+                        pushModalState('chatModal');
                         return;
                     }
 
