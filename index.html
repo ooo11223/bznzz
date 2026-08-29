@@ -970,58 +970,60 @@
         let visitorChats = [];
         let lastPostCount = 0;
 
-        let isModalOpening = false;
-
-        // تهيئة السجل الأولي لتتبع الحالات
-        window.history.replaceState({ page: "main_home" }, "", window.location.href);
-
-        function pushModalState(modalName) {
-            isModalOpening = true;
-            window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
-            setTimeout(() => { isModalOpening = false; }, 300);
+        // تهيئة المتصفح بحالة أساسية عند التحميل
+        if (!window.history.state || !window.history.state.page) {
+            window.history.replaceState({ page: "main_home" }, "", window.location.href);
         }
 
-        // معالجة زر الرجوع لمتصفحات الهواتف ومنع خروج الزائر من الموقع
-        window.addEventListener('popstate', (e) => {
-            if (isModalOpening) return;
+        // دالة آمنة لإضافة حالة جديدة في السجل عند فتح نافذة منبثقة
+        function pushModalState(modalName) {
+            window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
+        }
 
+        // معالجة زر الرجوع في المتصفحات (خصوصاً فيسبوك وهواتف أندرويد/آيفون)
+        window.addEventListener('popstate', (e) => {
             const commentsModal = document.getElementById('commentsModal');
             const chatModal = document.getElementById('chatModal');
             const authModal = document.getElementById('authModal');
             const editModal = document.getElementById('editModal');
             const adminInboxModal = document.getElementById('adminInboxModal');
 
-            let closedAnyModal = false;
+            let modalClosed = false;
 
+            // إغلاق نافذة التعليقات إن كانت مفتوحة
             if (commentsModal.style.display === 'flex') {
                 commentsModal.style.display = 'none';
                 currentActivePostIdForModal = null;
-                closedAnyModal = true;
+                modalClosed = true;
             }
-            if (chatModal.style.display === 'flex') {
+            // إغلاق نافذة الدردشة إن كانت مفتوحة
+            else if (chatModal.style.display === 'flex') {
                 chatModal.style.display = 'none';
                 document.getElementById('namePromptOverlay').style.display = 'none';
                 currentChatSessionId = null;
-                closedAnyModal = true;
+                modalClosed = true;
             }
-            if (authModal.style.display === 'flex') {
+            // إغلاق نافذة تسجيل دخول الأدمن
+            else if (authModal.style.display === 'flex') {
                 authModal.style.display = 'none';
-                closedAnyModal = true;
+                modalClosed = true;
             }
-            if (editModal.style.display === 'flex') {
+            // إغلاق نافذة تعديل المنشور
+            else if (editModal.style.display === 'flex') {
                 editModal.style.display = 'none';
-                closedAnyModal = true;
+                modalClosed = true;
             }
-            if (adminInboxModal.style.display === 'flex') {
+            // إغلاق صندوق رسائل الأدمن المنبثق
+            else if (adminInboxModal.style.display === 'flex') {
                 adminInboxModal.style.display = 'none';
-                closedAnyModal = true;
+                modalClosed = true;
             }
 
-            // ضمان بقاء الزائر داخل الموقع وحبس الحدث لمنع إغلاق متصفح فيسبوك بالكامل
+            // منع خروج المستخدم نهائياً من الموقع وتثبيت السجل على الصفحة الرئيسية
             window.history.pushState({ page: "main_home" }, "", window.location.href);
         });
 
-        // ميزات منع السكرين شوت وحفظ المحتوى للزائر
+        // ميزات منع السكرين شوت وحفظ المحتوى للزوار
         document.addEventListener('contextmenu', e => { if (!isAdmin) e.preventDefault(); });
         document.addEventListener('keydown', e => {
             if (!isAdmin && (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u' || e.key === 'c'))) {
