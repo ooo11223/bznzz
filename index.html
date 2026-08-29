@@ -517,7 +517,7 @@
             background: var(--card-bg);
         }
 
-        /* نظام الإشعارات المنبثقة العائمة الداخلي (Custom In-app Notification Modal) */
+        /* نظام الإشعارات المنبثقة العائمة الداخلي */
         .in-app-toast-container {
             position: fixed;
             top: 70px;
@@ -970,22 +970,47 @@
         let visitorChats = [];
         let lastPostCount = 0;
 
-        // مصفوفة لتتبع النوافذ المنبثقة النشطة لضمان عمل زر الرجوع في الهاتف بدقة
-        let activeModalsStack = [];
+        let isModalOpening = false;
+
+        // تهيئة السجل الأولي لمنع خروج متصفح فيسبوك عند أول ضغطة رجوع
+        window.history.replaceState({ page: "main_home" }, "", window.location.href);
 
         function pushModalState(modalName, closeFunction) {
-            // إضافة حالة للسجل لكي لا يخرج المستخدم من التطبيق عند ضغط زر الرجوع
-            history.pushState({ modal: modalName }, "", window.location.href);
-            activeModalsStack.push({ name: modalName, closeFn: closeFunction });
+            isModalOpening = true;
+            // إضافة حالة جديدة للسجل لامتصاص ضغطة زر الرجوع الخاصة بالهاتف/متصفح فيسبوك
+            window.history.pushState({ modal: modalName, time: Date.now() }, "", window.location.href);
+            setTimeout(() => { isModalOpening = false; }, 300);
         }
 
         window.addEventListener('popstate', (e) => {
-            if (activeModalsStack.length > 0) {
-                // منع الخروج وإغلاق آخر نافذة مفتوحة
-                const topModal = activeModalsStack.pop();
-                if (topModal && typeof topModal.closeFn === 'function') {
-                    topModal.closeFn(true); // تمرير true لعدم عمل تكرار في السجل
-                }
+            if (isModalOpening) return;
+
+            // التحقق من النوافذ المفتوحة وإغلاقها بدلاً من السماح بالخروج من الموقع
+            const commentsModal = document.getElementById('commentsModal');
+            const chatModal = document.getElementById('chatModal');
+            const authModal = document.getElementById('authModal');
+            const editModal = document.getElementById('editModal');
+            const adminInboxModal = document.getElementById('adminInboxModal');
+
+            if (commentsModal.style.display === 'flex') {
+                closeCommentsModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (chatModal.style.display === 'flex') {
+                closeChatModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (authModal.style.display === 'flex') {
+                closeAuthModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (editModal.style.display === 'flex') {
+                closeEditModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else if (adminInboxModal.style.display === 'flex') {
+                closeAdminInboxModal(true);
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+            } else {
+                // إذا لم تكن هناك نافذة مفتوحة، نعيد حقن الحالة لمنع خروج متصفح فيسبوك بالخطأ
+                window.history.pushState({ page: "main_home" }, "", window.location.href);
+                showInAppNotification('تنبيه', 'اضغط على أزرار الموقع للتنقل.');
             }
         });
 
@@ -1141,11 +1166,7 @@
         };
 
         window.goBackPage = function() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                showInAppNotification('تنبيه', 'أنت في الصفحة الرئيسية بالفعل.');
-            }
+            showInAppNotification('تنبيه', 'أنت في الصفحة الرئيسية بالفعل.');
         };
 
         window.saveAnnouncement = async function() {
@@ -1185,16 +1206,12 @@
         window.openAuthModal = function() {
             document.getElementById('authModal').style.display = 'flex';
             document.getElementById('adminPassword').focus();
-            pushModalState('authModal', closeAuthModal);
+            pushModalState('authModal');
         };
 
         window.closeAuthModal = function(fromPopState = false) {
             document.getElementById('authModal').style.display = 'none';
             document.getElementById('adminPassword').value = '';
-            if (!fromPopState && activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'authModal') {
-                activeModalsStack.pop();
-                history.back();
-            }
         };
 
         function logoutAdmin() {
@@ -1281,15 +1298,11 @@
             document.getElementById('editImageFile2').value = '';
             document.getElementById('editImageFile3').value = '';
             document.getElementById('editModal').style.display = 'flex';
-            pushModalState('editModal', closeEditModal);
+            pushModalState('editModal');
         };
 
         window.closeEditModal = function(fromPopState = false) { 
             document.getElementById('editModal').style.display = 'none'; 
-            if (!fromPopState && activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'editModal') {
-                activeModalsStack.pop();
-                history.back();
-            }
         };
 
         window.updatePost = async function() {
@@ -1412,17 +1425,13 @@
 
             modal.style.display = 'flex';
             if (!isFromSnapshot) {
-                pushModalState('commentsModal', closeCommentsModal);
+                pushModalState('commentsModal');
             }
         };
 
         window.closeCommentsModal = function(fromPopState = false) {
             document.getElementById('commentsModal').style.display = 'none';
             currentActivePostIdForModal = null;
-            if (!fromPopState && activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'commentsModal') {
-                activeModalsStack.pop();
-                history.back();
-            }
         };
 
         window.addCommentFromModal = async function(postId) {
@@ -1578,9 +1587,6 @@
             if (chat) {
                 currentChatSessionId = chat.id;
                 document.getElementById('adminInboxModal').style.display = 'none';
-                if (activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'adminInboxModal') {
-                    activeModalsStack.pop();
-                }
                 openChatModalForSession(chat.visitorName, chat);
             }
         };
@@ -1602,16 +1608,12 @@
                 closeAdminInboxModal();
             } else {
                 modal.style.display = 'flex';
-                pushModalState('adminInboxModal', closeAdminInboxModal);
+                pushModalState('adminInboxModal');
             }
         };
 
         window.closeAdminInboxModal = function(fromPopState = false) {
             document.getElementById('adminInboxModal').style.display = 'none';
-            if (!fromPopState && activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'adminInboxModal') {
-                activeModalsStack.pop();
-                history.back();
-            }
         };
 
         function renderAdminInboxModalContent() {
@@ -1655,7 +1657,7 @@
             chatBody.scrollTop = chatBody.scrollHeight;
             chatModal.style.display = 'flex';
             if (!isFromSnapshot) {
-                pushModalState('chatModal', closeChatModal);
+                pushModalState('chatModal');
             }
         }
 
@@ -1663,10 +1665,6 @@
             document.getElementById('chatModal').style.display = 'none';
             document.getElementById('namePromptOverlay').style.display = 'none';
             currentChatSessionId = null;
-            if (!fromPopState && activeModalsStack.length > 0 && activeModalsStack[activeModalsStack.length - 1].name === 'chatModal') {
-                activeModalsStack.pop();
-                history.back();
-            }
         };
 
         function renderAdminMessages() {
@@ -1714,7 +1712,7 @@
                     if (!savedName) {
                         nameOverlay.style.display = 'flex';
                         chatModal.style.display = 'flex';
-                        pushModalState('chatModal', closeChatModal);
+                        pushModalState('chatModal');
                         return;
                     }
 
