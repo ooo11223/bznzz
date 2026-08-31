@@ -127,6 +127,26 @@
             font-weight: bold;
         }
 
+        /* نافذة طلب الموافقة على الكاميرا */
+        .approval-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .approval-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid var(--warning);
+        }
+
         /* لوحة التحكم والذكاء الاصطناعي */
         .dashboard-grid {
             display: grid;
@@ -260,9 +280,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px;
+            padding: 8px;
             border-bottom: 1px solid #334155;
             font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .recording-item:hover {
+            background: #334155;
         }
 
         .btn-danger { background: var(--danger); }
@@ -299,13 +324,25 @@
         <div id="camera-screen" class="screen">
             <h2>كاميرا البث المباشر (تعمل في الخلفية)</h2>
             <div class="login-box">
-                <p class="info-text">رمز الاتصال السري الخاص بهذا الجهاز (اكتبه في هاتف الأدمن):</p>
+                <p class="info-text">رمز الاتصال السري الخاص بهذا الجهاز:</p>
                 <div class="code-display" id="device-code-display">جاري التوليد...</div>
                 <p style="font-size: 0.8rem; color: var(--success); margin-bottom: 10px;">🛡️ وضع منع انطفاء الشاشة وتصوير الخلفية مفعل</p>
                 <div style="margin-top: 15px; position: relative; width:100%; height: 160px; background:#000; border-radius:8px; overflow:hidden;">
                     <video id="local-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
                 </div>
                 <button onclick="location.reload()" class="btn-danger" style="margin-top: 15px;">إيقاف البث</button>
+            </div>
+        </div>
+
+        <!-- نافذة طلب الموافقة على هاتف الكاميرا عند محاولة الأدمن الاتصال -->
+        <div class="approval-modal" id="approvalModal">
+            <div class="approval-card">
+                <h3 style="color: var(--warning); margin-bottom: 15px;">⚠️ طلب اتصال جديد</h3>
+                <p id="approvalText" style="margin-bottom: 20px; font-size: 0.95rem;">هاتف الأدمن يطلب فتح البث المباشر لهذه الكاميرا، هل توافق؟</p>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="respondToConnection(true)" class="btn-success">موافقة</button>
+                    <button onclick="respondToConnection(false)" class="btn-danger">رفض</button>
+                </div>
             </div>
         </div>
 
@@ -321,7 +358,7 @@
                     <label>رمز الكاميرا الظاهر على هاتف البيت</label>
                     <input type="text" id="camera-code-input" placeholder="مثال: 4819">
                 </div>
-                <button onclick="verifyAdminLogin()">ربط وعرض البث المباشر</button>
+                <button onclick="requestAdminConnection()">طلب ربط وبدء البث المباشر</button>
                 <button onclick="location.reload()" style="background: transparent; color: var(--text-muted);">رجوع</button>
             </div>
         </div>
@@ -355,7 +392,7 @@
                     </div>
 
                     <div class="control-section">
-                        <h3>سجل الإنذارات والتسجيلات</h3>
+                        <h3>سجل الإنذارات والتسجيلات (انقر للعرض)</h3>
                         <div class="recordings-list" id="recordingsList"></div>
                     </div>
 
@@ -363,6 +400,15 @@
                     <button onclick="location.reload()" class="btn-danger">خروج</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة معاينة التسجيلات واللقطات عند النقر عليها -->
+    <div class="approval-modal" id="viewerModal" onclick="this.style.display='none'">
+        <div class="approval-card" onclick="event.stopPropagation()">
+            <h3 style="color: var(--accent); margin-bottom: 15px;">معاينة السجل المحفوظ</h3>
+            <p id="viewerContentText" style="margin-bottom: 20px; font-size: 1rem; color: #fff;"></p>
+            <button onclick="document.getElementById('viewerModal').style.display='none'" class="btn-info">إغلاق المعاينة</button>
         </div>
     </div>
 
@@ -396,24 +442,19 @@
         let aiDetectionInterval = null;
         let activeCameraCode = "";
         let wakeLockObj = null;
+        let isCameraServerMode = false;
 
-        // توليد رمز سري متغير وعشوائي لكل جلسة تشغيل للكاميرا (من 4 خانات)
         function generateCameraCode() {
             return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
-        // إبقاء الشاشة مفعلة والبث شغال في الخلفية
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLockObj = await navigator.wakeLock.request('screen');
-                    console.log('Screen Wake Lock is active.');
-                    wakeLockObj.addEventListener('release', () => {
-                        console.log('Wake Lock was released');
-                    });
                 }
             } catch (err) {
-                console.error(`${err.name}, ${err.message}`);
+                console.log(err);
             }
         }
 
@@ -425,6 +466,7 @@
 
         function setMode(mode) {
             if(mode === 'camera') {
+                isCameraServerMode = true;
                 activeCameraCode = generateCameraCode();
                 document.getElementById('device-code-display').innerText = activeCameraCode;
 
@@ -434,6 +476,7 @@
                 initCameraAsServer('local-video');
                 requestWakeLock();
                 playBackgroundKeeper();
+                listenForAdminRequests();
             }
         }
 
@@ -454,7 +497,8 @@
             document.getElementById('admin-login-screen').classList.add('active');
         }
 
-        function verifyAdminLogin() {
+        // خطوة 1: الأدمن يدخل الكود ويطلب الاتصال
+        function requestAdminConnection() {
             const inputPass = document.getElementById('admin-pass-input').value;
             const inputCamCode = document.getElementById('camera-code-input').value.trim();
 
@@ -468,11 +512,65 @@
             }
 
             activeCameraCode = inputCamCode;
-            document.getElementById('admin-login-screen').classList.remove('active');
-            document.getElementById('dashboard-screen').classList.add('active');
             
-            initCameraAsViewer();
-            startAiEngine();
+            // إرسال طلب موافقة لهاتف الكاميرا عبر Firebase
+            if (window.firebaseDb) {
+                const { db, ref, set } = window.firebaseDb;
+                set(ref(db, 'cameras/' + activeCameraCode + '/request'), {
+                    status: 'PENDING',
+                    time: Date.now()
+                }).then(() => {
+                    alert('تم إرسال طلب البث إلى هاتف الكاميرا. بانتظار الموافقة...');
+                    waitForAdminApproval();
+                });
+            } else {
+                alert('قاعدة البيانات غير متصلة.');
+            }
+        }
+
+        // استماع هاتف الكاميرا لطلبات الأدمن وإظهار نافذة الموافقة
+        function listenForAdminRequests() {
+            if (window.firebaseDb) {
+                const { db, ref, onValue } = window.firebaseDb;
+                onValue(ref(db, 'cameras/' + activeCameraCode + '/request'), (snapshot) => {
+                    const req = snapshot.val();
+                    if (req && req.status === 'PENDING') {
+                        playAlertSound();
+                        document.getElementById('approvalModal').style.display = 'flex';
+                    }
+                });
+            }
+        }
+
+        // استجابة صاحب هاتف الكاميرا (موافقة أو رفض)
+        function respondToConnection(isApproved) {
+            document.getElementById('approvalModal').style.display = 'none';
+            if (window.firebaseDb) {
+                const { db, ref, set } = window.firebaseDb;
+                set(ref(db, 'cameras/' + activeCameraCode + '/request/status'), isApproved ? 'APPROVED' : 'REJECTED');
+            }
+        }
+
+        // انتظار الأدمن للموافقة لفتح لوحة التحكم وبدء البث
+        function waitForAdminApproval() {
+            if (window.firebaseDb) {
+                const { db, ref, onValue } = window.firebaseDb;
+                const reqRef = ref(db, 'cameras/' + activeCameraCode + '/request/status');
+                
+                const unsubscribe = onValue(reqRef, (snapshot) => {
+                    const status = snapshot.val();
+                    if (status === 'APPROVED') {
+                        document.getElementById('admin-login-screen').classList.remove('active');
+                        document.getElementById('dashboard-screen').classList.add('active');
+                        initCameraAsViewer();
+                        startAiEngine();
+                        saveRecordToStorage("تم ربط وبدء البث المباشر بنجاح بموافقة الكاميرا");
+                    } else if (status === 'REJECTED') {
+                        alert('تم رفض طلب البث من هاتف الكاميرا.');
+                        location.reload();
+                    }
+                });
+            }
         }
 
         async function initCameraAsServer(elementId) {
@@ -485,7 +583,7 @@
                 videoEl.srcObject = stream;
                 videoEl.play();
 
-                // رفع الإطارات لـ Firebase كل ثانية لكي يراها الأدمن
+                // رفع الإطارات لـ Firebase باستمرار
                 setInterval(() => {
                     if (window.firebaseDb && activeCameraCode) {
                         const { db, ref, set } = window.firebaseDb;
@@ -496,7 +594,7 @@
                         ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
 
-                        set(ref(db, 'cameras/' + activeCameraCode), {
+                        set(ref(db, 'cameras/' + activeCameraCode + '/stream'), {
                             lastUpdate: Date.now(),
                             status: 'ONLINE',
                             frame: dataUrl
@@ -505,14 +603,14 @@
                 }, 1000);
 
             } catch (err) {
-                alert('فشل تشغيل الكاميرا! تأكد من منح صلاحيات الكاميرا للمتصفح.');
+                alert('فشل تشغيل الكاميرا! تأكد من منح الصلاحيات.');
             }
         }
 
         function initCameraAsViewer() {
             if (window.firebaseDb) {
                 const { db, ref, onValue } = window.firebaseDb;
-                const camRef = ref(db, 'cameras/' + activeCameraCode);
+                const camRef = ref(db, 'cameras/' + activeCameraCode + '/stream');
                 
                 onValue(camRef, (snapshot) => {
                     const data = snapshot.val();
@@ -528,16 +626,6 @@
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         };
                         img.src = data.frame;
-                    } else {
-                        // شاشة انتظار في حال لم يبدأ البث بعد
-                        canvas.width = canvas.clientWidth || 640;
-                        canvas.height = canvas.clientHeight || 480;
-                        ctx.fillStyle = '#0f172a';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = '#3b82f6';
-                        ctx.font = '16px sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText("جاري الاتصال بالكاميرا برمز: " + activeCameraCode + "...", canvas.width / 2, canvas.height / 2 - 10);
                     }
                 });
             }
@@ -651,13 +739,18 @@
             records.forEach(rec => {
                 const newItem = document.createElement('div');
                 newItem.className = 'recording-item';
-                newItem.innerHTML = `<span>${rec}</span><span style="color: var(--success);">محفوظ</span>`;
+                newItem.innerHTML = `<span>${rec}</span><span style="color: var(--success);">عرض</span>`;
+                // عند النقر على التسجيل يتم فتحه ومعاينته
+                newItem.onclick = () => {
+                    document.getElementById('viewerContentText').innerText = rec;
+                    document.getElementById('viewerModal').style.display = 'flex';
+                };
                 list.appendChild(newItem);
             });
         }
 
         function takeSnapshot() {
-            saveRecordToStorage("التقاط صورة يدوية");
+            saveRecordToStorage("التقاط صورة يدوية وسجلت بنجاح");
             alert('تم التقاط الصورة وحفظها تلقائياً في السجل الذكي!');
         }
 
