@@ -116,22 +116,10 @@
 
         button:hover { background: var(--accent-hover); }
 
-        .code-display {
-            background: #0f172a;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 1.8rem;
-            letter-spacing: 6px;
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        /* نافذة طلب الموافقة على الكاميرا */
         .approval-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: none;
             justify-content: center;
             align-items: center;
@@ -147,7 +135,6 @@
             border: 1px solid var(--warning);
         }
 
-        /* لوحة التحكم والذكاء الاصطناعي */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -305,6 +292,16 @@
             text-align: center;
             margin-top: 10px;
         }
+        
+        #db-status {
+            font-size: 0.8rem;
+            margin-top: 15px;
+            padding: 6px;
+            border-radius: 6px;
+            background: #1e293b;
+            color: var(--warning);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -314,31 +311,30 @@
         <div id="welcome-screen" class="screen active">
             <h2>نظام المراقبة الذكي AI</h2>
             <div class="login-box">
-                <p class="info-text" style="margin-bottom: 20px;">اختر وضع الاستخدام:</p>
-                <button onclick="setMode('camera')" class="btn-success" style="margin-bottom: 15px;">هذا الهاتف هو الكاميرا (البيت)</button>
-                <button onclick="showAdminLogin()">تسجيل دخول الأدمن (المراقبة)</button>
+                <p class="info-text" style="margin-bottom: 20px;">اختر وضع الاستخدام لهذا الهاتف:</p>
+                <button onclick="setMode('camera')" class="btn-success" style="margin-bottom: 15px;">📹 هذا الهاتف هو الكاميرا</button>
+                <button onclick="showAdminLogin()">🔐 تسجيل دخول الأدمن (عرض البث)</button>
+                <div id="db-status">جاري الاتصال بقاعدة البيانات...</div>
             </div>
         </div>
 
         <!-- شاشة الكاميرا -->
         <div id="camera-screen" class="screen">
-            <h2>كاميرا البث المباشر (تعمل في الخلفية)</h2>
+            <h2>الكاميرا تعمل في الخلفية</h2>
             <div class="login-box">
-                <p class="info-text">رمز الاتصال السري الخاص بهذا الجهاز:</p>
-                <div class="code-display" id="device-code-display">جاري التوليد...</div>
-                <p style="font-size: 0.8rem; color: var(--success); margin-bottom: 10px;">🛡️ وضع منع انطفاء الشاشة وتصوير الخلفية مفعل</p>
-                <div style="margin-top: 15px; position: relative; width:100%; height: 160px; background:#000; border-radius:8px; overflow:hidden;">
+                <p style="font-size: 0.9rem; color: var(--success); margin-bottom: 15px;">🛡️ وضع منع انطفاء الشاشة وتثبيت البث مفعل</p>
+                <div style="margin-top: 10px; position: relative; width:100%; height: 180px; background:#000; border-radius:8px; overflow:hidden;">
                     <video id="local-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
                 </div>
-                <button onclick="location.reload()" class="btn-danger" style="margin-top: 15px;">إيقاف البث</button>
+                <button onclick="location.reload()" class="btn-danger" style="margin-top: 20px;">إيقاف الكاميرا</button>
             </div>
         </div>
 
-        <!-- نافذة طلب الموافقة على هاتف الكاميرا عند محاولة الأدمن الاتصال -->
+        <!-- نافذة طلب الموافقة على هاتف الكاميرا -->
         <div class="approval-modal" id="approvalModal">
             <div class="approval-card">
                 <h3 style="color: var(--warning); margin-bottom: 15px;">⚠️ طلب اتصال جديد</h3>
-                <p id="approvalText" style="margin-bottom: 20px; font-size: 0.95rem;">هاتف الأدمن يطلب فتح البث المباشر لهذه الكاميرا، هل توافق؟</p>
+                <p style="margin-bottom: 20px; font-size: 0.95rem;">هاتف الأدمن يطلب فتح البث المباشر، هل توافق؟</p>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="respondToConnection(true)" class="btn-success">موافقة</button>
                     <button onclick="respondToConnection(false)" class="btn-danger">رفض</button>
@@ -346,19 +342,15 @@
             </div>
         </div>
 
-        <!-- شاشة دخول الأدمن وإدخال رمز الكاميرا -->
+        <!-- شاشة دخول الأدمن -->
         <div id="admin-login-screen" class="screen">
-            <h2>دخول الأدمن وربط الكاميرا</h2>
+            <h2>دخول الأدمن</h2>
             <div class="login-box">
                 <div class="input-group">
                     <label>كلمة سر الأدمن</label>
-                    <input type="password" id="admin-pass-input" placeholder="••••••••">
+                    <input type="password" id="admin-pass-input" placeholder="اكتب كلمة السر هنا">
                 </div>
-                <div class="input-group">
-                    <label>رمز الكاميرا الظاهر على هاتف البيت</label>
-                    <input type="text" id="camera-code-input" placeholder="مثال: 4819">
-                </div>
-                <button onclick="requestAdminConnection()">طلب ربط وبدء البث المباشر</button>
+                <button onclick="requestAdminConnection()">ربط وبدء عرض البث</button>
                 <button onclick="location.reload()" style="background: transparent; color: var(--text-muted);">رجوع</button>
             </div>
         </div>
@@ -368,10 +360,9 @@
             <h2>لوحة تحكم الأدمن والذكاء الاصطناعي</h2>
             <div class="dashboard-grid">
                 <div class="video-container" id="videoContainer">
-                    <div class="live-badge"><div class="live-dot"></div>مباشر عبر Firebase</div>
+                    <div class="live-badge"><div class="live-dot"></div>مباشر الآن</div>
                     <div class="ai-status-badge" id="aiStatus">ذكاء اصطناعي: نشط</div>
                     
-                    <!-- منطقة المحددة (ROI) الذكية -->
                     <div class="roi-box" id="roiBox"></div>
 
                     <video id="remote-video" autoplay playsinline muted style="display:none;"></video>
@@ -388,11 +379,11 @@
                         <h3>ميزات التحكم والعرض</h3>
                         <button onclick="toggleFullScreen()" class="btn-info">📺 تكبير شاشة العرض (ملء الشاشة)</button>
                         <button onclick="toggleRoi()" class="btn-warning" id="roiBtn">تفعيل منطقة الإنذار (ROI)</button>
-                        <button onclick="triggerAiTestAlert()" style="background: #8b5cf6;">اختبار تنذار مرور شخص</button>
+                        <button onclick="triggerAiTestAlert()" style="background: #8b5cf6;">اختبار تنبيه مرور شخص</button>
                     </div>
 
                     <div class="control-section">
-                        <h3>سجل الإنذارات والتسجيلات (انقر للعرض)</h3>
+                        <h3>سجل الإنذارات والتسجيلات</h3>
                         <div class="recordings-list" id="recordingsList"></div>
                     </div>
 
@@ -403,7 +394,7 @@
         </div>
     </div>
 
-    <!-- نافذة معاينة التسجيلات واللقطات عند النقر عليها -->
+    <!-- نافذة معاينة التسجيلات واللقطات -->
     <div class="approval-modal" id="viewerModal" onclick="this.style.display='none'">
         <div class="approval-card" onclick="event.stopPropagation()">
             <h3 style="color: var(--accent); margin-bottom: 15px;">معاينة السجل المحفوظ</h3>
@@ -415,8 +406,7 @@
     <!-- Firebase SDKs & Realtime Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAp3jL2QZ6iWqOVQ5aTbuKY9OmxmtYCfvM",
@@ -428,25 +418,27 @@
           measurementId: "G-RN9RXHWSSB"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getDatabase(app);
-
-        window.firebaseDb = { db, ref, set, onValue, push };
-        console.log("Firebase Database & Core Connected Successfully!");
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            window.firebaseDb = { db, ref, set, onValue };
+            
+            document.getElementById('db-status').innerText = "✅ متصل بقاعدة البيانات بنجاح";
+            document.getElementById('db-status').style.color = "#10b981";
+            console.log("Firebase Connected Successfully!");
+        } catch (err) {
+            document.getElementById('db-status').innerText = "❌ خطأ في الاتصال بقاعدة البيانات";
+            document.getElementById('db-status').style.color = "#ef4444";
+            console.error(err);
+        }
     </script>
 
     <script>
         const ADMIN_PASSWORD = "ooddaayy";
+        const CONNECTION_ID = "secure_cam_main_link_v2"; // معرف متجدد لضمان نظافة البيانات وعدم تعليق الذاكرة المؤقتة
         let isRoiActive = false;
         let aiDetectionInterval = null;
-        let activeCameraCode = "";
         let wakeLockObj = null;
-        let isCameraServerMode = false;
-
-        function generateCameraCode() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
-        }
 
         async function requestWakeLock() {
             try {
@@ -466,10 +458,6 @@
 
         function setMode(mode) {
             if(mode === 'camera') {
-                isCameraServerMode = true;
-                activeCameraCode = generateCameraCode();
-                document.getElementById('device-code-display').innerText = activeCameraCode;
-
                 document.getElementById('welcome-screen').classList.remove('active');
                 document.getElementById('camera-screen').classList.add('active');
                 
@@ -497,74 +485,67 @@
             document.getElementById('admin-login-screen').classList.add('active');
         }
 
-        // خطوة 1: الأدمن يدخل الكود ويطلب الاتصال
         function requestAdminConnection() {
-            const inputPass = document.getElementById('admin-pass-input').value;
-            const inputCamCode = document.getElementById('camera-code-input').value.trim();
+            const inputPass = document.getElementById('admin-pass-input').value.trim();
 
             if(inputPass !== ADMIN_PASSWORD) {
-                alert('كلمة سر الأدمن غير صحيحة!');
+                alert('كلمة سر الأدمن غير صحيحة! تأكد من كتابتها بدقة (ooddaayy)');
                 return;
             }
-            if(!inputCamCode) {
-                alert('الرجاء إدخال رمز الكاميرا الظاهر على هاتف البيت!');
-                return;
-            }
-
-            activeCameraCode = inputCamCode;
             
-            // إرسال طلب موافقة لهاتف الكاميرا عبر Firebase
             if (window.firebaseDb) {
                 const { db, ref, set } = window.firebaseDb;
-                set(ref(db, 'cameras/' + activeCameraCode + '/request'), {
+                set(ref(db, 'cameras/' + CONNECTION_ID + '/request'), {
                     status: 'PENDING',
                     time: Date.now()
                 }).then(() => {
-                    alert('تم إرسال طلب البث إلى هاتف الكاميرا. بانتظار الموافقة...');
+                    alert('تم إرسال طلب الاتصال لهاتف الكاميرا. يرجى الضغط على "موافقة" في هاتف الكاميرا.');
                     waitForAdminApproval();
+                }).catch(err => {
+                    alert('حدث خطأ في الاتصال بالشبكة: ' + err.message);
                 });
             } else {
-                alert('قاعدة البيانات غير متصلة.');
+                alert('قاعدة البيانات غير جاهزة بعد، انتظر ثواني وحاول مجدداً.');
             }
         }
 
-        // استماع هاتف الكاميرا لطلبات الأدمن وإظهار نافذة الموافقة
         function listenForAdminRequests() {
-            if (window.firebaseDb) {
-                const { db, ref, onValue } = window.firebaseDb;
-                onValue(ref(db, 'cameras/' + activeCameraCode + '/request'), (snapshot) => {
-                    const req = snapshot.val();
-                    if (req && req.status === 'PENDING') {
-                        playAlertSound();
-                        document.getElementById('approvalModal').style.display = 'flex';
-                    }
-                });
-            }
+            const checkInterval = setInterval(() => {
+                if (window.firebaseDb) {
+                    clearInterval(checkInterval);
+                    const { db, ref, onValue } = window.firebaseDb;
+                    onValue(ref(db, 'cameras/' + CONNECTION_ID + '/request'), (snapshot) => {
+                        const req = snapshot.val();
+                        if (req && req.status === 'PENDING') {
+                            playAlertSound();
+                            document.getElementById('approvalModal').style.display = 'flex';
+                        }
+                    });
+                }
+            }, 500);
         }
 
-        // استجابة صاحب هاتف الكاميرا (موافقة أو رفض)
         function respondToConnection(isApproved) {
             document.getElementById('approvalModal').style.display = 'none';
             if (window.firebaseDb) {
                 const { db, ref, set } = window.firebaseDb;
-                set(ref(db, 'cameras/' + activeCameraCode + '/request/status'), isApproved ? 'APPROVED' : 'REJECTED');
+                set(ref(db, 'cameras/' + CONNECTION_ID + '/request/status'), isApproved ? 'APPROVED' : 'REJECTED');
             }
         }
 
-        // انتظار الأدمن للموافقة لفتح لوحة التحكم وبدء البث
         function waitForAdminApproval() {
             if (window.firebaseDb) {
                 const { db, ref, onValue } = window.firebaseDb;
-                const reqRef = ref(db, 'cameras/' + activeCameraCode + '/request/status');
+                const reqRef = ref(db, 'cameras/' + CONNECTION_ID + '/request/status');
                 
-                const unsubscribe = onValue(reqRef, (snapshot) => {
+                onValue(reqRef, (snapshot) => {
                     const status = snapshot.val();
                     if (status === 'APPROVED') {
                         document.getElementById('admin-login-screen').classList.remove('active');
                         document.getElementById('dashboard-screen').classList.add('active');
                         initCameraAsViewer();
                         startAiEngine();
-                        saveRecordToStorage("تم ربط وبدء البث المباشر بنجاح بموافقة الكاميرا");
+                        saveRecordToStorage("تم ربط الهاتفين وبدء عرض البث المباشر بنجاح");
                     } else if (status === 'REJECTED') {
                         alert('تم رفض طلب البث من هاتف الكاميرا.');
                         location.reload();
@@ -577,40 +558,39 @@
             const videoEl = document.getElementById(elementId);
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+                    video: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 480 } },
                     audio: false
                 });
                 videoEl.srcObject = stream;
                 videoEl.play();
 
-                // رفع الإطارات لـ Firebase باستمرار
+                // بث الإطارات كل ثانية بوضوح عالي وسرعة استجابة
                 setInterval(() => {
-                    if (window.firebaseDb && activeCameraCode) {
+                    if (window.firebaseDb) {
                         const { db, ref, set } = window.firebaseDb;
                         const canvas = document.createElement('canvas');
                         canvas.width = 640;
                         canvas.height = 480;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
 
-                        set(ref(db, 'cameras/' + activeCameraCode + '/stream'), {
+                        set(ref(db, 'cameras/' + CONNECTION_ID + '/stream'), {
                             lastUpdate: Date.now(),
-                            status: 'ONLINE',
                             frame: dataUrl
                         }).catch(err => console.log(err));
                     }
                 }, 1000);
 
             } catch (err) {
-                alert('فشل تشغيل الكاميرا! تأكد من منح الصلاحيات.');
+                alert('فشل تشغيل الكاميرا! تأكد من السماح للمتصفح بالوصول للكاميرا.');
             }
         }
 
         function initCameraAsViewer() {
             if (window.firebaseDb) {
                 const { db, ref, onValue } = window.firebaseDb;
-                const camRef = ref(db, 'cameras/' + activeCameraCode + '/stream');
+                const camRef = ref(db, 'cameras/' + CONNECTION_ID + '/stream');
                 
                 onValue(camRef, (snapshot) => {
                     const data = snapshot.val();
@@ -670,7 +650,7 @@
         }
 
         function startAiEngine() {
-            saveRecordToStorage("بدء المراقبة المستمرة بنجاح");
+            saveRecordToStorage("بدء نظام الذكاء الاصطناعي بنجاح");
             aiDetectionInterval = setInterval(() => {
                 if(isRoiActive && Math.random() > 0.7) {
                     triggerAiAlert("تنبيه AI: تم رصد حركة شخص في المنطقة المحددة!");
@@ -723,24 +703,23 @@
             
             const recordText = `${dateStr} - ${timeStr} | ${type}`;
             
-            let records = JSON.parse(localStorage.getItem('ai_cam_records') || '[]');
+            let records = JSON.parse(localStorage.getItem('ai_cam_records_v2') || '[]');
             records.unshift(recordText);
             if(records.length > 20) records.pop();
-            localStorage.setItem('ai_cam_records', JSON.stringify(records));
+            localStorage.setItem('ai_cam_records_v2', JSON.stringify(records));
             
             renderRecords();
         }
 
         function renderRecords() {
             const list = document.getElementById('recordingsList');
-            let records = JSON.parse(localStorage.getItem('ai_cam_records') || '[]');
+            let records = JSON.parse(localStorage.getItem('ai_cam_records_v2') || '[]');
             
             list.innerHTML = '';
             records.forEach(rec => {
                 const newItem = document.createElement('div');
                 newItem.className = 'recording-item';
                 newItem.innerHTML = `<span>${rec}</span><span style="color: var(--success);">عرض</span>`;
-                // عند النقر على التسجيل يتم فتحه ومعاينته
                 newItem.onclick = () => {
                     document.getElementById('viewerContentText').innerText = rec;
                     document.getElementById('viewerModal').style.display = 'flex';
