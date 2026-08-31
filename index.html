@@ -121,8 +121,8 @@
             padding: 15px;
             border-radius: 8px;
             margin: 15px 0;
-            font-size: 1.5rem;
-            letter-spacing: 4px;
+            font-size: 1.8rem;
+            letter-spacing: 6px;
             color: var(--success);
             font-weight: bold;
         }
@@ -299,13 +299,13 @@
         <div id="camera-screen" class="screen">
             <h2>كاميرا البث المباشر (تعمل في الخلفية)</h2>
             <div class="login-box">
-                <p class="info-text">رمز الاتصال السري الخاص بهذا الجهاز:</p>
-                <div class="code-display" id="device-code-display">7842</div>
+                <p class="info-text">رمز الاتصال السري الخاص بهذا الجهاز (اكتبه في هاتف الأدمن):</p>
+                <div class="code-display" id="device-code-display">جاري التوليد...</div>
                 <p style="font-size: 0.8rem; color: var(--success); margin-bottom: 10px;">🛡️ وضع منع انطفاء الشاشة وتصوير الخلفية مفعل</p>
                 <div style="margin-top: 15px; position: relative; width:100%; height: 160px; background:#000; border-radius:8px; overflow:hidden;">
                     <video id="local-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
                 </div>
-                <button onclick="location.reload()" class="btn-danger" style="margin-top: 15px;">إيقاف</button>
+                <button onclick="location.reload()" class="btn-danger" style="margin-top: 15px;">إيقاف البث</button>
             </div>
         </div>
 
@@ -318,8 +318,8 @@
                     <input type="password" id="admin-pass-input" placeholder="••••••••">
                 </div>
                 <div class="input-group">
-                    <label>رمز الكاميرا المراد مراقبتها</label>
-                    <input type="text" id="camera-code-input" placeholder="مثال: 7842">
+                    <label>رمز الكاميرا الظاهر على هاتف البيت</label>
+                    <input type="text" id="camera-code-input" placeholder="مثال: 4819">
                 </div>
                 <button onclick="verifyAdminLogin()">ربط وعرض البث المباشر</button>
                 <button onclick="location.reload()" style="background: transparent; color: var(--text-muted);">رجوع</button>
@@ -337,8 +337,8 @@
                     <!-- منطقة المحددة (ROI) الذكية -->
                     <div class="roi-box" id="roiBox"></div>
 
-                    <video id="remote-video" autoplay playsinline muted></video>
-                    <canvas id="fallback-canvas" style="display:none;"></canvas>
+                    <video id="remote-video" autoplay playsinline muted style="display:none;"></video>
+                    <canvas id="fallback-canvas"></canvas>
                 </div>
 
                 <div class="controls-panel">
@@ -394,15 +394,20 @@
         const ADMIN_PASSWORD = "ooddaayy";
         let isRoiActive = false;
         let aiDetectionInterval = null;
-        let activeCameraCode = "7842";
+        let activeCameraCode = "";
         let wakeLockObj = null;
 
-        // ميزة إبقاء الشاشة مفعلة والبث شغال في الخلفية (حتى لو طفيت شاشة الهاتف الكاميرا)
+        // توليد رمز سري متغير وعشوائي لكل جلسة تشغيل للكاميرا (من 4 خانات)
+        function generateCameraCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        // إبقاء الشاشة مفعلة والبث شغال في الخلفية
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLockObj = await navigator.wakeLock.request('screen');
-                    console.log('Screen Wake Lock is active - camera will stay awake.');
+                    console.log('Screen Wake Lock is active.');
                     wakeLockObj.addEventListener('release', () => {
                         console.log('Wake Lock was released');
                     });
@@ -412,7 +417,6 @@
             }
         }
 
-        // إعادة تفعيل القفل عند رجوع المستخدم للصفحة أو بقائها بالخلفية
         document.addEventListener('visibilitychange', async () => {
             if (wakeLockObj !== null && document.visibilityState === 'visible') {
                 await requestWakeLock();
@@ -421,11 +425,14 @@
 
         function setMode(mode) {
             if(mode === 'camera') {
+                activeCameraCode = generateCameraCode();
+                document.getElementById('device-code-display').innerText = activeCameraCode;
+
                 document.getElementById('welcome-screen').classList.remove('active');
                 document.getElementById('camera-screen').classList.add('active');
+                
                 initCameraAsServer('local-video');
                 requestWakeLock();
-                // تشغيل صوت صامت في الخلفية لإجبار المتصفح على عدم إيقاف المعالجة والتصوير عند إطفاء الشاشة
                 playBackgroundKeeper();
             }
         }
@@ -435,7 +442,7 @@
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
-                gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime); // صوت منخفض جداً لا يكاد يسمع
+                gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
@@ -456,7 +463,7 @@
                 return;
             }
             if(!inputCamCode) {
-                alert('الرجاء إدخال رمز الكاميرا المطلوب مراقبتها!');
+                alert('الرجاء إدخال رمز الكاميرا الظاهر على هاتف البيت!');
                 return;
             }
 
@@ -464,7 +471,7 @@
             document.getElementById('admin-login-screen').classList.remove('active');
             document.getElementById('dashboard-screen').classList.add('active');
             
-            initCameraAsViewer('remote-video');
+            initCameraAsViewer();
             startAiEngine();
         }
 
@@ -478,16 +485,16 @@
                 videoEl.srcObject = stream;
                 videoEl.play();
 
-                // رفع لقطات دورية أو حالة الاتصال لـ Firebase ليراها الأدمن
+                // رفع الإطارات لـ Firebase كل ثانية لكي يراها الأدمن
                 setInterval(() => {
-                    if (window.firebaseDb) {
+                    if (window.firebaseDb && activeCameraCode) {
                         const { db, ref, set } = window.firebaseDb;
                         const canvas = document.createElement('canvas');
-                        canvas.width = 320;
-                        canvas.height = 240;
+                        canvas.width = 640;
+                        canvas.height = 480;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
 
                         set(ref(db, 'cameras/' + activeCameraCode), {
                             lastUpdate: Date.now(),
@@ -495,65 +502,45 @@
                             frame: dataUrl
                         }).catch(err => console.log(err));
                     }
-                }, 1000); // تحديث البث كل ثانية
+                }, 1000);
 
             } catch (err) {
-                activateFallbackAnimation(videoEl);
+                alert('فشل تشغيل الكاميرا! تأكد من منح صلاحيات الكاميرا للمتصفح.');
             }
         }
 
-        function initCameraAsViewer(elementId) {
-            const videoEl = document.getElementById(elementId);
-            // محاولة الاستماع للبث القادم من Firebase بناءً على الرمز المدخل
+        function initCameraAsViewer() {
             if (window.firebaseDb) {
                 const { db, ref, onValue } = window.firebaseDb;
                 const camRef = ref(db, 'cameras/' + activeCameraCode);
                 
                 onValue(camRef, (snapshot) => {
                     const data = snapshot.val();
+                    let canvas = document.getElementById('fallback-canvas');
+                    let ctx = canvas.getContext('2d');
+
                     if (data && data.frame) {
-                        // استخدام Canvas لعرض الإطارات القادمة كبث حي سلس
-                        let canvas = document.getElementById('fallback-canvas');
-                        canvas.style.display = 'block';
-                        videoEl.style.display = 'none';
-                        let ctx = canvas.getContext('2d');
                         let img = new Image();
                         img.onload = function() {
                             canvas.width = canvas.clientWidth || 640;
                             canvas.height = canvas.clientHeight || 480;
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         };
                         img.src = data.frame;
                     } else {
-                        activateFallbackAnimation(videoEl);
+                        // شاشة انتظار في حال لم يبدأ البث بعد
+                        canvas.width = canvas.clientWidth || 640;
+                        canvas.height = canvas.clientHeight || 480;
+                        ctx.fillStyle = '#0f172a';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.font = '16px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText("جاري الاتصال بالكاميرا برمز: " + activeCameraCode + "...", canvas.width / 2, canvas.height / 2 - 10);
                     }
                 });
-            } else {
-                activateFallbackAnimation(videoEl);
             }
-        }
-
-        function activateFallbackAnimation(videoEl) {
-            videoEl.style.display = 'none';
-            const canvas = document.getElementById('fallback-canvas');
-            canvas.style.display = 'block';
-            const ctx = canvas.getContext('2d');
-            
-            function draw() {
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#3b82f6';
-                ctx.font = '15px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText("جاري الاتصال بالكاميرا عبر الرمز: " + activeCameraCode, canvas.width / 2, canvas.height / 2 - 20);
-                ctx.fillStyle = '#10b981';
-                ctx.font = '13px sans-serif';
-                ctx.fillText("الوقت: " + new Date().toLocaleTimeString('ar-JO'), canvas.width / 2, canvas.height / 2 + 15);
-                requestAnimationFrame(draw);
-            }
-            draw();
         }
 
         function toggleFullScreen() {
@@ -573,9 +560,7 @@
 
         function updateZoom(val) {
             document.getElementById('zoom-value').innerText = val;
-            const video = document.getElementById('remote-video');
             const canvas = document.getElementById('fallback-canvas');
-            video.style.transform = `scale(${val})`;
             canvas.style.transform = `scale(${val})`;
         }
 
