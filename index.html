@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الاتصال والرسائل الذكي - النسخة الخارقة المطورة</title>
+    <title>نظام المراسلة الذكي - الشبيه بواتساب</title>
     <style>
         :root {
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
+            --primary-color: #059669;
+            --primary-hover: #047857;
             --success-color: #10b981;
             --danger-color: #ef4444;
             --warning-color: #f59e0b;
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.98);
             --text-color: #1e293b;
             --border-color: #cbd5e1;
+            --chat-bg: #efeae2;
+            --incoming-msg: #ffffff;
+            --outgoing-msg: #d9fdd3;
         }
 
         * {
@@ -25,7 +28,7 @@
 
         body {
             background: #0f172a;
-            background-image: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background-image: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
             color: var(--text-color);
             display: flex;
             justify-content: center;
@@ -39,7 +42,7 @@
             max-width: 680px;
             background: var(--card-bg);
             backdrop-filter: blur(10px);
-            padding: 35px;
+            padding: 30px;
             border-radius: 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -82,7 +85,7 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
         }
 
         button {
@@ -97,7 +100,7 @@
             font-weight: 600;
             margin-top: 10px;
             transition: all 0.2s ease, transform 0.1s;
-            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2);
         }
 
         button:hover {
@@ -176,7 +179,7 @@
         .tab-btn.active {
             background: var(--primary-color);
             color: white;
-            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2);
         }
 
         .section-panel {
@@ -196,34 +199,8 @@
             margin-bottom: 20px;
         }
 
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .keypad button {
-            background-color: #ffffff;
-            color: var(--text-color);
-            border: 1px solid #cbd5e1;
-            padding: 16px;
-            font-size: 22px;
-            font-weight: bold;
-            margin-top: 0;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .keypad button:hover {
-            background-color: #f1f5f9;
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: none;
-        }
-
         .list-container {
-            max-height: 250px;
+            max-height: 280px;
             overflow-y: auto;
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -261,19 +238,74 @@
             background-color: #f8fafc;
         }
 
-        .voice-changer-box {
-            background: #e0e7ff;
-            border: 1.5px dashed var(--primary-color);
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 12px;
+        /* تنسيق محادثة واتساب الاحترافية */
+        .whatsapp-chat-box {
+            background: var(--chat-bg);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            padding: 10px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            height: 400px;
         }
 
-        .top-global-alert-container {
-            margin-bottom: 20px;
+        .whatsapp-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #007562;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            margin: -10px -10px 10px -10px;
+        }
+
+        .chat-messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            position: relative;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+        }
+
+        .chat-bubble.incoming {
+            background: var(--incoming-msg);
+            align-self: flex-start;
+            border-top-right-radius: 0;
+        }
+
+        .chat-bubble.outgoing {
+            background: var(--outgoing-msg);
+            align-self: flex-end;
+            border-top-left-radius: 0;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .chat-input-bar input {
+            margin-top: 0;
+            padding: 10px 14px;
+            border-radius: 20px;
+            border: 1px solid #d1d7db;
+            background: #fff;
         }
     </style>
 </head>
@@ -282,38 +314,14 @@
 <div class="container">
     <!-- شاشة المصادقة الرئيسية -->
     <div id="auth-screen">
-        <h2>✨ نظام الاتصال والرسائل الذكي</h2>
+        <h2>💬 مراسلة جو</h2>
         <div id="main-message"></div>
         
-        <div id="quickcall-form">
-            <div class="alert alert-warning" style="font-size:14px; padding:10px; margin-top:10px;">⚡ اتصل بأي رقم مسجل في الموقع فوراً كزائر دون الحاجة لتسجيل الدخول!</div>
-            <div class="form-group" style="margin-top: 15px;">
-                <label>رقم الهاتف المستهدف:</label>
-                <input type="text" id="quick-call-target" placeholder="أدخل رقم الهاتف للاتصال به">
-            </div>
-
-            <div class="keypad">
-                <button onclick="appendKey('1', 'quick-call-target')">1</button>
-                <button onclick="appendKey('2', 'quick-call-target')">2</button>
-                <button onclick="appendKey('3', 'quick-call-target')">3</button>
-                <button onclick="appendKey('4', 'quick-call-target')">4</button>
-                <button onclick="appendKey('5', 'quick-call-target')">5</button>
-                <button onclick="appendKey('6', 'quick-call-target')">6</button>
-                <button onclick="appendKey('7', 'quick-call-target')">7</button>
-                <button onclick="appendKey('8', 'quick-call-target')">8</button>
-                <button onclick="appendKey('9', 'quick-call-target')">9</button>
-                <button onclick="appendKey('0', 'quick-call-target')">0</button>
-                <button onclick="clearKey('quick-call-target')" style="background:#fee2e2; color:#991b1b; font-size:16px;">مسح</button>
-                <button onclick="startQuickVisitorCall()" class="btn-success" style="margin-top:0; font-size:16px;">اتصال زائر 📞</button>
-            </div>
-            <div id="quick-call-status" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
-        </div>
-
-        <div id="login-form" class="hidden" style="margin-top: 20px;">
-            <h3>🔐 تسجيل الدخول برقم الهاتف</h3>
+        <div id="login-form">
+            <h3>🔐 تسجيل الدخول برقم الهاتف الأردني</h3>
             <div class="form-group">
-                <label>رقم الهاتف:</label>
-                <input type="text" id="login-phone" placeholder="أدخل رقمك المسجل">
+                <label>رقم الهاتف (زين، أمنية، أو أورانج):</label>
+                <input type="text" id="login-phone" placeholder="مثال: 0791234567 أو 078 أو 077">
             </div>
             <div class="form-group">
                 <label>كلمة المرور السرية:</label>
@@ -323,12 +331,13 @@
         </div>
 
         <div id="register-form" class="hidden" style="margin-top: 20px;">
-            <h3>📝 طلب رقم هاتف جديد</h3>
+            <h3>📝 تسجيل رقم هاتف جديد (حقيقي)</h3>
+            <div class="alert alert-warning" style="font-size:13px; padding:8px;">ملاحظة: النظام يقبل أرقام شبكات الأردنية فقط (079 زين، 078 أمنية، 077 أورانج) ويمنع تكرار الأرقام المسجلة مسبقاً.</div>
             <div class="form-group">
-                <label>اختر رقم الهاتف الفريد:</label>
+                <label>رقم الهاتف:</label>
                 <input type="text" id="reg-phone" placeholder="مثال: 0791234567">
             </div>
-            <button onclick="registerNumber()">إرسال طلب للأدمن</button>
+            <button onclick="registerNumber()">إرسال طلب تسجيل للأدمن</button>
         </div>
 
         <div id="admin-login-form" class="hidden" style="margin-top: 20px;">
@@ -347,81 +356,55 @@
         </div>
     </div>
 
-    <!-- لوحة تحكم المستخدم -->
+    <!-- لوحة تحكم المستخدم والمراسلة -->
     <div id="user-dashboard" class="hidden">
-        <div id="top-call-status-user" class="top-global-alert-container"></div>
-
         <h2 id="user-welcome">مرحباً بك</h2>
-        <div class="alert alert-success">أنت متصل الآن بالسحابة بنجاح! 🚀</div>
+        <div class="alert alert-success">أنت متصل الآن بنظام المراسلة السحابي بنجاح! 🚀</div>
 
         <div class="dashboard-nav">
-            <button onclick="switchUserTab('messages')" class="tab-btn active" id="nav-msg-btn">✉️ الرسائل</button>
-            <button onclick="switchUserTab('calls')" class="tab-btn" id="nav-call-btn">📞 المكالمات</button>
+            <button onclick="switchUserTab('chats')" class="tab-btn active" id="nav-chat-btn">💬 المحادثات</button>
             <button onclick="switchUserTab('contacts')" class="tab-btn" id="nav-contact-btn">📇 الجهات</button>
         </div>
 
-        <div id="panel-messages" class="section-panel">
-            <div class="box-section">
-                <h3>✉️ إرسال رسالة جديدة</h3>
-                <div class="form-group">
-                    <label>رقم المستقبل:</label>
-                    <input type="text" id="msg-target-input" placeholder="اكتب رقم المستقبل">
-                </div>
-                <div class="form-group">
-                    <label>نص الرسالة:</label>
-                    <textarea id="msg-content" placeholder="اكتب رسالتك هنا..." rows="2"></textarea>
-                </div>
-                <button onclick="sendMessage()" class="btn-success">إرسال الرسالة</button>
-            </div>
-
-            <div class="box-section">
-                <h3>📥 صندوق الوارد (انقر على أي رسالة لفتحها والرد عليها)</h3>
-                <div id="messages-list" class="list-container">
-                    <p style="color: #666; text-align: center; padding: 20px;">لا توجد رسائل واردة</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="panel-calls" class="section-panel hidden">
-            <div class="box-section">
-                <h3>📞 لوحة الاتصال الصوتي المباشر</h3>
-                <div class="form-group">
-                    <label>الرقم المراد الاتصال به:</label>
-                    <input type="text" id="call-target-input" placeholder="اكتب الرقم أو اضغط لوحة المفاتيح">
-                </div>
-
-                <div class="voice-changer-box">
-                    <div>
-                        <b>🎙️ مبرمج تغيير الصوت:</b><br>
-                        <span style="font-size: 13px; color: #475569;">تغيير صوتك إلى صوت فتاة ناعم أثناء المكالمة</span>
-                    </div>
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                        <input type="checkbox" id="girl-voice-toggle" style="width:20px; height:20px;"> 
-                        <span style="font-weight:bold; color:var(--primary-color);">تفعيل صوت فتاة</span>
-                    </label>
-                </div>
+        <div id="panel-chats" class="section-panel">
+            <!-- شاشة قائمة المحادثات والبحث -->
+            <div id="chat-list-view" class="box-section">
+                <h3>📥 صندوق المحادثات الواردة</h3>
                 
-                <div class="keypad">
-                    <button onclick="appendKey('1', 'call-target-input')">1</button>
-                    <button onclick="appendKey('2', 'call-target-input')">2</button>
-                    <button onclick="appendKey('3', 'call-target-input')">3</button>
-                    <button onclick="appendKey('4', 'call-target-input')">4</button>
-                    <button onclick="appendKey('5', 'call-target-input')">5</button>
-                    <button onclick="appendKey('6', 'call-target-input')">6</button>
-                    <button onclick="appendKey('7', 'call-target-input')">7</button>
-                    <button onclick="appendKey('8', 'call-target-input')">8</button>
-                    <button onclick="appendKey('9', 'call-target-input')">9</button>
-                    <button onclick="appendKey('0', 'call-target-input')">0</button>
-                    <button onclick="clearKey('call-target-input')" style="background:#fee2e2; color:#991b1b; font-size:16px;">مسح</button>
-                    <button onclick="startCall()" class="btn-success" style="margin-top:0; font-size:16px;">اتصال 📞</button>
+                <!-- شانة البحث المباشر وفتح دردشة جديدة -->
+                <div class="form-group" style="background:#fff; padding:12px; border-radius:12px; border:1px solid #cbd5e1; margin-bottom:15px;">
+                    <label style="color:#007562; font-weight:700;">🔍 البحث عن رقم أو فتح محادثة جديدة:</label>
+                    <div style="display:flex; gap:8px; margin-top:6px;">
+                        <input type="text" id="search-or-new-target" placeholder="ابحث برقم الهاتف أو اكتب رقم جديد (07...)" oninput="filterConversations(this.value)" style="margin-top:0;">
+                        <button onclick="startNewChatFromSearch()" class="btn-success" style="margin-top:0; width:auto; padding:0 18px;">فتح 💬</button>
+                    </div>
                 </div>
-                <div id="call-status" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+
+                <div id="conversations-list" class="list-container">
+                    <p style="color: #666; text-align: center; padding: 20px;">لا توجد محادثات سابقة</p>
+                </div>
             </div>
 
-            <div class="box-section">
-                <h3>🕒 سجل المكالمات</h3>
-                <div id="calls-history-list" class="list-container">
-                    <p style="color: #666; text-align: center; padding: 15px;">لا يوجد سجل مكالمات سابق</p>
+            <!-- نافذة محادثة فردية شبيهة بواتساب تماماً -->
+            <div id="active-chat-view" class="box-section hidden">
+                <div class="whatsapp-chat-box">
+                    <div class="whatsapp-header-bar">
+                        <button onclick="closeActiveChat()" class="btn-secondary" style="background:transparent; color:white; border:none; padding:4px 8px; font-size:16px; box-shadow:none;">⬅️</button>
+                        <h3 id="active-chat-title" style="margin:0; font-size:16px; color:white;">المحادثة مع: </h3>
+                        <div style="width:24px;"></div>
+                    </div>
+                    
+                    <div id="whatsapp-messages-container" class="chat-messages-area">
+                        <!-- الرسائل تظهر هنا -->
+                    </div>
+
+                    <div id="recording-status" style="font-size:11px; color:#b45309; text-align:center; margin:2px 0;"></div>
+
+                    <div class="chat-input-bar">
+                        <input type="text" id="whatsapp-text-input" placeholder="اكتب رسالة..." style="margin-top:0;">
+                        <button onclick="sendWhatsAppMessage()" class="btn-success" style="margin-top:0; width:auto; padding:8px 14px; border-radius:50%;" title="إرسال">🚀</button>
+                        <button id="record-voice-btn" onclick="toggleVoiceRecording()" class="btn-warning" style="margin-top:0; width:auto; padding:8px 12px; border-radius:50%;" title="تسجيل صوتي">🎙️</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -453,63 +436,27 @@
 
     <!-- لوحة تحكم الأدمن الخارقة -->
     <div id="admin-dashboard" class="hidden">
-        <div id="top-call-status-admin" class="top-global-alert-container"></div>
-
         <h2>👑 لوحة تحكم الأدمن الخارقة</h2>
         <div class="alert alert-warning">أنت مسجل كمسؤول رئيسي للنظام بصلاحيات كاملة 🛠️</div>
 
-        <div class="box-section" style="background: #e0f2fe; border-color: #bae6fd;">
-            <h3>📥 استقبال مكالمات العملاء / العامة (رقم استقبال الأدمن)</h3>
-            <div class="form-group">
-                <label>عين الرقم أو الاسم الوهمي الذي يستطيع الناس الاتصال به:</label>
-                <input type="text" id="admin-public-receive-number" placeholder="مثال: 911، أو إدارة الدعم، أو 0780000000">
-            </div>
-            <button onclick="saveAdminPublicReceiveNumber()" class="btn-success">حفظ رقم الاستقبال العام 🟢</button>
-            <div id="admin-public-status" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
-        </div>
-
         <div class="box-section">
-            <h3>⚡ محاكي الاتصال الخارق للأدمن</h3>
-            <div class="form-group">
-                <label>الاتصال بـ (رقم أو اسم المستهدف):</label>
-                <input type="text" id="admin-call-target" placeholder="أدخل رقم الضحية أو المستقبل">
-            </div>
-            <div class="form-group">
-                <label>الظهور للمستقبل باسم أو رقم وهمي (مثال: "شرطة", "رقم مخفي", "0780000000"):</label>
-                <input type="text" id="admin-spoof-caller" placeholder="اسم أو رقم المرسل الوهمي">
-            </div>
-            <div class="voice-changer-box">
-                <div>
-                    <b>🎙️ مبرمج تغيير الصوت:</b><br>
-                    <span style="font-size: 13px; color: #475569;">تغيير صوت الأدمن إلى صوت فتاة ناعم أثناء الاتصال</span>
-                </div>
-                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                    <input type="checkbox" id="admin-girl-voice" style="width:20px; height:20px;"> 
-                    <span style="font-weight:bold; color:var(--primary-color);">تفعيل صوت فتاة</span>
-                </label>
-            </div>
-            <button onclick="adminExecuteCall()" class="btn-success" style="margin-top: 15px;">بدء مكالمة مخفية / بوصف وهمي 📞</button>
-            <div id="admin-call-status" style="margin-top: 15px; text-align:center; font-weight:bold;"></div>
-        </div>
-
-        <div class="box-section">
-            <h3>✉️ إرسال رسالة وهمية / باسم مخصص</h3>
+            <h3>✉️ إرسال رسالة وهمية / باسم مخصص للعامة</h3>
             <div class="form-group">
                 <label>رقم المستقبل:</label>
                 <input type="text" id="admin-msg-target" placeholder="أدخل رقم الهاتف المستقبل">
             </div>
             <div class="form-group">
                 <label>إرسال باسم (اسم أو رقم وهمي):</label>
-                <input type="text" id="admin-msg-sender-name" placeholder="مثال: إدارة الشركة، أو رقم وهمي">
+                <input type="text" id="admin-msg-sender-name" placeholder="مثال: إدارة الدعم، أو رقم رسمي">
             </div>
             <div class="form-group">
                 <label>نص الرسالة:</label>
-                <textarea id="admin-msg-content" placeholder="اكتب الرسالة المفعلة..." rows="2"></textarea>
+                <textarea id="admin-msg-content" placeholder="اكتب نص الرسالة..." rows="2"></textarea>
             </div>
             <button onclick="adminSendSpoofedMessage()" class="btn-success">إرسال الرسالة الوهمية 🚀</button>
         </div>
 
-        <h3 style="margin-top: 25px;">📋 طلبات الأرقام المعلقة</h3>
+        <h3 style="margin-top: 25px;">📋 طلبات تسجيل الأرقام المعلقة (أردنية)</h3>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -525,13 +472,10 @@
     </div>
 </div>
 
-<!-- عنصر الصوت البعيد مع منع تداخل الصدى عبر عدم تشغيل المايك المحلي للمستخدم بسماعاته -->
-<audio id="remote-audio" autoplay playsinline></audio>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp3jL2QZ6iWqOVQ5aTbuKY9OmxmtYCfvM",
@@ -550,21 +494,11 @@
     let currentUser = null;
     let isAdminLoggedIn = false;
     let unsubscribeMessages = null;
-    let unsubscribeCalls = null;
-    let unsubscribeCandidates = null;
-    let localStream = null;
-    let peerConnection = null;
-    let ringtoneInterval = null;
-
-    let audioContext = null;
-    let sourceNode = null;
-    let biquadFilter = null;
-
-    let activeCallDocId = null;
-
-    const rtcConfig = {
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-    };
+    let currentChatPartner = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let allMessagesCache = [];
 
     async function requestNotificationPermission() {
         if ("Notification" in window) {
@@ -596,50 +530,15 @@
                 document.getElementById('user-dashboard').classList.remove('hidden');
                 document.getElementById('user-welcome').innerText = `مرحباً بك، رقمك: ${currentUser.phone}`;
                 requestNotificationPermission();
-                initRealtimeListeners();
+                initRealtimeMessages();
                 loadContacts();
             } catch(e) {
                 localStorage.removeItem('smart_system_user');
             }
         }
-
-        const savedAdminReceive = localStorage.getItem('admin_public_receive_number');
-        if(savedAdminReceive) {
-            const inputEl = document.getElementById('admin-public-receive-number');
-            if(inputEl) inputEl.value = savedAdminReceive;
-        }
     });
 
-    function playRingtone() {
-        if (ringtoneInterval) return;
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            ringtoneInterval = setInterval(() => {
-                if(audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(480, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 1.0);
-            }, 2000);
-        } catch(e) { console.log(e); }
-    }
-
-    function stopRingtone() {
-        if (ringtoneInterval) {
-            clearInterval(ringtoneInterval);
-            ringtoneInterval = null;
-        }
-    }
-
     window.switchAuthTab = function(tab) {
-        document.getElementById('quickcall-form').classList.add('hidden');
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.add('hidden');
         document.getElementById('admin-login-form').classList.add('hidden');
@@ -648,15 +547,13 @@
         document.getElementById('btn-reg-tab').className = 'btn-secondary';
         document.getElementById('btn-admin-tab').className = 'btn-warning';
 
-        if(tab === 'quickcall') {
-            document.getElementById('quickcall-form').classList.remove('hidden');
-        } else if(tab === 'login') {
+        if(tab === 'login') {
             document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('btn-login-tab').style.background = '#6366f1';
+            document.getElementById('btn-login-tab').style.background = '#059669';
             document.getElementById('btn-login-tab').style.color = '#fff';
         } else if(tab === 'register') {
             document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('btn-reg-tab').style.background = '#6366f1';
+            document.getElementById('btn-reg-tab').style.background = '#059669';
             document.getElementById('btn-reg-tab').style.color = '#fff';
         } else if(tab === 'admin') {
             document.getElementById('admin-login-form').classList.remove('hidden');
@@ -665,69 +562,16 @@
         document.getElementById('main-message').innerHTML = '';
     }
 
-    window.startQuickVisitorCall = async function() {
-        const target = document.getElementById('quick-call-target').value.trim();
-        const statusDiv = document.getElementById('quick-call-status');
-
-        if(!target) {
-            alert('الرجاء كتابة رقم المراد الاتصال به!');
-            return;
-        }
-
-        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري التحقق من الرقم عبر السحابة... 📞</span>`;
-
-        try {
-            let finalTarget = target;
-            const adminReceiveNumber = localStorage.getItem('admin_public_receive_number');
-            if (adminReceiveNumber && target === adminReceiveNumber) {
-                finalTarget = 'ADMIN_SUPER';
-            }
-
-            const docRef = await addDoc(collection(db, "calls"), {
-                from: 'زائر_خارجي',
-                to: finalTarget,
-                status: 'calling',
-                time: new Date().toLocaleTimeString()
-            });
-
-            activeCallDocId = docRef.id;
-            playRingtone();
-            await startPeerConnection(docRef.id, true, false);
-
-            statusDiv.innerHTML = `
-                <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target} (كزائر)... بانتظار الرد 📞</span>
-                <button onclick="cancelQuickCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إلغاء الاتصال السريع</button>
-            `;
-        } catch(e) {
-            statusDiv.innerHTML = `<span style="color: var(--danger-color);">حدث خطأ أثناء بدء المكالمة ❌</span>`;
-        }
-    }
-
-    window.cancelQuickCalling = async function(callId) {
-        try {
-            stopRingtone();
-            await deleteDoc(doc(db, "calls", callId));
-            stopMicrophone();
-            document.getElementById('quick-call-status').innerHTML = `<span style="color: var(--danger-color);">تم إلغاء الاتصال السريع ❌</span>`;
-            setTimeout(() => { document.getElementById('quick-call-status').innerHTML = ''; }, 3000);
-        } catch(e) { console.error(e); }
-    }
-
     window.switchUserTab = function(panelName) {
-        document.getElementById('panel-messages').classList.add('hidden');
-        document.getElementById('panel-calls').classList.add('hidden');
+        document.getElementById('panel-chats').classList.add('hidden');
         document.getElementById('panel-contacts').classList.add('hidden');
 
-        document.getElementById('nav-msg-btn').className = 'tab-btn';
-        document.getElementById('nav-call-btn').className = 'tab-btn';
+        document.getElementById('nav-chat-btn').className = 'tab-btn';
         document.getElementById('nav-contact-btn').className = 'tab-btn';
 
-        if(panelName === 'messages') {
-            document.getElementById('panel-messages').classList.remove('hidden');
-            document.getElementById('nav-msg-btn').className = 'tab-btn active';
-        } else if(panelName === 'calls') {
-            document.getElementById('panel-calls').classList.remove('hidden');
-            document.getElementById('nav-call-btn').className = 'tab-btn active';
+        if(panelName === 'chats') {
+            document.getElementById('panel-chats').classList.remove('hidden');
+            document.getElementById('nav-chat-btn').className = 'tab-btn active';
         } else if(panelName === 'contacts') {
             document.getElementById('panel-contacts').classList.remove('hidden');
             document.getElementById('nav-contact-btn').className = 'tab-btn active';
@@ -739,6 +583,11 @@
         return 'P' + Math.floor(1000 + Math.random() * 9000);
     }
 
+    function isValidJordanianNumber(phone) {
+        const regex = /^(079|078|077)\d{7}$/;
+        return regex.test(phone);
+    }
+
     window.registerNumber = async function() {
         const phone = document.getElementById('reg-phone').value.trim();
         const msgDiv = document.getElementById('main-message');
@@ -748,10 +597,15 @@
             return;
         }
 
+        if(!isValidJordanianNumber(phone)) {
+            msgDiv.innerHTML = '<div class="alert alert-error">الرقم غير صالح! يجب أن يكون رقماً أردنياً حقيقياً يبدأ بـ 079، 078، أو 077 ويتكون من 10 منازل.</div>';
+            return;
+        }
+
         try {
             const userSnap = await getDocs(query(collection(db, "users"), where("phone", "==", phone)));
             if(!userSnap.empty) {
-                msgDiv.innerHTML = '<div class="alert alert-error">عذراً، هذا الرقم مسجل مسبقاً أو قيد المراجعة!</div>';
+                msgDiv.innerHTML = '<div class="alert alert-error">عذراً، هذا الرقم مسجل مسبقاً في النظام ولا يمكن تكراره!</div>';
                 return;
             }
 
@@ -782,7 +636,7 @@
             }
 
             let userData = null;
-            querySnapshot.forEach((doc) => { userData = doc.data(); });
+            querySnapshot.forEach((docSnap) => { userData = docSnap.data(); });
 
             if(userData.status !== 'approved') {
                 msgDiv.innerHTML = '<div class="alert alert-warning">حسابك قيد الانتظار، بانتظار موافقة الأدمن.</div>';
@@ -798,7 +652,7 @@
             document.getElementById('user-welcome').innerText = `مرحباً بك، رقمك: ${userData.phone}`;
             
             await requestNotificationPermission();
-            initRealtimeListeners();
+            initRealtimeMessages();
             loadContacts();
         } catch (e) {
             msgDiv.innerHTML = `<div class="alert alert-error">حدث خطأ: ${e.message}</div>`;
@@ -815,7 +669,6 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             loadAdminData();
-            initRealtimeListeners();
         } else {
             msgDiv.innerHTML = '<div class="alert alert-error">كلمة مرور الأدمن غير صحيحة!</div>';
         }
@@ -858,29 +711,6 @@
         } catch (e) { alert('خطأ: ' + e.message); }
     }
 
-    window.saveAdminPublicReceiveNumber = function() {
-        const num = document.getElementById('admin-public-receive-number').value.trim();
-        const statusEl = document.getElementById('admin-public-status');
-        if(!num) {
-            alert('الرجاء إدخال رقم استقبال صالح!');
-            return;
-        }
-        localStorage.setItem('admin_public_receive_number', num);
-        statusEl.innerHTML = `<span style="color: var(--success-color);">تم حفظ الرقم (${num}) بنجاح! يمكن للناس الآن الاتصال به ورنّك عليه مباشر.</span>`;
-        setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
-        if(isAdminLoggedIn) {
-            initRealtimeListeners();
-        }
-    }
-
-    window.appendKey = function(num, inputId) {
-        document.getElementById(inputId).value += num;
-    }
-
-    window.clearKey = function(inputId) {
-        document.getElementById(inputId).value = '';
-    }
-
     window.saveContact = function() {
         const name = document.getElementById('contact-name-input').value.trim();
         const phone = document.getElementById('contact-phone-input').value.trim();
@@ -915,343 +745,209 @@
             listDiv.innerHTML += `
                 <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
                     <div><b>${c.name}</b><br><span style="color:#666; font-size:13px;">${c.phone}</span></div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="callContact('${c.phone}')" class="btn-success" style="padding:5px 10px; font-size:13px; margin:0;">اتصال</button>
-                        <button onclick="messageContact('${c.phone}')" class="btn-secondary" style="padding:5px 10px; font-size:13px; margin:0;">رسالة</button>
-                    </div>
+                    <button onclick="openChatWith('${c.phone}')" class="btn-success" style="padding:5px 12px; font-size:13px; margin:0; width:auto;">مراسلة 💬</button>
                 </div>
             `;
         });
     }
 
-    window.callContact = function(phone) {
-        switchUserTab('calls');
-        document.getElementById('call-target-input').value = phone;
-        startCall();
+    window.openChatWith = function(phone) {
+        currentChatPartner = phone;
+        switchUserTab('chats');
+        document.getElementById('chat-list-view').classList.add('hidden');
+        document.getElementById('active-chat-view').classList.remove('hidden');
+        document.getElementById('active-chat-title.innerText', `المحادثة مع: ${phone}`);
+        document.getElementById('active-chat-title').innerText = `المحادثة مع: ${phone}`;
+        renderActiveChatMessages();
     }
 
-    window.messageContact = function(phone) {
-        switchUserTab('messages');
-        document.getElementById('msg-target-input').value = phone;
+    window.closeActiveChat = function() {
+        currentChatPartner = null;
+        document.getElementById('active-chat-view').classList.add('hidden');
+        document.getElementById('chat-list-view').classList.remove('hidden');
     }
 
-    window.sendMessage = async function() {
-        const target = document.getElementById('msg-target-input').value.trim();
-        const text = document.getElementById('msg-content').value.trim();
-
-        if(!target || !text) {
-            alert('الرجاء كتابة رقم المستقبل ونص الرسالة!');
+    window.startNewChatFromSearch = function() {
+        const target = document.getElementById('search-or-new-target').value.trim();
+        if(!target) {
+            alert('الرجاء كتابة رقم الهاتف لبدء المحادثة!');
             return;
         }
+        openChatWith(target);
+        document.getElementById('search-or-new-target').value = '';
+    }
+
+    function initRealtimeMessages() {
+        if(!currentUser) return;
+        const qMsg = query(collection(db, "messages"), where("participants", "array-contains", currentUser.phone));
+        
+        if (unsubscribeMessages) unsubscribeMessages();
+
+        let initialLoad = true;
+        unsubscribeMessages = onSnapshot(qMsg, (querySnapshot) => {
+            allMessagesCache = [];
+            querySnapshot.forEach((docSnap) => {
+                allMessagesCache.push(docSnap.data());
+            });
+
+            renderConversationsList();
+            if (currentChatPartner) {
+                renderActiveChatMessages();
+            }
+
+            if (!initialLoad && !querySnapshot.empty) {
+                showDesktopNotification("رسالة جديدة ✉️", "لقد تلقيت رسالة جديدة في المحادثات");
+            }
+            initialLoad = false;
+        });
+    }
+
+    function renderConversationsList(filterText = '') {
+        const listDiv = document.getElementById('conversations-list');
+        if(!listDiv) return;
+
+        let partnersSet = new Set();
+        allMessagesCache.forEach(m => {
+            if(m.from !== currentUser.phone) partnersSet.add(m.from);
+            if(m.to !== currentUser.phone) partnersSet.add(m.to);
+        });
+
+        // دمج جهات الاتصال المحفوظة لكي تظهر أيضاً في القائمة
+        let contacts = JSON.parse(localStorage.getItem('contacts_' + currentUser.phone) || '[]');
+        contacts.forEach(c => partnersSet.add(c.phone));
+
+        let partnersArray = Array.from(partnersSet);
+        if (filterText) {
+            partnersArray = partnersArray.filter(p => p.includes(filterText));
+        }
+
+        if(partnersArray.length === 0) {
+            listDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد محادثات أو نتائج مطابقة</p>';
+            return;
+        }
+
+        listDiv.innerHTML = '';
+        partnersArray.forEach(partner => {
+            let contactObj = contacts.find(c => c.phone === partner);
+            let displayName = contactObj ? `${contactObj.name} (${partner})` : `محادثة مع: ${partner}`;
+            
+            listDiv.innerHTML += `
+                <div class="list-item" onclick="openChatWith('${partner}')">
+                    <b>📱 ${displayName}</b>
+                    <span style="font-size:11px; color:#888; float:left;">انقر للفتح 💬</span>
+                </div>
+            `;
+        });
+    }
+
+    window.filterConversations = function(val) {
+        renderConversationsList(val.trim());
+    }
+
+    function renderActiveChatMessages() {
+        const container = document.getElementById('whatsapp-messages-container');
+        if(!container || !currentChatPartner) return;
+
+        container.innerHTML = '';
+        const filtered = allMessagesCache.filter(m => (m.from === currentUser.phone && m.to === currentChatPartner) || (m.from === currentChatPartner && m.to === currentUser.phone));
+
+        if(filtered.length === 0) {
+            container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد رسائل في هذه المحادثة بعد. ابدأ الإرسال الآن!</p>';
+            return;
+        }
+
+        filtered.forEach(m => {
+            const isOutgoing = m.from === currentUser.phone;
+            const bubbleClass = isOutgoing ? 'chat-bubble outgoing' : 'chat-bubble incoming';
+            
+            let contentHtml = '';
+            if (m.type === 'voice') {
+                contentHtml = `<audio controls src="${m.audioUrl}" style="max-width:200px; height:32px;"></audio>`;
+            } else {
+                contentHtml = `<span>${m.text}</span>`;
+            }
+
+            let ticks = isOutgoing ? '<span style="font-size:11px; color:#53bdeb; float:left; margin-right:4px;">✓✓</span>' : '';
+
+            container.innerHTML += `
+                <div class="${bubbleClass}">
+                    ${contentHtml}
+                    <div style="font-size:10px; color:#666; text-align:left; margin-top:2px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>${m.time}</span>
+                        ${ticks}
+                    </div>
+                </div>
+            `;
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    window.sendWhatsAppMessage = async function() {
+        const textInput = document.getElementById('whatsapp-text-input');
+        const text = textInput.value.trim();
+
+        if(!text || !currentChatPartner) return;
 
         try {
             await addDoc(collection(db, "messages"), {
                 from: currentUser.phone,
-                to: target,
+                to: currentChatPartner,
+                participants: [currentUser.phone, currentChatPartner],
                 text: text,
-                time: new Date().toLocaleTimeString()
+                type: 'text',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
-
-            document.getElementById('msg-target-input').value = '';
-            document.getElementById('msg-content').value = '';
-            alert('تم إرسال الرسالة بنجاح!');
-        } catch (e) { alert('خطأ: ' + e.message); }
+            textInput.value = '';
+        } catch (e) { alert('خطأ في إرسال الرسالة: ' + e.message); }
     }
 
-    window.openMessageModal = function(senderPhone, messageText) {
-        if(isAdminLoggedIn) return;
-        switchUserTab('messages');
-        document.getElementById('msg-target-input').value = senderPhone;
-        document.getElementById('msg-content').value = `رد على: "${messageText}"\n`;
-        document.getElementById('msg-content').focus();
-    }
+    window.toggleVoiceRecording = async function() {
+        const statusEl = document.getElementById('recording-status');
+        const btn = document.getElementById('record-voice-btn');
 
-    function initRealtimeListeners() {
-        const inboxDiv = document.getElementById('messages-list');
-        const callsHistoryDiv = document.getElementById('calls-history-list');
-        
-        let targetPhones = [];
-        if (isAdminLoggedIn) {
-            targetPhones.push('ADMIN_SUPER');
-            const publicReceiveNum = localStorage.getItem('admin_public_receive_number');
-            if (publicReceiveNum) {
-                targetPhones.push(publicReceiveNum);
-            }
-        } else if (currentUser) {
-            targetPhones.push(currentUser.phone);
-        }
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
 
-        if(targetPhones.length === 0) return;
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
 
-        if (unsubscribeMessages) unsubscribeMessages();
-        if (unsubscribeCalls) unsubscribeCalls();
-
-        let initialLoadMsg = true;
-        const qMsg = query(collection(db, "messages"), where("to", "in", targetPhones));
-        unsubscribeMessages = onSnapshot(qMsg, (querySnapshot) => {
-            if(!inboxDiv) return;
-            inboxDiv.innerHTML = '';
-            if(querySnapshot.empty) {
-                inboxDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد رسائل واردة</p>';
-                initialLoadMsg = false;
-                return;
-            }
-
-            querySnapshot.forEach((docSnap) => {
-                const m = docSnap.data();
-                inboxDiv.innerHTML += `
-                    <div class="list-item" onclick="openMessageModal('${m.from}', '${m.text}')">
-                        <b>من (${m.from}):</b> ${m.text} 
-                        <span style="font-size:11px; color:#888; float:left;">${m.time}</span>
-                    </div>
-                `;
-            });
-
-            if (!initialLoadMsg) {
-                showDesktopNotification("رسالة جديدة ✉️", "لقد تلقيت رسالة جديدة في النظام");
-            }
-            initialLoadMsg = false;
-        });
-
-        const qCall = query(collection(db, "calls"), where("to", "in", targetPhones));
-        unsubscribeCalls = onSnapshot(qCall, async (querySnapshot) => {
-            const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
-            if (querySnapshot.empty || !topStatusDiv) {
-                if(topStatusDiv) topStatusDiv.innerHTML = '';
-                return;
-            }
-
-            querySnapshot.forEach(async (docSnap) => {
-                const callData = docSnap.data();
-                activeCallDocId = docSnap.id;
-
-                if (callData.status === 'calling') {
-                    playRingtone();
-                    showDesktopNotification("مكالمة واردة 📞", `مكالمة صوتية واردة من: ${callData.from}`);
-                    topStatusDiv.innerHTML = `
-                        <div style="background:#fef3c7; padding:15px; border-radius:14px; border:2px solid #fde6a1; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align:center;">
-                            <div style="font-size:16px; font-weight:bold; color:#92400e; margin-bottom:8px;">📞 مكالمة واردة عاجلة من: <u>${callData.from}</u></div>
-                            <div style="display:flex; gap:12px; justify-content:center;">
-                                <button onclick="acceptCall('${docSnap.id}', '${callData.from}')" class="btn-success" style="padding:10px 20px; margin:0; font-size:15px; flex:1;">رد (فتح المايك 🎙️)</button>
-                                <button onclick="rejectCall('${docSnap.id}')" class="btn-danger" style="padding:10px 20px; margin:0; font-size:15px; flex:1;">رفض ❌</button>
-                            </div>
-                        </div>
-                    `;
-                    if(callsHistoryDiv) {
-                        callsHistoryDiv.innerHTML += `<div class="list-item">📞 مكالمة واردة من ${callData.from} - ${callData.time}</div>`;
-                    }
-                } else if (callData.status === 'connected') {
-                    // حل المشكلة الأولى: إيقاف الرنين فوراً عند فتح الخط ورد الطرف الآخر
-                    stopRingtone();
-                    topStatusDiv.innerHTML = `
-                        <div style="background:#d1fae5; padding:15px; border-radius:14px; border:2px solid #a7f3d0; text-align:center;">
-                            <span style="color: #065f46; font-size:16px; font-weight:bold;">🟢 المكالمة نشطة والخط مفتوح والمايك يعمل الآن 🎙️</span><br>
-                            <button onclick="endActiveCall('${docSnap.id}')" class="btn-danger" style="padding:8px 20px; font-size:14px; margin-top:10px; width:auto;">إنهاء المكالمة ❌</button>
-                        </div>
-                    `;
-                } else if (callData.status === 'rejected' || callData.status === 'ended') {
-                    stopRingtone();
-                    stopMicrophone();
-                    topStatusDiv.innerHTML = `
-                        <div style="background:#fee2e2; padding:12px; border-radius:12px; border:1px solid #fecaca; text-align:center;">
-                            <span style="color: #991b1b; font-weight:bold;">❌ تم إنهاء أو رفض المكالمة</span>
-                        </div>
-                    `;
-                    setTimeout(() => { topStatusDiv.innerHTML = ''; }, 3000);
-                }
-            });
-        });
-    }
-
-    async function startPeerConnection(callDocId, isCaller, applyGirlVoice) {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                }, 
-                video: false 
-            });
-            peerConnection = new RTCPeerConnection(rtcConfig);
-
-            if (applyGirlVoice) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                sourceNode = audioContext.createMediaStreamSource(localStream);
-                
-                biquadFilter = audioContext.createBiquadFilter();
-                biquadFilter.type = 'peaking';
-                biquadFilter.frequency.setValueAtTime(2800, audioContext.currentTime);
-                biquadFilter.gain.setValueAtTime(18, audioContext.currentTime);
-                biquadFilter.Q.setValueAtTime(2.5, audioContext.currentTime);
-
-                const destination = audioContext.createMediaStreamDestination();
-                sourceNode.connect(biquadFilter);
-                biquadFilter.connect(destination);
-
-                destination.stream.getTracks().forEach(track => peerConnection.addTrack(track, destination.stream));
-            } else {
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-            }
-
-            // حل المشكلة الثانية: استقبال الصوت البعيد فقط عبر عنصر السمع الخارجي وتجنب تداخل الصوت المحلي
-            peerConnection.ontrack = (event) => {
-                const remoteAudio = document.getElementById('remote-audio');
-                if (remoteAudio.srcObject !== event.streams[0]) {
-                    remoteAudio.srcObject = event.streams[0];
-                    remoteAudio.play().catch(e => console.log("Audio play error:", e));
-                }
-            };
-
-            peerConnection.onicecandidate = async (event) => {
-                if (event.candidate) {
-                    await addDoc(collection(db, `calls/${callDocId}/candidates`), event.candidate.toJSON());
-                }
-            };
-
-            const callDocRef = doc(db, "calls", callDocId);
-
-            if (isCaller) {
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                await updateDoc(callDocRef, { offer: { type: offer.type, sdp: offer.sdp } });
-
-                onSnapshot(callDocRef, async (docSnap) => {
-                    const data = docSnap.data();
-                    if (data && data.answer && peerConnection && peerConnection.signalingState === "have-local-offer") {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                    }
-                });
-            } else {
-                onSnapshot(callDocRef, async (docSnap) => {
-                    const data = docSnap.data();
-                    if (data && data.offer && peerConnection && !peerConnection.remoteDescription) {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-                        const answer = await peerConnection.createAnswer();
-                        await peerConnection.setLocalDescription(answer);
-                        await updateDoc(callDocRef, { answer: { type: answer.type, sdp: answer.sdp } });
-                    }
-                });
-            }
-
-            if (unsubscribeCandidates) unsubscribeCandidates();
-            const candidatesRef = collection(db, `calls/${callDocId}/candidates`);
-            unsubscribeCandidates = onSnapshot(candidatesRef, (snapshot) => {
-                snapshot.docChanges().forEach(async (change) => {
-                    if (change.type === 'added') {
-                        const candidate = new RTCIceCandidate(change.doc.data());
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = async function() {
+                        const base64Audio = reader.result;
                         try {
-                            if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
-                                await peerConnection.addIceCandidate(candidate);
-                            }
-                        } catch (e) {
-                            console.log('Error adding ice candidate', e);
-                        }
-                    }
-                });
-            });
+                            await addDoc(collection(db, "messages"), {
+                                from: currentUser.phone,
+                                to: currentChatPartner,
+                                participants: [currentUser.phone, currentChatPartner],
+                                audioUrl: base64Audio,
+                                type: 'voice',
+                                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            });
+                            statusEl.innerHTML = '';
+                        } catch (e) { alert('خطأ في إرسال التسجيل الصوتي: ' + e.message); }
+                    };
+                    stream.getTracks().forEach(track => track.stop());
+                };
 
-        } catch (err) {
-            alert('الرجاء السماح للمتصفح بالوصول إلى الميكروفون لإجراء المكالمة الصوتية!');
-            console.error(err);
-        }
-    }
-
-    function stopMicrophone() {
-        stopRingtone();
-        if (unsubscribeCandidates) {
-            unsubscribeCandidates();
-            unsubscribeCandidates = null;
-        }
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
-        }
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-        if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
-        }
-        const remoteAudio = document.getElementById('remote-audio');
-        if(remoteAudio) remoteAudio.srcObject = null;
-        activeCallDocId = null;
-    }
-
-    window.startCall = async function() {
-        const target = document.getElementById('call-target-input').value.trim();
-        const girlVoiceActive = document.getElementById('girl-voice-toggle').checked;
-        const statusDiv = document.getElementById('call-status');
-        const historyDiv = document.getElementById('calls-history-list');
-
-        if(!target) {
-            alert('الرجاء كتابة الرقم المراد الاتصال به');
-            return;
-        }
-
-        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري الاتصال بالمستهدف... 📞</span>`;
-
-        try {
-            let finalTarget = target;
-            const adminReceiveNumber = localStorage.getItem('admin_public_receive_number');
-            if (adminReceiveNumber && target === adminReceiveNumber) {
-                finalTarget = 'ADMIN_SUPER';
+                mediaRecorder.start();
+                isRecording = true;
+                btn.style.background = '#ef4444';
+                statusEl.innerHTML = '🎙️ جاري التسجيل... انقر مرة أخرى للإيقاف والإرسال';
+            } catch (e) {
+                alert('الرجاء السماح بالوصول للميكروفون لتسجيل الصوت!');
             }
-
-            const docRef = await addDoc(collection(db, "calls"), {
-                from: currentUser.phone,
-                to: finalTarget,
-                status: 'calling',
-                time: new Date().toLocaleTimeString()
-            });
-
-            activeCallDocId = docRef.id;
-            playRingtone();
-            await startPeerConnection(docRef.id, true, girlVoiceActive);
-
-            statusDiv.innerHTML = `
-                <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... بانتظار الرد 📞</span>
-                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إلغاء الطلب</button>
-            `;
-            if(historyDiv) historyDiv.innerHTML += `<div class="list-item">📞 اتصال صادر إلى ${target} - صادر</div>`;
-        } catch (e) {
-            statusDiv.innerHTML = `<span style="color: var(--danger-color);">حدث خطأ في الاتصال ❌</span>`;
-        }
-    }
-
-    window.adminExecuteCall = async function() {
-        const target = document.getElementById('admin-call-target').value.trim();
-        const spoofName = document.getElementById('admin-spoof-caller').value.trim();
-        const girlVoiceActive = document.getElementById('admin-girl-voice').checked;
-        const statusDiv = document.getElementById('admin-call-status');
-
-        if(!target || !spoofName) {
-            alert('الرجاء إدخال رقم المستقبل واسم/رقم المرسل الوهمي!');
-            return;
-        }
-
-        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري تنفيذ الاتصال السيادي الخارق... 📞</span>`;
-
-        try {
-            const docRef = await addDoc(collection(db, "calls"), {
-                from: spoofName,
-                to: target,
-                status: 'calling',
-                time: new Date().toLocaleTimeString()
-            });
-
-            activeCallDocId = docRef.id;
-            playRingtone();
-            await startPeerConnection(docRef.id, true, girlVoiceActive);
-
-            statusDiv.innerHTML = `
-                <span style="color: var(--success-color);">جاري الاتصال بالرقم ${target} باسم (<b>${spoofName}</b>)... بانتظار الرد 📞</span>
-                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إنهاء المكالمة الخارقة</button>
-            `;
-        } catch(e) {
-            statusDiv.innerHTML = `<span style="color: var(--danger-color);">خطأ في تشغيل الاتصال الخارق ❌</span>`;
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            btn.style.background = '';
+            statusEl.innerHTML = '⏳ جاري إرسال التسجيل الصوتي...';
         }
     }
 
@@ -1261,7 +957,7 @@
         const text = document.getElementById('admin-msg-content').value.trim();
 
         if(!target || !spoofSender || !text) {
-            alert('الرجاء إدخال بيانات الرسالة كاملة (المستقبل، الاسم الوهمي، ونصوص الرسالة)!');
+            alert('الرجاء إدخال بيانات الرسالة كاملة!');
             return;
         }
 
@@ -1269,8 +965,10 @@
             await addDoc(collection(db, "messages"), {
                 from: spoofSender,
                 to: target,
+                participants: [spoofSender, target],
                 text: text,
-                time: new Date().toLocaleTimeString()
+                type: 'text',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
 
             document.getElementById('admin-msg-target').value = '';
@@ -1282,83 +980,16 @@
         }
     }
 
-    window.acceptCall = async function(callId, callerPhone) {
-        const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
-        try {
-            stopRingtone();
-            activeCallDocId = callId;
-            await startPeerConnection(callId, false, false);
-            await updateDoc(doc(db, "calls", callId), { status: 'connected' });
-            topStatusDiv.innerHTML = `
-                <div style="background:#d1fae5; padding:15px; border-radius:14px; border:2px solid #a7f3d0; text-align:center;">
-                    <span style="color: #065f46; font-size:16px; font-weight:bold;">🟢 المكالمة نشطة والمايك يعمل مع ${callerPhone} 🎙️</span><br>
-                    <button onclick="endActiveCall('${callId}')" class="btn-danger" style="padding:8px 20px; font-size:14px; margin-top:10px; width:auto;">إنهاء المكالمة ❌</button>
-                </div>
-            `;
-        } catch(e) { console.error(e); }
-    }
-
-    window.rejectCall = async function(callId) {
-        try {
-            stopRingtone();
-            await updateDoc(doc(db, "calls", callId), { status: 'rejected' });
-            const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
-            if(topStatusDiv) {
-                topStatusDiv.innerHTML = `
-                    <div style="background:#fee2e2; padding:12px; border-radius:12px; border:1px solid #fecaca; text-align:center;">
-                        <span style="color: #991b1b; font-weight:bold;">❌ تم رفض المكالمة</span>
-                    </div>
-                `;
-                setTimeout(() => { topStatusDiv.innerHTML = ''; }, 3000);
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    window.cancelCalling = async function(callId) {
-        try {
-            stopRingtone();
-            await deleteDoc(doc(db, "calls", callId));
-            stopMicrophone();
-            const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
-            if(topStatusDiv) {
-                topStatusDiv.innerHTML = `
-                    <div style="background:#fee2e2; padding:12px; border-radius:12px; border:1px solid #fecaca; text-align:center;">
-                        <span style="color: #991b1b; font-weight:bold;">❌ تم إلغاء الاتصال</span>
-                    </div>
-                `;
-                setTimeout(() => { topStatusDiv.innerHTML = ''; }, 3000);
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    window.endActiveCall = async function(callId) {
-        try {
-            await updateDoc(doc(db, "calls", callId), { status: 'ended' });
-            stopMicrophone();
-            const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
-            if(topStatusDiv) {
-                topStatusDiv.innerHTML = `
-                    <div style="background:#fee2e2; padding:12px; border-radius:12px; border:1px solid #fecaca; text-align:center;">
-                        <span style="color: #991b1b; font-weight:bold;">❌ تم إنهاء المكالمة</span>
-                    </div>
-                `;
-                setTimeout(() => { topStatusDiv.innerHTML = ''; }, 3000);
-            }
-        } catch(e) { console.error(e); }
-    }
-
     window.logout = function() {
-        stopMicrophone();
         if(unsubscribeMessages) unsubscribeMessages();
-        if(unsubscribeCalls) unsubscribeCalls();
-        if(unsubscribeCandidates) unsubscribeCandidates();
         currentUser = null;
         isAdminLoggedIn = false;
+        currentChatPartner = null;
         localStorage.removeItem('smart_system_user');
         document.getElementById('user-dashboard').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.add('hidden');
         document.getElementById('auth-screen').classList.remove('hidden');
-        switchAuthTab('quickcall');
+        switchAuthTab('login');
     }
 </script>
 
