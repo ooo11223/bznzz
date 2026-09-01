@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الاتصال والرسائل الذكي - الإصدار العصري المطور</title>
+    <title>نظام الاتصال والرسائل الذكي - النسخة الخارقة المطورة</title>
     <style>
         :root {
             --primary-color: #6366f1;
@@ -11,7 +11,6 @@
             --success-color: #10b981;
             --danger-color: #ef4444;
             --warning-color: #f59e0b;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%), radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 50%);
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-color: #1e293b;
             --border-color: #cbd5e1;
@@ -261,6 +260,17 @@
         .admin-table th {
             background-color: #f8fafc;
         }
+
+        .voice-changer-box {
+            background: #e0e7ff;
+            border: 1.5px dashed var(--primary-color);
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -373,6 +383,17 @@
                     <label>الرقم المراد الاتصال به:</label>
                     <input type="text" id="call-target-input" placeholder="اكتب الرقم أو اضغط لوحة المفاتيح">
                 </div>
+
+                <div class="voice-changer-box">
+                    <div>
+                        <b>🎙️ مبرمج تغيير الصوت:</b><br>
+                        <span style="font-size: 13px; color: #475569;">تغيير صوتك إلى صوت فتاة ناعم أثناء المكالمة</span>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                        <input type="checkbox" id="girl-voice-toggle" style="width:20px; height:20px;"> 
+                        <span style="font-weight:bold; color:var(--primary-color);">تفعيل صوت فتاة</span>
+                    </label>
+                </div>
                 
                 <div class="keypad">
                     <button onclick="appendKey('1', 'call-target-input')">1</button>
@@ -424,12 +445,64 @@
         <button onclick="logout()" class="btn-danger" style="margin-top: 20px;">تسجيل الخروج</button>
     </div>
 
-    <!-- لوحة تحكم الأدمن -->
+    <!-- لوحة تحكم الأدمن الخارقة -->
     <div id="admin-dashboard" class="hidden">
-        <h2>لوحة تحكم الأدمن</h2>
-        <div class="alert alert-warning">أنت مسجل كمسؤول للنظام 🛠️</div>
+        <h2>👑 لوحة تحكم الأدمن الخارقة</h2>
+        <div class="alert alert-warning">أنت مسجل كمسؤول رئيسي للنظام بصلاحيات كاملة 🛠️</div>
 
-        <h3>طلبات الأرقام المعلقة</h3>
+        <!-- ميزة جديدة مضافة خصيصاً: تعيين رقم يستقبل من خلاله الأدمن مكالمات الناس -->
+        <div class="box-section" style="background: #e0f2fe; border-color: #bae6fd;">
+            <h3>📥 استقبال مكالمات العملاء / العامة (رقم استقبال الأدمن)</h3>
+            <div class="form-group">
+                <label>عين الرقم أو الاسم الوهمي الذي يستطيع الناس الاتصال به:</label>
+                <input type="text" id="admin-public-receive-number" placeholder="مثال: 911، أو إدارة الدعم، أو 0780000000">
+            </div>
+            <button onclick="saveAdminPublicReceiveNumber()" class="btn-success">حفظ رقم الاستقبال العام 🟢</button>
+            <div id="admin-public-status" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
+        </div>
+
+        <div class="box-section">
+            <h3>⚡ محاكي الاتصال الخارق للأدمن</h3>
+            <div class="form-group">
+                <label>الاتصال بـ (رقم أو اسم المستهدف):</label>
+                <input type="text" id="admin-call-target" placeholder="أدخل رقم الضحية أو المستقبل">
+            </div>
+            <div class="form-group">
+                <label>الظهور للمستقبل باسم أو رقم وهمي (مثال: "شرطة", "رقم مخفي", "0780000000"):</label>
+                <input type="text" id="admin-spoof-caller" placeholder="اسم أو رقم المرسل الوهمي">
+            </div>
+            <div class="voice-changer-box">
+                <div>
+                    <b>🎙️ مبرمج تغيير الصوت:</b><br>
+                    <span style="font-size: 13px; color: #475569;">تغيير صوت الأدمن إلى صوت فتاة ناعم أثناء الاتصال</span>
+                </div>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="admin-girl-voice" style="width:20px; height:20px;"> 
+                    <span style="font-weight:bold; color:var(--primary-color);">تفعيل صوت فتاة</span>
+                </label>
+            </div>
+            <button onclick="adminExecuteCall()" class="btn-success" style="margin-top: 15px;">بدء مكالمة مخفية / بوصف وهمي 📞</button>
+            <div id="admin-call-status" style="margin-top: 15px; text-align:center; font-weight:bold;"></div>
+        </div>
+
+        <div class="box-section">
+            <h3>✉️ إرسال رسالة وهمية / باسم مخصص</h3>
+            <div class="form-group">
+                <label>رقم المستقبل:</label>
+                <input type="text" id="admin-msg-target" placeholder="أدخل رقم الهاتف المستقبل">
+            </div>
+            <div class="form-group">
+                <label>إرسال باسم (اسم أو رقم وهمي):</label>
+                <input type="text" id="admin-msg-sender-name" placeholder="مثال: إدارة الشركة، أو رقم وهمي">
+            </div>
+            <div class="form-group">
+                <label>نص الرسالة:</label>
+                <textarea id="admin-msg-content" placeholder="اكتب الرسالة المفعلة..." rows="2"></textarea>
+            </div>
+            <button onclick="adminSendSpoofedMessage()" class="btn-success">إرسال الرسالة الوهمية 🚀</button>
+        </div>
+
+        <h3 style="margin-top: 25px;">📋 طلبات الأرقام المعلقة</h3>
         <table class="admin-table">
             <thead>
                 <tr>
@@ -441,15 +514,7 @@
             <tbody id="pending-requests-table"></tbody>
         </table>
 
-        <h3 style="margin-top: 30px;">المستخدمون المقبولون</h3>
-        <div class="form-group">
-            <label>اختر مستخدماً لمراسلته كأدمن:</label>
-            <select id="admin-target-select"></select>
-        </div>
-        <input type="text" id="admin-msg-text" placeholder="نص رسالة الأدمن..." style="margin-bottom: 10px;">
-        <button onclick="adminSendMessage()" class="btn-success">إرسال رسالة من الأدمن</button>
-
-        <button onclick="logout()" class="btn-danger" style="margin-top: 20px;">تسجيل الخروج من لوحة الأدمن</button>
+        <button onclick="logout()" class="btn-danger" style="margin-top: 25px;">تسجيل الخروج من لوحة الأدمن</button>
     </div>
 </div>
 
@@ -475,17 +540,21 @@
     const db = getFirestore(app);
 
     let currentUser = null;
+    let isAdminLoggedIn = false;
     let unsubscribeMessages = null;
     let unsubscribeCalls = null;
     let localStream = null;
     let peerConnection = null;
     let ringtoneInterval = null;
 
+    let audioContext = null;
+    let sourceNode = null;
+    let biquadFilter = null;
+
     const rtcConfig = {
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     };
 
-    // التحقق من تفعيل إذن الإشعارات إجبارياً
     async function requestNotificationPermission() {
         if ("Notification" in window) {
             if (Notification.permission !== "granted") {
@@ -507,7 +576,6 @@
         }
     }
 
-    // التحقق عند تحميل الصفحة هل المستخدم مسجل مسبقاً في localStorage
     window.addEventListener('DOMContentLoaded', () => {
         const savedUser = localStorage.getItem('smart_system_user');
         if (savedUser) {
@@ -522,6 +590,12 @@
             } catch(e) {
                 localStorage.removeItem('smart_system_user');
             }
+        }
+
+        const savedAdminReceive = localStorage.getItem('admin_public_receive_number');
+        if(savedAdminReceive) {
+            const inputEl = document.getElementById('admin-public-receive-number');
+            if(inputEl) inputEl.value = savedAdminReceive;
         }
     });
 
@@ -592,23 +666,22 @@
         statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري التحقق من الرقم عبر السحابة... 📞</span>`;
 
         try {
-            const q = query(collection(db, "users"), where("phone", "==", target), where("status", "==", "approved"));
-            const querySnapshot = await getDocs(q);
-
-            if(querySnapshot.empty) {
-                statusDiv.innerHTML = `<span style="color: var(--danger-color);">الرقم غير مسجل أو غير معتمد بالموقع! ❌</span>`;
-                return;
+            // التحقق مما إذا كان الرقم المستهدف هو الرقم العام المخصص للأدمن لتلقي المكالمات
+            let finalTarget = target;
+            const adminReceiveNumber = localStorage.getItem('admin_public_receive_number');
+            if (adminReceiveNumber && target === adminReceiveNumber) {
+                finalTarget = 'ADMIN_SUPER'; // إعادة التوجيه الفوري لمستقبل خط الأدمن
             }
 
             const docRef = await addDoc(collection(db, "calls"), {
                 from: 'زائر_خارجي',
-                to: target,
+                to: finalTarget,
                 status: 'calling',
                 time: new Date().toLocaleTimeString()
             });
 
             playRingtone();
-            await startMicrophone(docRef.id, true);
+            await startMicrophone(docRef.id, true, false);
 
             statusDiv.innerHTML = `
                 <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target} (كزائر)... بانتظار الرد 📞</span>
@@ -706,7 +779,7 @@
             }
 
             currentUser = userData;
-            // حفظ الجلسة في التخزين المحلي لتبقى مفعلة حتى لو أغلق المتصفح
+            isAdminLoggedIn = false;
             localStorage.setItem('smart_system_user', JSON.stringify(currentUser));
 
             document.getElementById('auth-screen').classList.add('hidden');
@@ -726,9 +799,12 @@
         const msgDiv = document.getElementById('main-message');
 
         if(pass === 'ooddaayy') {
+            isAdminLoggedIn = true;
+            currentUser = { phone: 'ADMIN_SUPER' };
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             loadAdminData();
+            initRealtimeListeners();
         } else {
             msgDiv.innerHTML = '<div class="alert alert-error">كلمة مرور الأدمن غير صحيحة!</div>';
         }
@@ -758,23 +834,9 @@
             });
 
             if(pendingCount === 0) tableBody.innerHTML = '<tr><td colspan="3">لا توجد طلبات معلقة حالياً</td></tr>';
-            loadAdminDropdownsForAdminPanel();
         } catch (e) {
             tableBody.innerHTML = `<tr><td colspan="3">خطأ: ${e.message}</td></tr>`;
         }
-    }
-
-    async function loadAdminDropdownsForAdminPanel() {
-        const adminSelect = document.getElementById('admin-target-select');
-        if(!adminSelect) return;
-        adminSelect.innerHTML = '';
-        try {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            querySnapshot.forEach((docSnap) => {
-                const u = docSnap.data();
-                if(u.status === 'approved') adminSelect.innerHTML += `<option value="${u.phone}">${u.phone}</option>`;
-            });
-        } catch (e) { console.error(e); }
     }
 
     window.approveUser = async function(phone) {
@@ -783,6 +845,19 @@
             alert('تمت الموافقة بنجاح!');
             loadAdminData();
         } catch (e) { alert('خطأ: ' + e.message); }
+    }
+
+    // حفظ رقم استقبال الأدمن العام في المتصفح وتأكيد التفعيل
+    window.saveAdminPublicReceiveNumber = function() {
+        const num = document.getElementById('admin-public-receive-number').value.trim();
+        const statusEl = document.getElementById('admin-public-status');
+        if(!num) {
+            alert('الرجاء إدخال رقم استقبال صالح!');
+            return;
+        }
+        localStorage.setItem('admin_public_receive_number', num);
+        statusEl.innerHTML = `<span style="color: var(--success-color);">تم حفظ الرقم (${num}) بنجاح! يمكن للناس الآن الاتصال به ورنّك عليه مباشر.</span>`;
+        setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
     }
 
     window.appendKey = function(num, inputId) {
@@ -814,7 +889,7 @@
 
     function loadContacts() {
         const listDiv = document.getElementById('contacts-list');
-        if(!listDiv || !currentUser) return;
+        if(!listDiv || !currentUser || isAdminLoggedIn) return;
 
         let contacts = JSON.parse(localStorage.getItem('contacts_' + currentUser.phone) || '[]');
         if(contacts.length === 0) {
@@ -856,20 +931,7 @@
             return;
         }
 
-        if(target === currentUser.phone) {
-            alert('لا يمكنك إرسال رسالة لنفسك!');
-            return;
-        }
-
         try {
-            const q = query(collection(db, "users"), where("phone", "==", target), where("status", "==", "approved"));
-            const querySnapshot = await getDocs(q);
-
-            if(querySnapshot.empty) {
-                alert('عذراً، هذا الرقم غير مسجل أو غير معتمد!');
-                return;
-            }
-
             await addDoc(collection(db, "messages"), {
                 from: currentUser.phone,
                 to: target,
@@ -884,6 +946,7 @@
     }
 
     window.openMessageModal = function(senderPhone, messageText) {
+        if(isAdminLoggedIn) return;
         switchUserTab('messages');
         document.getElementById('msg-target-input').value = senderPhone;
         document.getElementById('msg-content').value = `رد على: "${messageText}"\n`;
@@ -894,9 +957,13 @@
         const inboxDiv = document.getElementById('messages-list');
         const callsHistoryDiv = document.getElementById('calls-history-list');
         
+        let targetPhone = isAdminLoggedIn ? 'ADMIN_SUPER' : (currentUser ? currentUser.phone : null);
+        if(!targetPhone) return;
+
         let initialLoadMsg = true;
-        const qMsg = query(collection(db, "messages"), where("to", "==", currentUser.phone));
+        const qMsg = query(collection(db, "messages"), where("to", "==", targetPhone));
         unsubscribeMessages = onSnapshot(qMsg, (querySnapshot) => {
+            if(!inboxDiv) return;
             inboxDiv.innerHTML = '';
             if(querySnapshot.empty) {
                 inboxDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">لا توجد رسائل واردة</p>';
@@ -914,17 +981,16 @@
                 `;
             });
 
-            // إرسال إشعار سطح مكتب إذا وصلت رسالة جديدة أثناء خروج المستخدم أو وجوده بالخلفية
             if (!initialLoadMsg) {
                 showDesktopNotification("رسالة جديدة ✉️", "لقد تلقيت رسالة جديدة في النظام");
             }
             initialLoadMsg = false;
         });
 
-        const qCall = query(collection(db, "calls"), where("to", "==", currentUser.phone));
+        const qCall = query(collection(db, "calls"), where("to", "==", targetPhone));
         unsubscribeCalls = onSnapshot(qCall, (querySnapshot) => {
-            const statusDiv = document.getElementById('call-status');
-            if (querySnapshot.empty) return;
+            const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
+            if (querySnapshot.empty || !statusDiv) return;
 
             querySnapshot.forEach((docSnap) => {
                 const callData = docSnap.data();
@@ -941,7 +1007,9 @@
                             </div>
                         </div>
                     `;
-                    callsHistoryDiv.innerHTML += `<div class="list-item">📞 مكالمة واردة من ${callData.from} - ${callData.time}</div>`;
+                    if(callsHistoryDiv) {
+                        callsHistoryDiv.innerHTML += `<div class="list-item">📞 مكالمة واردة من ${callData.from} - ${callData.time}</div>`;
+                    }
                 } else if (callData.status === 'connected') {
                     stopRingtone();
                     statusDiv.innerHTML = `<span style="color: var(--success-color);">المكالمة نشطة والمايك يعمل الآن 🎙️ <button onclick="endActiveCall('${docSnap.id}')" class="btn-danger" style="padding:5px 10px; font-size:12px; margin-top:5px;">إنهاء المكالمة</button></span>`;
@@ -955,12 +1023,29 @@
         });
     }
 
-    async function startMicrophone(callDocId, isCaller) {
+    async function startMicrophone(callDocId, isCaller, applyGirlVoice) {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             peerConnection = new RTCPeerConnection(rtcConfig);
 
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            if (applyGirlVoice) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                sourceNode = audioContext.createMediaStreamSource(localStream);
+                
+                biquadFilter = audioContext.createBiquadFilter();
+                biquadFilter.type = 'peaking';
+                biquadFilter.frequency.setValueAtTime(2800, audioContext.currentTime);
+                biquadFilter.gain.setValueAtTime(18, audioContext.currentTime);
+                biquadFilter.Q.setValueAtTime(2.5, audioContext.currentTime);
+
+                const destination = audioContext.createMediaStreamDestination();
+                sourceNode.connect(biquadFilter);
+                biquadFilter.connect(destination);
+
+                destination.stream.getTracks().forEach(track => peerConnection.addTrack(track, destination.stream));
+            } else {
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            }
 
             peerConnection.ontrack = (event) => {
                 const remoteAudio = document.getElementById('remote-audio');
@@ -991,6 +1076,10 @@
             localStream.getTracks().forEach(track => track.stop());
             localStream = null;
         }
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
         if (peerConnection) {
             peerConnection.close();
             peerConnection = null;
@@ -999,6 +1088,7 @@
 
     window.startCall = async function() {
         const target = document.getElementById('call-target-input').value.trim();
+        const girlVoiceActive = document.getElementById('girl-voice-toggle').checked;
         const statusDiv = document.getElementById('call-status');
         const historyDiv = document.getElementById('calls-history-list');
 
@@ -1007,47 +1097,100 @@
             return;
         }
 
-        if(target === currentUser.phone) {
-            statusDiv.innerHTML = `<span style="color: var(--danger-color);">لا يمكنك الاتصال بنفسك! ❌</span>`;
-            return;
-        }
-
-        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري التحقق من الرقم عبر السحابة... 📞</span>`;
+        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري الاتصال بالمستهدف... 📞</span>`;
 
         try {
-            const q = query(collection(db, "users"), where("phone", "==", target), where("status", "==", "approved"));
-            const querySnapshot = await getDocs(q);
-
-            if(querySnapshot.empty) {
-                statusDiv.innerHTML = `<span style="color: var(--danger-color);">الرقم غير مسجل أو غير معتمد! ❌</span>`;
-                return;
+            let finalTarget = target;
+            const adminReceiveNumber = localStorage.getItem('admin_public_receive_number');
+            if (adminReceiveNumber && target === adminReceiveNumber) {
+                finalTarget = 'ADMIN_SUPER';
             }
 
             const docRef = await addDoc(collection(db, "calls"), {
                 from: currentUser.phone,
+                to: finalTarget,
+                status: 'calling',
+                time: new Date().toLocaleTimeString()
+            });
+
+            playRingtone();
+            await startMicrophone(docRef.id, true, girlVoiceActive);
+
+            statusDiv.innerHTML = `
+                <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... بانتظار الرد 📞</span>
+                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إلغاء الطلب</button>
+            `;
+            if(historyDiv) historyDiv.innerHTML += `<div class="list-item">📞 اتصال صادر إلى ${target} - صادر</div>`;
+        } catch (e) {
+            statusDiv.innerHTML = `<span style="color: var(--danger-color);">حدث خطأ في الاتصال ❌</span>`;
+        }
+    }
+
+    window.adminExecuteCall = async function() {
+        const target = document.getElementById('admin-call-target').value.trim();
+        const spoofName = document.getElementById('admin-spoof-caller').value.trim();
+        const girlVoiceActive = document.getElementById('admin-girl-voice').checked;
+        const statusDiv = document.getElementById('admin-call-status');
+
+        if(!target || !spoofName) {
+            alert('الرجاء إدخال رقم المستقبل واسم/رقم المرسل الوهمي!');
+            return;
+        }
+
+        statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري تنفيذ الاتصال السيادي الخارق... 📞</span>`;
+
+        try {
+            const docRef = await addDoc(collection(db, "calls"), {
+                from: spoofName,
                 to: target,
                 status: 'calling',
                 time: new Date().toLocaleTimeString()
             });
 
             playRingtone();
-            await startMicrophone(docRef.id, true);
+            await startMicrophone(docRef.id, true, girlVoiceActive);
 
             statusDiv.innerHTML = `
-                <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... بانتظار الرد 📞</span>
-                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إلغاء الطلب</button>
+                <span style="color: var(--success-color);">جاري الاتصال بالرقم ${target} باسم (<b>${spoofName}</b>)... بانتظار الرد 📞</span>
+                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:6px 12px; margin-top:8px; font-size:14px;">إنهاء المكالمة الخارقة</button>
             `;
-            historyDiv.innerHTML += `<div class="list-item">📞 اتصال صادر إلى ${target} - صادر</div>`;
+        } catch(e) {
+            statusDiv.innerHTML = `<span style="color: var(--danger-color);">خطأ في تشغيل الاتصال الخارق ❌</span>`;
+        }
+    }
+
+    window.adminSendSpoofedMessage = async function() {
+        const target = document.getElementById('admin-msg-target').value.trim();
+        const spoofSender = document.getElementById('admin-msg-sender-name').value.trim();
+        const text = document.getElementById('admin-msg-content').value.trim();
+
+        if(!target || !spoofSender || !text) {
+            alert('الرجاء إدخال بيانات الرسالة كاملة (المستقبل، الاسم الوهمي، ونصوص الرسالة)!');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "messages"), {
+                from: spoofSender,
+                to: target,
+                text: text,
+                time: new Date().toLocaleTimeString()
+            });
+
+            document.getElementById('admin-msg-target').value = '';
+            document.getElementById('admin-msg-sender-name').value = '';
+            document.getElementById('admin-msg-content').value = '';
+            alert('تم إرسال الرسالة الوهمية بنجاح تام! 🚀');
         } catch (e) {
-            statusDiv.innerHTML = `<span style="color: var(--danger-color);">حدث خطأ في الاتصال ❌</span>`;
+            alert('حدث خطأ: ' + e.message);
         }
     }
 
     window.acceptCall = async function(callId, callerPhone) {
-        const statusDiv = document.getElementById('call-status');
+        const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
         try {
             stopRingtone();
-            await startMicrophone(callId, false);
+            await startMicrophone(callId, false, false);
             await updateDoc(doc(db, "calls", callId), { status: 'connected' });
             statusDiv.innerHTML = `<span style="color: var(--success-color);">المكالمة نشطة والمايك يعمل مع ${callerPhone} 🎙️ <button onclick="endActiveCall('${callId}')" class="btn-danger" style="padding:3px 8px; font-size:12px; margin-top:5px;">إنهاء المكالمة</button></span>`;
         } catch(e) { console.error(e); }
@@ -1057,8 +1200,11 @@
         try {
             stopRingtone();
             await updateDoc(doc(db, "calls", callId), { status: 'rejected' });
-            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم رفض المكالمة ❌</span>`;
-            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+            const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
+            if(statusDiv) {
+                statusDiv.innerHTML = `<span style="color: var(--danger-color);">تم رفض المكالمة ❌</span>`;
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+            }
         } catch(e) { console.error(e); }
     }
 
@@ -1067,8 +1213,11 @@
             stopRingtone();
             await deleteDoc(doc(db, "calls", callId));
             stopMicrophone();
-            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم إلغاء الاتصال ❌</span>`;
-            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+            const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
+            if(statusDiv) {
+                statusDiv.innerHTML = `<span style="color: var(--danger-color);">تم إلغاء الاتصال ❌</span>`;
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+            }
         } catch(e) { console.error(e); }
     }
 
@@ -1076,30 +1225,12 @@
         try {
             await updateDoc(doc(db, "calls", callId), { status: 'ended' });
             stopMicrophone();
-            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم إنهاء المكالمة ❌</span>`;
-            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+            const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
+            if(statusDiv) {
+                statusDiv.innerHTML = `<span style="color: var(--danger-color);">تم إنهاء المكالمة ❌</span>`;
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+            }
         } catch(e) { console.error(e); }
-    }
-
-    window.adminSendMessage = async function() {
-        const target = document.getElementById('admin-target-select').value;
-        const text = document.getElementById('admin-msg-text').value.trim();
-        
-        if(!target || !text) {
-            alert('اختر مستخدماً واكتب نص الرسالة');
-            return;
-        }
-
-        try {
-            await addDoc(collection(db, "messages"), {
-                from: 'ADMIN',
-                to: target,
-                text: `[رسالة إدارية]: ${text}`,
-                time: new Date().toLocaleTimeString()
-            });
-            document.getElementById('admin-msg-text').value = '';
-            alert('تم إرسال رسالة الأدمن بنجاح!');
-        } catch (e) { alert('خطأ: ' + e.message); }
     }
 
     window.logout = function() {
@@ -1107,7 +1238,8 @@
         if(unsubscribeMessages) unsubscribeMessages();
         if(unsubscribeCalls) unsubscribeCalls();
         currentUser = null;
-        localStorage.removeItem('smart_system_user'); // مسح الجلسة عند الضغط على خروج يدوياً فقط
+        isAdminLoggedIn = false;
+        localStorage.removeItem('smart_system_user');
         document.getElementById('user-dashboard').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.add('hidden');
         document.getElementById('auth-screen').classList.remove('hidden');
