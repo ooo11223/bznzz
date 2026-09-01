@@ -55,15 +55,15 @@
         <div class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center">
             <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover"></video>
             <canvas id="aiCanvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
-            <!-- عنصر مخفي لرفع إطارات البث المباشر للسحابة -->
             <canvas id="streamCanvas" class="hidden"></canvas>
         </div>
         <div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-400 gap-2">
-            <p>حالة الذكاء الاصطناعي: <span id="aiStatus" class="text-yellow-400">جاري التحميل...</span></p>
-            <p class="text-xs text-emerald-400 bg-emerald-950 px-3 py-1 rounded border border-emerald-800">🛡️ وضع منع إيقاف الشاشة مفعل</p>
+            <p>حالة البث والذكاء: <span id="aiStatus" class="text-yellow-400">جاري التحميل...</span></p>
+            <p class="text-xs text-emerald-400 bg-emerald-950 px-3 py-1 rounded border border-emerald-800">🛡️ منع إيقاف الشاشة مفعل</p>
             <div class="flex gap-2">
-                <button onclick="captureAndUploadToCloud()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold">رفع لقطة للسحابة ☁️</button>
-                <button onclick="location.reload()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">إعادة ضبط</button>
+                <button onclick="forceBroadcastNow()" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold">إعادة مزامنة البث 🔄</button>
+                <button onclick="captureAndUploadToCloud()" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold">رفع لقطة ☁️</button>
+                <button onclick="location.reload()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs">خروج</button>
             </div>
         </div>
     </div>
@@ -73,8 +73,9 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-emerald-400">لوحة التحكم والمراقبة المركزية (البث الحي من الكاميرا)</h2>
             <div class="flex gap-2">
-                <button onclick="logEvent('بدء تسجيل يدوي وتخزين سحابي')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow">بدء التسجيل 🔴</button>
-                <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm">خروج</button>
+                <button onclick="forceRefreshViewer()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow">تحديث البث 🔄</button>
+                <button onclick="logEvent('بدء تسجيل يدوي وتخزين سحابي')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow">بدء التسجيل 🔴</button>
+                <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-xs">خروج</button>
             </div>
         </div>
 
@@ -82,12 +83,11 @@
             <!-- شاشة الكاميرا مع الزوم -->
             <div class="lg:col-span-2 flex flex-col gap-4">
                 <div id="viewContainer" class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center border border-slate-700">
-                    <!-- تم استبدال فيديو الكاميرا المحلية بصورة البث الحي القادم من السحابة -->
                     <img id="liveStreamImage" class="w-full h-full object-cover transition-transform duration-100 hidden" alt="البث الحي">
-                    <!-- طبقة الانتظار لحين استقبال البث -->
-                    <div id="streamPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-900">
+                    <div id="streamPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900 p-4 text-center">
                         <span class="text-5xl mb-2 animate-bounce">📡</span>
-                        <p>جاري استقبال البث الحي من كاميرا الهاتف الثاني...</p>
+                        <p class="font-bold text-yellow-400">في انتظار بدء البث من هاتف الكاميرا الثاني...</p>
+                        <p class="text-xs text-slate-500 mt-2">تأكد من فتح صفحة "كاميرا المراقبة" على الهاتف الثاني وإعطاء صلاحية الكاميرا.</p>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getFirestore, collection, addDoc, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // إعدادات فايربيز الخاصة بك
         const firebaseConfig = {
@@ -149,13 +149,11 @@
             measurementId: "G-6N3K35D975"
         };
 
-        // تهيئة Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // جعل خدمات فايربيز متاحة عالمياً في النطاق العام للصفحة
         window.db = db;
         window.storage = storage;
         window.storageRef = storageRef;
@@ -165,17 +163,29 @@
         window.addDoc = addDoc;
         window.doc = doc;
         window.setDoc = setDoc;
+        window.getDoc = getDoc;
         window.onSnapshot = onSnapshot;
         window.serverTimestamp = serverTimestamp;
 
         logEvent("تم ربط النظام بقاعدة بيانات وتخزين Firebase السحابي بنجاح.");
 
-        // إذا كان الجهاز في وضع العارض، استمع للبث الحي المحدث من السحابة فوراً
+        // استقبال البث الحي في جهاز العرض مع الاستماع اللحظي
         window.initCloudViewer = function() {
             const liveImage = document.getElementById('liveStreamImage');
             const placeholder = document.getElementById('streamPlaceholder');
 
             const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
+            
+            // جلب أولي سريع
+            window.getDoc(streamDocRef).then((docSnap) => {
+                if (docSnap.exists() && docSnap.data().image) {
+                    liveImage.src = docSnap.data().image;
+                    liveImage.classList.remove('hidden');
+                    placeholder.style.display = 'none';
+                }
+            }).catch(err => console.log(err));
+
+            // الاستماع المستمر للتحديثات
             window.onSnapshot(streamDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -186,22 +196,45 @@
                     }
                 }
             });
-            logEvent("تم تفعيل استقبال البث الحي السحابي بنجاح.");
+            logEvent("جاري استقبال البث المباشر من السحابة...");
         };
 
-        // دالة تقوم برفع إطار البث من الكاميرا إلى السحابة كل فترة قصيرة
+        // زر تحديث يدوي للعارض
+        window.forceRefreshViewer = async function() {
+            const liveImage = document.getElementById('liveStreamImage');
+            const placeholder = document.getElementById('streamPlaceholder');
+            try {
+                const docSnap = await window.getDoc(window.doc(window.db, "live_stream", "camera_feed"));
+                if (docSnap.exists() && docSnap.data().image) {
+                    liveImage.src = docSnap.data().image;
+                    liveImage.classList.remove('hidden');
+                    placeholder.style.display = 'none';
+                    alert("تم تحديث البث الحي بنجاح!");
+                } else {
+                    alert("لا يوجد بث نشط حالياً من هاتف الكاميرا.");
+                }
+            } catch (e) {
+                alert("خطأ في الاتصال بقاعدة البيانات.");
+            }
+        };
+
+        // إرسال البث من الكاميرا للسحابة
+        let broadcastInterval = null;
         window.startCloudBroadcasting = function(videoElement) {
             const canvas = document.getElementById('streamCanvas');
             const ctx = canvas.getContext('2d');
 
-            setInterval(async () => {
-                if (videoElement.paused || videoElement.ended) return;
-                canvas.width = 640; // دقة ممتازة للبث الحي السريع
-                canvas.height = 360;
-                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                const frameData = canvas.toDataURL('image/jpeg', 0.6); // ضغط الصورة لسرعة البث
+            if (broadcastInterval) clearInterval(broadcastInterval);
 
+            broadcastInterval = setInterval(async () => {
+                if (!videoElement || videoElement.paused || videoElement.ended) return;
+                
                 try {
+                    canvas.width = 480; // حجم مناسب جداً لسرعة رفع وتحديث البث السحابي
+                    canvas.height = 270;
+                    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                    const frameData = canvas.toDataURL('image/jpeg', 0.5); // ضغط لضمان السرعة
+
                     const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
                     await window.setDoc(streamDocRef, {
                         image: frameData,
@@ -210,12 +243,21 @@
                 } catch (e) {
                     console.error("Broadcasting error:", e);
                 }
-            }, 800); // إرسال إطار جديد كل 800 جزء من الثانية لضمان بث حي سلس
+            }, 600); // إرسال إطار كل 0.6 ثانية
+        };
+
+        window.forceBroadcastNow = function() {
+            const video = document.getElementById('webcam');
+            if (video && video.srcObject) {
+                window.startCloudBroadcasting(video);
+                alert("تم إعادة تشغيل وإجبار مزامنة البث السحابي بنجاح!");
+            } else {
+                alert("الكاميرا غير مشغلة على هذا الجهاز.");
+            }
         };
     </script>
 
     <script>
-        // التحقق من كلمة المرور
         function checkPassword() {
             const pass = document.getElementById('passwordInput').value;
             if (pass === 'ooddaayy') {
@@ -226,7 +268,6 @@
             }
         }
 
-        // اختيار الوضع (كاميرا أو عارض)
         let currentMode = '';
         async function setMode(mode) {
             currentMode = mode;
@@ -234,27 +275,22 @@
             
             if (mode === 'camera') {
                 document.getElementById('cameraPanel').classList.remove('hidden');
-                await requestWakeLock(); // منع قفل الشاشة للهاتف الكاميرا
+                await requestWakeLock();
                 await startCameraStream();
             } else {
                 document.getElementById('viewerPanel').classList.remove('hidden');
-                if (window.initCloudViewer) {
-                    window.initCloudViewer();
-                } else {
-                    // انتظر تحميل الـ module إذا تأخر أجزاء من الثانية
-                    setTimeout(() => { if(window.initCloudViewer) window.initCloudViewer(); }, 1000);
-                }
+                setTimeout(() => {
+                    if (window.initCloudViewer) window.initCloudViewer();
+                }, 800);
             }
         }
 
-        // تفعيل مانع إيقاف الشاشة (Wake Lock API)
         let wakeLock = null;
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                     logEvent('تم تفعيل منع إيقاف الشاشة بنجاح.');
-                    
                     document.addEventListener('visibilitychange', async () => {
                         if (wakeLock !== null && document.visibilityState === 'visible') {
                             wakeLock = await navigator.wakeLock.request('screen');
@@ -262,11 +298,10 @@
                     });
                 }
             } catch (err) {
-                console.log(`Wake Lock error: ${err.name}, ${err.message}`);
+                console.log(`Wake Lock error: ${err.name}`);
             }
         }
 
-        // تشغيل كاميرا الهاتف الثاني وطلب صلاحية الوصول مع دعم 4K والبث السحابي
         async function startCameraStream() {
             const video = document.getElementById('webcam');
             const canvas = document.getElementById('aiCanvas');
@@ -277,26 +312,25 @@
                 const constraints = {
                     video: { 
                         facingMode: "environment", 
-                        width: { ideal: 3840 }, 
-                        height: { ideal: 2160 } 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 } 
                     }, 
                     audio: false 
                 };
 
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
-                logEvent('تم منح صلاحية الوصول للكاميرا وبدء البث السحابي.');
+                logEvent('تم تشغيل الكاميرا وبدء البث السحابي.');
                 
-                // بدء البث الحي إلى السحابة ليراها جهاز العرض الأول
-                if (window.startCloudBroadcasting) {
-                    window.startCloudBroadcasting(video);
-                } else {
-                    setTimeout(() => { if(window.startCloudBroadcasting) window.startCloudBroadcasting(video); }, 1000);
-                }
+                setTimeout(() => {
+                    if (window.startCloudBroadcasting) {
+                        window.startCloudBroadcasting(video);
+                    }
+                }, 1000);
 
                 aiStatus.innerText = "جاري تحميل نموذج الذكاء الاصطناعي...";
                 const model = await cocoSsd.load();
-                aiStatus.innerText = "يعمل بكفاءة عالية (يكتشف أشخاص وسيارات)";
+                aiStatus.innerText = "البث والذكاء الاصطناعي يعملان بكفاءة";
                 aiStatus.className = "text-green-400 font-bold";
 
                 detectFrame(video, model, ctx);
@@ -306,7 +340,6 @@
             }
         }
 
-        // الكشف المستمر عن الأشخاص والسيارات
         async function detectFrame(video, model, ctx) {
             if (video.paused || video.ended) return;
             
@@ -339,7 +372,6 @@
             requestAnimationFrame(() => detectFrame(video, model, ctx));
         }
 
-        // وظيفة التقاط صورة من الكاميرا ورفعها إلى Cloud Storage في Firebase
         async function captureAndUploadToCloud() {
             const video = document.getElementById('webcam');
             if (!video.srcObject) {
@@ -352,34 +384,27 @@
             canvas.height = video.videoHeight || 720;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
             const dataUrl = canvas.toDataURL('image/jpeg');
 
             try {
                 logEvent('جاري رفع لقطة الشاشة إلى التخزين السحابي...');
                 const fileName = `snapshots/snap_${Date.now()}.jpg`;
                 const imageRef = window.storageRef(window.storage, fileName);
-                
                 await window.uploadString(imageRef, dataUrl, 'data_url');
-                const downloadURL = await window.getDownloadURL(imageRef);
-                
                 logEvent('تم رفع اللقطة بنجاح إلى التخزين السحابي ☁️');
                 alert("تم رفع الصورة إلى سحابة Firebase بنجاح!");
             } catch (error) {
-                console.error("Cloud Storage Error:", error);
-                logEvent('فشل رفع الصورة للسحابة.');
-                alert("حدث خطأ أثناء الرفع للسحابة، تأكد من إعدادات قواعد الأمان (Security Rules) في Firebase Storage.");
+                console.error(error);
+                alert("حدث خطأ أثناء الرفع للسحابة. تأكد من إعدادات قواعد الأمان في Firebase Storage و Firestore.");
             }
         }
 
-        // نظام الزوم الرقمي 100x
         function updateZoom(val) {
             document.getElementById('zoomVal').innerText = val + 'x';
             const liveImage = document.getElementById('liveStreamImage');
             liveImage.style.transform = `scale(${val})`;
         }
 
-        // إدارة الأجهزة النشطة
         function toggleDevice(btn) {
             if (btn.innerText === 'تعطيل') {
                 btn.innerText = 'تفعيل';
@@ -396,7 +421,6 @@
             }
         }
 
-        // إضافة وحفظ الأحداث في قاعدة بيانات Firestore السحابية وعرضها محلياً
         async function logEvent(text) {
             const logList = document.getElementById('logList');
             const now = new Date();
@@ -406,9 +430,7 @@
             logItem.className = 'p-1.5 bg-slate-800 rounded border-r-2 border-blue-500 mb-1';
             logItem.innerHTML = `<span class="text-blue-400">[${timeString}]</span> ${text}`;
             
-            if (logList) {
-                logList.prepend(logItem);
-            }
+            if (logList) logList.prepend(logItem);
 
             try {
                 if (window.db && window.collection && window.addDoc) {
@@ -417,9 +439,7 @@
                         timestamp: window.serverTimestamp ? window.serverTimestamp() : new Date()
                     });
                 }
-            } catch (e) {
-                // تجاهل خطأ قاعدة البيانات المؤقت
-            }
+            } catch (e) {}
         }
     </script>
 </body>
