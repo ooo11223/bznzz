@@ -287,11 +287,14 @@
     </div>
 </div>
 
+<!-- عنصر صوتي مخفي لتشغيل المايك والاتصال الصوتي المباشر -->
+<audio id="remote-audio" autoplay></audio>
+
 <!-- كود الربط مع Firebase وتطبيق المنطق السحابي -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp3jL2QZ6iWqOVQ5aTbuKY9OmxmtYCfvM",
@@ -308,8 +311,11 @@
     const db = getFirestore(app);
 
     let currentUser = null;
+    let unsubscribeMessages = null;
+    let unsubscribeCalls = null;
+    let localStream = null;
+    let activeCallDocId = null;
 
-    // ربط الدوال بالـ Window لتعمل مع الـ HTML onclick
     window.switchTab = function(tab) {
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.add('hidden');
@@ -349,8 +355,6 @@
         }
 
         try {
-            // التحقق إذا كان الرقم موجود مسبقاً في السحابة
-            const userRef = doc(db, "users", phone);
             const userSnap = await getDocs(query(collection(db, "users"), where("phone", "==", phone)));
             
             if(!userSnap.empty) {
@@ -359,7 +363,6 @@
             }
 
             const generatedPass = generateRandomPassword();
-            // حفظ المستخدم الجديد في Firestore
             await setDoc(doc(db, "users", phone), {
                 phone: phone,
                 password: generatedPass,
@@ -402,7 +405,7 @@
             document.getElementById('user-welcome').innerText = `مرحباً بك، رقمك: ${userData.phone}`;
             
             loadAdminDropdownsForAdminPanel();
-            loadInbox();
+            initRealtimeListeners();
         } catch (e) {
             msgDiv.innerHTML = `<div class="alert alert-error">حدث خطأ: ${e.message}</div>`;
         }
@@ -483,7 +486,6 @@
         }
     }
 
-    // لوحة المفاتيح التفاعلية
     window.appendKey = function(num, inputId) {
         const input = document.getElementById(inputId);
         input.value += num;
@@ -493,7 +495,6 @@
         document.getElementById(inputId).value = '';
     }
 
-    // إرسال رسالة سحابية
     window.sendMessage = async function() {
         const target = document.getElementById('msg-target-input').value.trim();
         const text = document.getElementById('msg-content').value.trim();
@@ -509,7 +510,6 @@
         }
 
         try {
-            // التحقق إن كان الرقم مسجلاً ومقبولاً
             const q = query(collection(db, "users"), where("phone", "==", target), where("status", "==", "approved"));
             const querySnapshot = await getDocs(q);
 
@@ -518,7 +518,6 @@
                 return;
             }
 
-            // حفظ الرسالة في مجموعة الرسائل السحابية (messages)
             await addDoc(collection(db, "messages"), {
                 from: currentUser.phone,
                 to: target,
@@ -534,14 +533,13 @@
         }
     }
 
-    window.loadInbox = async function() {
+    // تفعيل الاستماع اللحظي (Real-time) للرسائل والمكالمات
+    function initRealtimeListeners() {
         const inboxDiv = document.getElementById('messages-list');
-        inboxDiv.innerHTML = '<p style="text-align: center;">جاري جلب الرسائل...</p>';
-
-        try {
-            const q = query(collection(db, "messages"), where("to", "==", currentUser.phone));
-            const querySnapshot = await getDocs(q);
-            
+        
+        // 1. الاستماع للرسائل الواردة فوراً
+        const qMsg = query(collection(db, "messages"), where("to", "==", currentUser.phone));
+        unsubscribeMessages = onSnapshot(qMsg, (querySnapshot) => {
             inboxDiv.innerHTML = '';
             if(querySnapshot.empty) {
                 inboxDiv.innerHTML = '<p style="color: #666; text-align: center;">لا توجد رسائل واردة</p>';
@@ -552,8 +550,57 @@
                 const m = docSnap.data();
                 inboxDiv.innerHTML += `<div style="border-bottom: 1px solid #eee; padding: 5px 0;"><b>من (${m.from}):</b> ${m.text} <span style="font-size:10px; color:#888; float:left;">${m.time}</span></div>`;
             });
-        } catch (e) {
-            inboxDiv.innerHTML = '<p style="color: red; text-align: center;">خطأ في تحميل الرسائل</p>';
+        });
+
+        // 2. الاستماع للمكالمات الواردة وحالتها فوراً
+        const qCall = query(collection(db, "calls"), where("to", "==", currentUser.phone));
+        unsubscribeCalls = onSnapshot(qCall, (querySnapshot) => {
+            const statusDiv = document.getElementById('call-status');
+            if (querySnapshot.empty) {
+                return;
+            }
+
+            querySnapshot.forEach((docSnap) => {
+                const callData = docSnap.data();
+                activeCallDocId = docSnap.id;
+
+                if (callData.status === 'calling') {
+                    statusDiv.innerHTML = `
+                        <div style="background:#fef3c7; padding:8px; border-radius:6px; margin-top:5px;">
+                            📞 مكالمة واردة من: <b>${callData.from}</b><br>
+                            <div style="display:flex; gap:10px; margin-top:8px;">
+                                <button onclick="acceptCall('${docSnap.id}', '${callData.from}')" class="btn-success" style="padding:5px; margin:0; font-size:14px;">رد (فتح المايك)</button>
+                                <button onclick="rejectCall('${docSnap.id}')" class="btn-danger" style="padding:5px; margin:0; font-size:14px;">إلغاء / رفض</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (callData.status === 'connected') {
+                    statusDiv.innerHTML = `<span style="color: var(--success-color);">المكالمة نشطة والمايك يعمل الآن 🎙️ <button onclick="endActiveCall('${docSnap.id}')" class="btn-danger" style="padding:3px 8px; font-size:12px; margin-top:5px;">إنهاء المكالمة</button></span>`;
+                } else if (callData.status === 'rejected' || callData.status === 'ended') {
+                    statusDiv.innerHTML = `<span style="color: var(--danger-color);">تم إنهاء أو رفض المكالمة ❌</span>`;
+                    stopMicrophone();
+                    setTimeout(() => { statusDiv.innerHTML = ''; }, 3000);
+                }
+            });
+        });
+    }
+
+    // طلب الإذن وتشغيل المايك
+    async function startMicrophone() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            // ربط الصوت المحلي بالمتصفح أو معالجه
+            console.log("تم تشغيل المايك بنجاح");
+        } catch (err) {
+            alert('الرجاء السماح للمتصفح بالوصول إلى الميكروفون لإجراء المكالمة الصوتية!');
+            console.error(err);
+        }
+    }
+
+    function stopMicrophone() {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
         }
     }
 
@@ -582,12 +629,73 @@
                 return;
             }
 
-            statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... 📞</span>`;
-            setTimeout(() => {
-                statusDiv.innerHTML = `<span style="color: var(--success-color);">المكالمة نشطة الآن مع الرقم ${target} 🎙️</span>`;
-            }, 2000);
+            // تشغيل المايك للطرف المتصل
+            await startMicrophone();
+
+            // إرسال طلب اتصال سحابي
+            const docRef = await addDoc(collection(db, "calls"), {
+                from: currentUser.phone,
+                to: target,
+                status: 'calling',
+                time: new Date().toLocaleTimeString()
+            });
+            activeCallDocId = docRef.id;
+
+            statusDiv.innerHTML = `
+                <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... بانتظار الرد 📞</span>
+                <button onclick="cancelCalling('${docRef.id}')" class="btn-danger" style="padding:5px; margin-top:5px; font-size:14px;">إلغاء الطلب</button>
+            `;
         } catch (e) {
             statusDiv.innerHTML = `<span style="color: var(--danger-color);">حدث خطأ في الاتصال ❌</span>`;
+        }
+    }
+
+    window.acceptCall = async function(callId, callerPhone) {
+        const statusDiv = document.getElementById('call-status');
+        try {
+            await startMicrophone();
+            await updateDoc(doc(db, "calls", callId), {
+                status: 'connected'
+            });
+            statusDiv.innerHTML = `<span style="color: var(--success-color);">المكالمة نشطة والمايك يعمل مع ${callerPhone} 🎙️ <button onclick="endActiveCall('${callId}')" class="btn-danger" style="padding:3px 8px; font-size:12px; margin-top:5px;">إنهاء المكالمة</button></span>`;
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    window.rejectCall = async function(callId) {
+        try {
+            await updateDoc(doc(db, "calls", callId), {
+                status: 'rejected'
+            });
+            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم رفض المكالمة ❌</span>`;
+            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    window.cancelCalling = async function(callId) {
+        try {
+            await deleteDoc(doc(db, "calls", callId));
+            stopMicrophone();
+            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم إلغاء الاتصال ❌</span>`;
+            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    window.endActiveCall = async function(callId) {
+        try {
+            await updateDoc(doc(db, "calls", callId), {
+                status: 'ended'
+            });
+            stopMicrophone();
+            document.getElementById('call-status').innerHTML = `<span style="color: var(--danger-color);">تم إنهاء المكالمة ❌</span>`;
+            setTimeout(() => { document.getElementById('call-status').innerHTML = ''; }, 3000);
+        } catch(e) {
+            console.error(e);
         }
     }
 
@@ -615,6 +723,9 @@
     }
 
     window.logout = function() {
+        stopMicrophone();
+        if(unsubscribeMessages) unsubscribeMessages();
+        if(unsubscribeCalls) unsubscribeCalls();
         currentUser = null;
         document.getElementById('user-dashboard').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.add('hidden');
