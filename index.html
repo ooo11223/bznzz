@@ -666,11 +666,10 @@
         statusDiv.innerHTML = `<span style="color: var(--primary-color);">جاري التحقق من الرقم عبر السحابة... 📞</span>`;
 
         try {
-            // التحقق مما إذا كان الرقم المستهدف هو الرقم العام المخصص للأدمن لتلقي المكالمات
             let finalTarget = target;
             const adminReceiveNumber = localStorage.getItem('admin_public_receive_number');
             if (adminReceiveNumber && target === adminReceiveNumber) {
-                finalTarget = 'ADMIN_SUPER'; // إعادة التوجيه الفوري لمستقبل خط الأدمن
+                finalTarget = 'ADMIN_SUPER';
             }
 
             const docRef = await addDoc(collection(db, "calls"), {
@@ -847,7 +846,6 @@
         } catch (e) { alert('خطأ: ' + e.message); }
     }
 
-    // حفظ رقم استقبال الأدمن العام في المتصفح وتأكيد التفعيل
     window.saveAdminPublicReceiveNumber = function() {
         const num = document.getElementById('admin-public-receive-number').value.trim();
         const statusEl = document.getElementById('admin-public-status');
@@ -858,6 +856,10 @@
         localStorage.setItem('admin_public_receive_number', num);
         statusEl.innerHTML = `<span style="color: var(--success-color);">تم حفظ الرقم (${num}) بنجاح! يمكن للناس الآن الاتصال به ورنّك عليه مباشر.</span>`;
         setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+        // إعادة تهيئة الاستماع الفوري لتحديث الرقم العام فوراً
+        if(isAdminLoggedIn) {
+            initRealtimeListeners();
+        }
     }
 
     window.appendKey = function(num, inputId) {
@@ -957,11 +959,25 @@
         const inboxDiv = document.getElementById('messages-list');
         const callsHistoryDiv = document.getElementById('calls-history-list');
         
-        let targetPhone = isAdminLoggedIn ? 'ADMIN_SUPER' : (currentUser ? currentUser.phone : null);
-        if(!targetPhone) return;
+        let targetPhones = [];
+        if (isAdminLoggedIn) {
+            targetPhones.push('ADMIN_SUPER');
+            const publicReceiveNum = localStorage.getItem('admin_public_receive_number');
+            if (publicReceiveNum) {
+                targetPhones.push(publicReceiveNum);
+            }
+        } else if (currentUser) {
+            targetPhones.push(currentUser.phone);
+        }
+
+        if(targetPhones.length === 0) return;
+
+        // إلغاء الاستماع القديم لتجنب التكرار
+        if (unsubscribeMessages) unsubscribeMessages();
+        if (unsubscribeCalls) unsubscribeCalls();
 
         let initialLoadMsg = true;
-        const qMsg = query(collection(db, "messages"), where("to", "==", targetPhone));
+        const qMsg = query(collection(db, "messages"), where("to", "in", targetPhones));
         unsubscribeMessages = onSnapshot(qMsg, (querySnapshot) => {
             if(!inboxDiv) return;
             inboxDiv.innerHTML = '';
@@ -987,7 +1003,7 @@
             initialLoadMsg = false;
         });
 
-        const qCall = query(collection(db, "calls"), where("to", "==", targetPhone));
+        const qCall = query(collection(db, "calls"), where("to", "in", targetPhones));
         unsubscribeCalls = onSnapshot(qCall, (querySnapshot) => {
             const statusDiv = isAdminLoggedIn ? document.getElementById('admin-call-status') : document.getElementById('call-status');
             if (querySnapshot.empty || !statusDiv) return;
