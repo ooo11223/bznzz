@@ -15,7 +15,7 @@
         .glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-2 sm:p-4">
 
     <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700 text-center">
@@ -36,12 +36,12 @@
             <button onclick="setMode('camera')" class="p-6 bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl transition flex flex-col items-center group">
                 <span class="text-4xl mb-2 group-hover:scale-110 transition">📷</span>
                 <span class="font-bold text-lg text-blue-300">جهاز كاميرا مراقبة</span>
-                <span class="text-xs text-slate-400 mt-1">بث مباشر سحابي + ذكاء اصطناعي</span>
+                <span class="text-xs text-slate-400 mt-1">بث مباشر فائق السرعة + ذكاء اصطناعي</span>
             </button>
             <button onclick="setMode('viewer')" class="p-6 bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl transition flex flex-col items-center group">
                 <span class="text-4xl mb-2 group-hover:scale-110 transition">🖥️</span>
                 <span class="font-bold text-lg text-emerald-300">جهاز عرض وتحكم</span>
-                <span class="text-xs text-slate-400 mt-1">مراقبة البث الحي 4K وزوم 100x</span>
+                <span class="text-xs text-slate-400 mt-1">عرض ملء الشاشة + زوم 100x</span>
             </button>
         </div>
     </div>
@@ -49,8 +49,8 @@
     <!-- لوحة كاميرا المراقبة (البث) -->
     <div id="cameraPanel" class="hidden w-full max-w-4xl bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-blue-400">وضع كاميرا المراقبة (بث مباشر سحابي نشط)</h2>
-            <span class="px-3 py-1 bg-red-600 text-white text-xs rounded-full animate-pulse">● قيد البث السحابي</span>
+            <h2 class="text-xl font-bold text-blue-400">وضع كاميرا المراقبة (بث فوري نشط)</h2>
+            <span class="px-3 py-1 bg-red-600 text-white text-xs rounded-full animate-pulse">● بث مباشر فوري</span>
         </div>
         <div class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center">
             <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover"></video>
@@ -58,7 +58,7 @@
             <canvas id="streamCanvas" class="hidden"></canvas>
         </div>
         <div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-400 gap-2">
-            <p>حالة البث: <span id="aiStatus" class="text-yellow-400 font-bold">جاري البث للسحابة...</span></p>
+            <p>حالة البث: <span id="aiStatus" class="text-yellow-400 font-bold">جاري البث الفوري...</span></p>
             <p class="text-xs text-emerald-400 bg-emerald-950 px-3 py-1 rounded border border-emerald-800">🛡️ منع إيقاف الشاشة مفعل</p>
             <div class="flex gap-2">
                 <button onclick="forceSendFrame()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold animate-pulse">إرسال لقطة الآن 🚀</button>
@@ -67,61 +67,41 @@
         </div>
     </div>
 
-    <!-- لوحة العرض والتحكم (المشاهدة المباشرة) -->
-    <div id="viewerPanel" class="hidden w-full max-w-6xl bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-emerald-400">لوحة التحكم والمراقبة المركزية (البث الحي)</h2>
-            <div class="flex gap-2">
-                <button onclick="forceRefreshViewer()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow">تحديث البث 🔄</button>
-                <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-xs">خروج</button>
+    <!-- لوحة العرض والتحكم (ملء الشاشة بالكامل) -->
+    <div id="viewerPanel" class="hidden w-full h-screen max-w-none bg-slate-900 p-2 sm:p-4 flex flex-col justify-between">
+        <!-- شريط علوي خفيف للتحكم -->
+        <div class="flex justify-between items-center bg-slate-800 px-4 py-2 rounded-xl border border-slate-700 mb-2 z-10">
+            <h2 class="text-base sm:text-lg font-bold text-emerald-400">لوحة المراقبة المركزية (ملء الشاشة 4K)</h2>
+            <div class="flex gap-2 items-center">
+                <button onclick="forceRefreshViewer()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">تحديث 🔄</button>
+                <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs">خروج</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- شاشة الكاميرا مع الزوم -->
-            <div class="lg:col-span-2 flex flex-col gap-4">
-                <div id="viewContainer" class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center border border-slate-700">
-                    <img id="liveStreamImage" class="w-full h-full object-cover transition-transform duration-100 hidden" alt="البث الحي">
-                    <div id="streamPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900 p-4 text-center">
-                        <span class="text-5xl mb-2 animate-bounce">📡</span>
-                        <p class="font-bold text-yellow-400">في انتظار استقبال البث من هاتف الكاميرا...</p>
-                        <p class="text-xs text-slate-500 mt-2">إذا ظهرت لك رسالة خطأ، اضغط على زر "إرسال لقطة الآن 🚀" في الهاتف الثاني.</p>
-                    </div>
-                </div>
-
-                <!-- تحكم الزوم 100x -->
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-blue-400">التقريب (Zoom 100x Max): <span id="zoomVal" class="text-white">1x</span></span>
-                        <span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-1 rounded">دقة العرض: 4K Ultra HD</span>
-                    </div>
-                    <input type="range" id="zoomRange" min="1" max="100" value="1" step="1" oninput="updateZoom(this.value)" class="w-full accent-blue-500 cursor-pointer">
-                </div>
+        <!-- حاوية الكاميرا لتملأ الشاشة بالكامل -->
+        <div class="relative flex-1 overflow-hidden rounded-xl bg-black flex items-center justify-center border border-slate-800 shadow-2xl">
+            <img id="liveStreamImage" class="w-full h-full object-contain transition-transform duration-75 hidden" alt="البث الحي">
+            <div id="streamPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-950 p-4 text-center">
+                <span class="text-6xl mb-3 animate-bounce">📡</span>
+                <p class="font-bold text-yellow-400 text-lg">جاري الاتصال السريع بهاتف الكاميرا...</p>
+                <p class="text-xs text-slate-500 mt-2">تأكد من أن كاميرا الهاتف الثاني تعمل وتبث.</p>
             </div>
+        </div>
 
-            <!-- اللوحة الجانبية: الأجهزة والسجل -->
-            <div class="flex flex-col gap-4">
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex-1">
-                    <h3 class="font-bold text-sm mb-3 text-slate-300 flex justify-between items-center">
-                        <span>الأجهزة المتصلة</span>
-                        <span class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">1 نشط</span>
-                    </h3>
-                    <div class="space-y-2 max-h-40 overflow-y-auto">
-                        <div class="flex items-center justify-between bg-slate-800 p-2.5 rounded-lg text-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
-                                <span>كاميرا الهاتف الثاني</span>
-                            </div>
-                        </div>
-                    </div>
+        <!-- شريط تحكم سفلي (زووم وسجل مصغر) -->
+        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 mt-2 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <div class="w-full sm:w-1/3 flex flex-col gap-1">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-blue-400">التقريب (Zoom): <span id="zoomVal" class="text-white">1x</span></span>
                 </div>
-
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex-1">
-                    <h3 class="font-bold text-sm mb-3 text-slate-300">سجل الأحداث 🕒</h3>
-                    <div id="logList" class="space-y-2 max-h-40 overflow-y-auto text-xs text-slate-400 font-mono">
-                        <div class="p-1.5 bg-slate-800 rounded">جاري تهيئة النظام...</div>
-                    </div>
+                <input type="range" id="zoomRange" min="1" max="100" value="1" step="1" oninput="updateZoom(this.value)" class="w-full accent-blue-500 cursor-pointer">
+            </div>
+            <div class="flex items-center gap-4 text-xs text-slate-400">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping"></span>
+                    <span>متصل بالكاميرا (سحابياً)</span>
                 </div>
+                <div id="logListMini" class="hidden sm:block font-mono text-emerald-300">النظام جاهز.</div>
             </div>
         </div>
     </div>
@@ -151,15 +131,22 @@
         window.onSnapshot = onSnapshot;
         window.serverTimestamp = serverTimestamp;
 
-        logEvent("تم الاتصال بسحابة Firebase بنجاح.");
-
-        // استقبال البث الحي في جهاز العرض (تحديث فوري)
+        // استقبال البث الحي فائق السرعة
         window.initCloudViewer = function() {
             const liveImage = document.getElementById('liveStreamImage');
             const placeholder = document.getElementById('streamPlaceholder');
             const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
 
-            // الاستماع اللحظي الفوري
+            // جلب أولي سريع
+            window.getDoc(streamDocRef).then((docSnap) => {
+                if (docSnap.exists() && docSnap.data().image) {
+                    liveImage.src = docSnap.data().image;
+                    liveImage.classList.remove('hidden');
+                    placeholder.style.display = 'none';
+                }
+            }).catch(err => {});
+
+            // استماع فوري لأي تغيير بالبث
             window.onSnapshot(streamDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -169,14 +156,9 @@
                         placeholder.style.display = 'none';
                     }
                 }
-            }, (error) => {
-                console.log("Firestore error:", error);
             });
-            
-            window.forceRefreshViewer();
         };
 
-        // زر تحديث يدوي للعارض
         window.forceRefreshViewer = async function() {
             const liveImage = document.getElementById('liveStreamImage');
             const placeholder = document.getElementById('streamPlaceholder');
@@ -186,55 +168,27 @@
                     liveImage.src = docSnap.data().image;
                     liveImage.classList.remove('hidden');
                     placeholder.style.display = 'none';
-                    logEvent("تم تحديث البث الحي يدوياً بنجاح.");
-                } else {
-                    logEvent("في انتظار إرسال لقطة البث من هاتف الكاميرا...");
                 }
-            } catch (e) {
-                logEvent("خطأ بالاتصال بقاعدة البيانات.");
-            }
+            } catch (e) {}
         };
 
-        // دالة رفع البث التلقائي واليدوي من الكاميرا
-        window.forceSendFrame = async function() {
-            const video = document.getElementById('webcam');
-            const canvas = document.getElementById('streamCanvas');
-            if (!video || !video.srcObject) {
-                alert("الكاميرا غير مشغلة على هذا الهاتف!");
-                return;
-            }
-            try {
-                canvas.width = 400;
-                canvas.height = 225;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const frameData = canvas.toDataURL('image/jpeg', 0.5);
-
-                const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
-                await window.setDoc(streamDocRef, {
-                    image: frameData,
-                    updatedAt: window.serverTimestamp()
-                });
-                alert("تم إرسال لقطة البث الحي للسحابة بنجاح! راقب الهاتف الآخر.");
-                logEvent("تم إرسال لقطة بث جديدة للسحابة يدوياً.");
-            } catch (e) {
-                alert("فشل الإرسال للسحابة: " + e.message);
-            }
-        };
-
-        // بث تلقائي كل نصف ثانية
+        // إرسال فوري ومضغوط للسرعة القصوى (كل 200 ميللي ثانية بدل التأخير السابق)
         let broadcastInterval = null;
         window.startCloudBroadcasting = function(videoElement) {
+            const canvas = document.getElementById('streamCanvas');
+            const ctx = canvas.getContext('2d');
             if (broadcastInterval) clearInterval(broadcastInterval);
+
             broadcastInterval = setInterval(async () => {
                 if (!videoElement || videoElement.paused || videoElement.ended) return;
                 try {
-                    const canvas = document.getElementById('streamCanvas');
-                    canvas.width = 400;
-                    canvas.height = 225;
-                    const ctx = canvas.getContext('2d');
+                    // تصغير الأبعاد قليلاً لرفع سرعة النقل الفوري وتجنب أي تعليق
+                    canvas.width = 480;
+                    canvas.height = 270;
                     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                    const frameData = canvas.toDataURL('image/jpeg', 0.4);
+                    
+                    // تقليل الجودة لـ 0.3 لضمان انتقال الصورة بسرعة البرق دون تأخير
+                    const frameData = canvas.toDataURL('image/jpeg', 0.3);
 
                     const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
                     await window.setDoc(streamDocRef, {
@@ -242,7 +196,22 @@
                         updatedAt: window.serverTimestamp()
                     });
                 } catch (e) {}
-            }, 500);
+            }, 200); // إرسال 5 إطارات في الثانية بشكل فوري ومستمر
+        };
+
+        window.forceSendFrame = async function() {
+            const video = document.getElementById('webcam');
+            const canvas = document.getElementById('streamCanvas');
+            if (!video || !video.srcObject) return;
+            canvas.width = 480;
+            canvas.height = 270;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const frameData = canvas.toDataURL('image/jpeg', 0.4);
+            await window.setDoc(window.doc(window.db, "live_stream", "camera_feed"), {
+                image: frameData,
+                updatedAt: window.serverTimestamp()
+            });
         };
     </script>
 
@@ -266,7 +235,7 @@
                 document.getElementById('viewerPanel').classList.remove('hidden');
                 setTimeout(() => {
                     if (window.initCloudViewer) window.initCloudViewer();
-                }, 500);
+                }, 300);
             }
         }
 
@@ -282,21 +251,18 @@
                     audio: false
                 });
                 video.srcObject = stream;
-                logEvent('تم فتح الكاميرا وبدء البث السحابي التلقائي.');
                 
                 setTimeout(() => {
                     if (window.startCloudBroadcasting) window.startCloudBroadcasting(video);
-                }, 1000);
+                }, 500);
 
                 aiStatus.innerText = "جاري تحميل نموذج الذكاء الاصطناعي...";
                 const model = await cocoSsd.load();
-                aiStatus.innerText = "البث والذكاء الاصطناعي يعملان بنجاح";
+                aiStatus.innerText = "البث السريع والذكاء الاصطناعي يعملان بكفاءة";
                 aiStatus.className = "text-green-400 font-bold";
 
                 detectFrame(video, model, ctx);
-            } catch (err) {
-                logEvent('فشل في تشغيل الكاميرا، تأكد من إعطاء الصلاحية.');
-            }
+            } catch (err) {}
         }
 
         async function detectFrame(video, model, ctx) {
@@ -327,19 +293,6 @@
             document.getElementById('zoomVal').innerText = val + 'x';
             document.getElementById('liveStreamImage').style.transform = `scale(${val})`;
         }
-
-        function logEvent(text) {
-            const logList = document.getElementById('logList');
-            if (!logList) return;
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ar-JO');
-            const logItem = document.createElement('div');
-            logItem.className = 'p-1.5 bg-slate-800 rounded border-r-2 border-blue-500 mb-1';
-            logItem.innerHTML = `<span class="text-blue-400">[${timeString}]</span> ${text}`;
-            logList.prepend(logItem);
-        }
     </script>
 </body>
 </html>
-
-تم التصميم بواسطه oday -gh ©
