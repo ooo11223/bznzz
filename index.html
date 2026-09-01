@@ -115,7 +115,7 @@
         .btn-success:hover { background-color: #059669; }
         .btn-danger { background-color: var(--danger-color); box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); }
         .btn-danger:hover { background-color: #dc2626; }
-        .btn-warning { background-color: #d97706; color: #fff; box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2); }
+        .btn-warning { background-color: var(--warning-color); color: #fff; box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2); }
         .btn-warning:hover { background-color: #b45309; }
 
         .hidden {
@@ -272,7 +272,6 @@
             justify-content: space-between;
         }
 
-        /* تنسيق مخصص لصندوق الاتصال العلوي البارز */
         .top-global-alert-container {
             margin-bottom: 20px;
         }
@@ -350,11 +349,10 @@
 
     <!-- لوحة تحكم المستخدم -->
     <div id="user-dashboard" class="hidden">
+        <div id="top-call-status-user" class="top-global-alert-container"></div>
+
         <h2 id="user-welcome">مرحباً بك</h2>
         <div class="alert alert-success">أنت متصل الآن بالسحابة بنجاح! 🚀</div>
-
-        <!-- صندوق التنبيهات العلوي البارز للمكالمات (أول الموقع بعد تسجيل الدخول) -->
-        <div id="top-call-status-user" class="top-global-alert-container"></div>
 
         <div class="dashboard-nav">
             <button onclick="switchUserTab('messages')" class="tab-btn active" id="nav-msg-btn">✉️ الرسائل</button>
@@ -455,13 +453,11 @@
 
     <!-- لوحة تحكم الأدمن الخارقة -->
     <div id="admin-dashboard" class="hidden">
+        <div id="top-call-status-admin" class="top-global-alert-container"></div>
+
         <h2>👑 لوحة تحكم الأدمن الخارقة</h2>
         <div class="alert alert-warning">أنت مسجل كمسؤول رئيسي للنظام بصلاحيات كاملة 🛠️</div>
 
-        <!-- صندوق التنبيهات العلوي البارز للمكالمات (أول لوحة الأدمن) -->
-        <div id="top-call-status-admin" class="top-global-alert-container"></div>
-
-        <!-- ميزة استقبال مكالمات العملاء -->
         <div class="box-section" style="background: #e0f2fe; border-color: #bae6fd;">
             <h3>📥 استقبال مكالمات العملاء / العامة (رقم استقبال الأدمن)</h3>
             <div class="form-group">
@@ -529,12 +525,13 @@
     </div>
 </div>
 
+<!-- عنصر الصوت البعيد مع منع تداخل الصدى عبر عدم تشغيل المايك المحلي للمستخدم بسماعاته -->
 <audio id="remote-audio" autoplay playsinline></audio>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where, onSnapshot, deleteDoc, onSnapshot as listenToCollection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, addDoc, query, where, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAp3jL2QZ6iWqOVQ5aTbuKY9OmxmtYCfvM",
@@ -562,6 +559,8 @@
     let audioContext = null;
     let sourceNode = null;
     let biquadFilter = null;
+
+    let activeCallDocId = null;
 
     const rtcConfig = {
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -691,8 +690,9 @@
                 time: new Date().toLocaleTimeString()
             });
 
+            activeCallDocId = docRef.id;
             playRingtone();
-            await startMicrophone(docRef.id, true, false);
+            await startPeerConnection(docRef.id, true, false);
 
             statusDiv.innerHTML = `
                 <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target} (كزائر)... بانتظار الرد 📞</span>
@@ -1023,6 +1023,7 @@
 
             querySnapshot.forEach(async (docSnap) => {
                 const callData = docSnap.data();
+                activeCallDocId = docSnap.id;
 
                 if (callData.status === 'calling') {
                     playRingtone();
@@ -1040,6 +1041,7 @@
                         callsHistoryDiv.innerHTML += `<div class="list-item">📞 مكالمة واردة من ${callData.from} - ${callData.time}</div>`;
                     }
                 } else if (callData.status === 'connected') {
+                    // حل المشكلة الأولى: إيقاف الرنين فوراً عند فتح الخط ورد الطرف الآخر
                     stopRingtone();
                     topStatusDiv.innerHTML = `
                         <div style="background:#d1fae5; padding:15px; border-radius:14px; border:2px solid #a7f3d0; text-align:center;">
@@ -1061,9 +1063,16 @@
         });
     }
 
-    async function startMicrophone(callDocId, isCaller, applyGirlVoice) {
+    async function startPeerConnection(callDocId, isCaller, applyGirlVoice) {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            localStream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }, 
+                video: false 
+            });
             peerConnection = new RTCPeerConnection(rtcConfig);
 
             if (applyGirlVoice) {
@@ -1085,10 +1094,13 @@
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             }
 
+            // حل المشكلة الثانية: استقبال الصوت البعيد فقط عبر عنصر السمع الخارجي وتجنب تداخل الصوت المحلي
             peerConnection.ontrack = (event) => {
                 const remoteAudio = document.getElementById('remote-audio');
-                remoteAudio.srcObject = event.streams[0];
-                remoteAudio.play().catch(e => console.log(e));
+                if (remoteAudio.srcObject !== event.streams[0]) {
+                    remoteAudio.srcObject = event.streams[0];
+                    remoteAudio.play().catch(e => console.log("Audio play error:", e));
+                }
             };
 
             peerConnection.onicecandidate = async (event) => {
@@ -1097,19 +1109,23 @@
                 }
             };
 
+            const callDocRef = doc(db, "calls", callDocId);
+
             if (isCaller) {
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
-                await updateDoc(doc(db, "calls", callDocId), { offer: { type: offer.type, sdp: offer.sdp } });
+                await updateDoc(callDocRef, { offer: { type: offer.type, sdp: offer.sdp } });
+
+                onSnapshot(callDocRef, async (docSnap) => {
+                    const data = docSnap.data();
+                    if (data && data.answer && peerConnection && peerConnection.signalingState === "have-local-offer") {
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                    }
+                });
             } else {
-                // إذا كان متلقياً للمكالمة، يستمع للـ Offer ويقوم بإنشاء Answer وربط الـ Candidates
-                const callDocSnap = await getDocs(query(collection(db, "calls"), where("__name__", "==", callDocId)));
-                // استماع فوري لتحديثات العرض وإجابة الاتصال
-                const callDocRef = doc(db, "calls", callDocId);
-                
-                onSnapshot(callDocRef, async (docSnapshot) => {
-                    const data = docSnapshot.data();
-                    if (data && data.offer && !peerConnection.currentRemoteDescription) {
+                onSnapshot(callDocRef, async (docSnap) => {
+                    const data = docSnap.data();
+                    if (data && data.offer && peerConnection && !peerConnection.remoteDescription) {
                         await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
                         const answer = await peerConnection.createAnswer();
                         await peerConnection.setLocalDescription(answer);
@@ -1118,7 +1134,6 @@
                 });
             }
 
-            // الاستماع المشترك لـ ICE Candidates لحل مشكلة عدم تدفق الصوت وربط الخط بدقة تامة
             if (unsubscribeCandidates) unsubscribeCandidates();
             const candidatesRef = collection(db, `calls/${callDocId}/candidates`);
             unsubscribeCandidates = onSnapshot(candidatesRef, (snapshot) => {
@@ -1126,26 +1141,15 @@
                     if (change.type === 'added') {
                         const candidate = new RTCIceCandidate(change.doc.data());
                         try {
-                            if (peerConnection && peerConnection.remoteDescription) {
+                            if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
                                 await peerConnection.addIceCandidate(candidate);
                             }
                         } catch (e) {
-                            console.log('Error adding received ice candidate', e);
+                            console.log('Error adding ice candidate', e);
                         }
                     }
                 });
             });
-
-            // لو كان المتصل الأصلي، ينتظر الـ Answer من المستقبل لربط الجلسة نهائياً
-            if (isCaller) {
-                const callDocRef = doc(db, "calls", callDocId);
-                onSnapshot(callDocRef, async (docSnapshot) => {
-                    const data = docSnapshot.data();
-                    if (data && data.answer && !peerConnection.currentRemoteDescription) {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                    }
-                });
-            }
 
         } catch (err) {
             alert('الرجاء السماح للمتصفح بالوصول إلى الميكروفون لإجراء المكالمة الصوتية!');
@@ -1171,6 +1175,9 @@
             peerConnection.close();
             peerConnection = null;
         }
+        const remoteAudio = document.getElementById('remote-audio');
+        if(remoteAudio) remoteAudio.srcObject = null;
+        activeCallDocId = null;
     }
 
     window.startCall = async function() {
@@ -1200,8 +1207,9 @@
                 time: new Date().toLocaleTimeString()
             });
 
+            activeCallDocId = docRef.id;
             playRingtone();
-            await startMicrophone(docRef.id, true, girlVoiceActive);
+            await startPeerConnection(docRef.id, true, girlVoiceActive);
 
             statusDiv.innerHTML = `
                 <span style="color: var(--primary-color);">جاري الاتصال بالرقم ${target}... بانتظار الرد 📞</span>
@@ -1234,8 +1242,9 @@
                 time: new Date().toLocaleTimeString()
             });
 
+            activeCallDocId = docRef.id;
             playRingtone();
-            await startMicrophone(docRef.id, true, girlVoiceActive);
+            await startPeerConnection(docRef.id, true, girlVoiceActive);
 
             statusDiv.innerHTML = `
                 <span style="color: var(--success-color);">جاري الاتصال بالرقم ${target} باسم (<b>${spoofName}</b>)... بانتظار الرد 📞</span>
@@ -1277,7 +1286,8 @@
         const topStatusDiv = isAdminLoggedIn ? document.getElementById('top-call-status-admin') : document.getElementById('top-call-status-user');
         try {
             stopRingtone();
-            await startMicrophone(callId, false, false);
+            activeCallDocId = callId;
+            await startPeerConnection(callId, false, false);
             await updateDoc(doc(db, "calls", callId), { status: 'connected' });
             topStatusDiv.innerHTML = `
                 <div style="background:#d1fae5; padding:15px; border-radius:14px; border:2px solid #a7f3d0; text-align:center;">
