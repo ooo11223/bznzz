@@ -36,12 +36,12 @@
             <button onclick="setMode('camera')" class="p-6 bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl transition flex flex-col items-center group">
                 <span class="text-4xl mb-2 group-hover:scale-110 transition">📷</span>
                 <span class="font-bold text-lg text-blue-300">جهاز كاميرا مراقبة</span>
-                <span class="text-xs text-slate-400 mt-1">بث مباشر + ذكاء اصطناعي + رفع سحابي</span>
+                <span class="text-xs text-slate-400 mt-1">بث مباشر سحابي + ذكاء اصطناعي</span>
             </button>
             <button onclick="setMode('viewer')" class="p-6 bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl transition flex flex-col items-center group">
                 <span class="text-4xl mb-2 group-hover:scale-110 transition">🖥️</span>
                 <span class="font-bold text-lg text-emerald-300">جهاز عرض وتحكم</span>
-                <span class="text-xs text-slate-400 mt-1">مراقبة 4K وزوم 100x</span>
+                <span class="text-xs text-slate-400 mt-1">مراقبة البث الحي 4K وزوم 100x</span>
             </button>
         </div>
     </div>
@@ -49,12 +49,14 @@
     <!-- لوحة كاميرا المراقبة (البث) -->
     <div id="cameraPanel" class="hidden w-full max-w-4xl bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-blue-400">وضع كاميرا المراقبة (بث مباشر نشط + سحابي)</h2>
-            <span class="px-3 py-1 bg-red-600 text-white text-xs rounded-full animate-pulse">● قيد التشغيل المستمر</span>
+            <h2 class="text-xl font-bold text-blue-400">وضع كاميرا المراقبة (بث مباشر سحابي نشط)</h2>
+            <span class="px-3 py-1 bg-red-600 text-white text-xs rounded-full animate-pulse">● قيد البث السحابي</span>
         </div>
         <div class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center">
             <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover"></video>
             <canvas id="aiCanvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+            <!-- عنصر مخفي لرفع إطارات البث المباشر للسحابة -->
+            <canvas id="streamCanvas" class="hidden"></canvas>
         </div>
         <div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-400 gap-2">
             <p>حالة الذكاء الاصطناعي: <span id="aiStatus" class="text-yellow-400">جاري التحميل...</span></p>
@@ -69,7 +71,7 @@
     <!-- لوحة العرض والتحكم (المشاهدة المباشرة) -->
     <div id="viewerPanel" class="hidden w-full max-w-6xl bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-emerald-400">لوحة التحكم والمراقبة المركزية (متصلة بالسحابة)</h2>
+            <h2 class="text-xl font-bold text-emerald-400">لوحة التحكم والمراقبة المركزية (البث الحي من الكاميرا)</h2>
             <div class="flex gap-2">
                 <button onclick="logEvent('بدء تسجيل يدوي وتخزين سحابي')" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow">بدء التسجيل 🔴</button>
                 <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm">خروج</button>
@@ -80,11 +82,12 @@
             <!-- شاشة الكاميرا مع الزوم -->
             <div class="lg:col-span-2 flex flex-col gap-4">
                 <div id="viewContainer" class="relative overflow-hidden rounded-xl bg-black aspect-video flex items-center justify-center border border-slate-700">
-                    <video id="remoteVideo" autoplay playsinline muted class="w-full h-full object-cover transition-transform duration-100"></video>
-                    <!-- طبقة محاكاة البث المباشر المزامنة -->
+                    <!-- تم استبدال فيديو الكاميرا المحلية بصورة البث الحي القادم من السحابة -->
+                    <img id="liveStreamImage" class="w-full h-full object-cover transition-transform duration-100 hidden" alt="البث الحي">
+                    <!-- طبقة الانتظار لحين استقبال البث -->
                     <div id="streamPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-900">
-                        <span class="text-5xl mb-2">📡</span>
-                        <p>في انتظار اتصال جهاز الكاميرا النشط...</p>
+                        <span class="text-5xl mb-2 animate-bounce">📡</span>
+                        <p>جاري استقبال البث الحي من كاميرا الهاتف الثاني...</p>
                     </div>
                 </div>
 
@@ -133,7 +136,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // إعدادات فايربيز الخاصة بك
         const firebaseConfig = {
@@ -160,9 +163,55 @@
         window.getDownloadURL = getDownloadURL;
         window.collection = collection;
         window.addDoc = addDoc;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.onSnapshot = onSnapshot;
         window.serverTimestamp = serverTimestamp;
 
         logEvent("تم ربط النظام بقاعدة بيانات وتخزين Firebase السحابي بنجاح.");
+
+        // إذا كان الجهاز في وضع العارض، استمع للبث الحي المحدث من السحابة فوراً
+        window.initCloudViewer = function() {
+            const liveImage = document.getElementById('liveStreamImage');
+            const placeholder = document.getElementById('streamPlaceholder');
+
+            const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
+            window.onSnapshot(streamDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data && data.image) {
+                        liveImage.src = data.image;
+                        liveImage.classList.remove('hidden');
+                        placeholder.style.display = 'none';
+                    }
+                }
+            });
+            logEvent("تم تفعيل استقبال البث الحي السحابي بنجاح.");
+        };
+
+        // دالة تقوم برفع إطار البث من الكاميرا إلى السحابة كل فترة قصيرة
+        window.startCloudBroadcasting = function(videoElement) {
+            const canvas = document.getElementById('streamCanvas');
+            const ctx = canvas.getContext('2d');
+
+            setInterval(async () => {
+                if (videoElement.paused || videoElement.ended) return;
+                canvas.width = 640; // دقة ممتازة للبث الحي السريع
+                canvas.height = 360;
+                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                const frameData = canvas.toDataURL('image/jpeg', 0.6); // ضغط الصورة لسرعة البث
+
+                try {
+                    const streamDocRef = window.doc(window.db, "live_stream", "camera_feed");
+                    await window.setDoc(streamDocRef, {
+                        image: frameData,
+                        updatedAt: window.serverTimestamp()
+                    });
+                } catch (e) {
+                    console.error("Broadcasting error:", e);
+                }
+            }, 800); // إرسال إطار جديد كل 800 جزء من الثانية لضمان بث حي سلس
+        };
     </script>
 
     <script>
@@ -189,7 +238,12 @@
                 await startCameraStream();
             } else {
                 document.getElementById('viewerPanel').classList.remove('hidden');
-                initViewerSimulation();
+                if (window.initCloudViewer) {
+                    window.initCloudViewer();
+                } else {
+                    // انتظر تحميل الـ module إذا تأخر أجزاء من الثانية
+                    setTimeout(() => { if(window.initCloudViewer) window.initCloudViewer(); }, 1000);
+                }
             }
         }
 
@@ -212,7 +266,7 @@
             }
         }
 
-        // تشغيل كاميرا الهاتف الثاني وطلب صلاحية الوصول مع دعم 4K
+        // تشغيل كاميرا الهاتف الثاني وطلب صلاحية الوصول مع دعم 4K والبث السحابي
         async function startCameraStream() {
             const video = document.getElementById('webcam');
             const canvas = document.getElementById('aiCanvas');
@@ -231,8 +285,15 @@
 
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
-                logEvent('تم منح صلاحية الوصول للكاميرا وبدء البث.');
+                logEvent('تم منح صلاحية الوصول للكاميرا وبدء البث السحابي.');
                 
+                // بدء البث الحي إلى السحابة ليراها جهاز العرض الأول
+                if (window.startCloudBroadcasting) {
+                    window.startCloudBroadcasting(video);
+                } else {
+                    setTimeout(() => { if(window.startCloudBroadcasting) window.startCloudBroadcasting(video); }, 1000);
+                }
+
                 aiStatus.innerText = "جاري تحميل نموذج الذكاء الاصطناعي...";
                 const model = await cocoSsd.load();
                 aiStatus.innerText = "يعمل بكفاءة عالية (يكتشف أشخاص وسيارات)";
@@ -269,7 +330,6 @@
                     let label = prediction.class === 'person' ? '👤 شخص (Person)' : '🚗 مركبة (Vehicle)';
                     ctx.fillText(`${label} (${Math.round(prediction.score * 100)}%)`, x, y > 20 ? y - 10 : 10);
 
-                    // تسجيل حركة رصد في السجل السحابي بشكل مقنن
                     if (Math.random() < 0.02) { 
                         logEvent(`رصد ${label} بواسطة الذكاء الاصطناعي`);
                     }
@@ -300,7 +360,6 @@
                 const fileName = `snapshots/snap_${Date.now()}.jpg`;
                 const imageRef = window.storageRef(window.storage, fileName);
                 
-                // رفع الصورة بصيغة Base64 إلى Cloud Storage
                 await window.uploadString(imageRef, dataUrl, 'data_url');
                 const downloadURL = await window.getDownloadURL(imageRef);
                 
@@ -313,20 +372,11 @@
             }
         }
 
-        // وضع العارض
-        function initViewerSimulation() {
-            const remoteVideo = document.getElementById('remoteVideo');
-            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-                remoteVideo.srcObject = stream;
-                document.getElementById('streamPlaceholder').style.display = 'none';
-            }).catch(() => {});
-        }
-
         // نظام الزوم الرقمي 100x
         function updateZoom(val) {
             document.getElementById('zoomVal').innerText = val + 'x';
-            const video = document.getElementById('remoteVideo');
-            video.style.transform = `scale(${val})`;
+            const liveImage = document.getElementById('liveStreamImage');
+            liveImage.style.transform = `scale(${val})`;
         }
 
         // إدارة الأجهزة النشطة
@@ -360,7 +410,6 @@
                 logList.prepend(logItem);
             }
 
-            // حفظ الحدث داخل Firestore إذا تم تحميله بنجاح
             try {
                 if (window.db && window.collection && window.addDoc) {
                     await window.addDoc(window.collection(window.db, "system_logs"), {
@@ -369,7 +418,7 @@
                     });
                 }
             } catch (e) {
-                // تجاهل خطأ قاعدة البيانات المؤقت حتى يتم الاتصال الكامل
+                // تجاهل خطأ قاعدة البيانات المؤقت
             }
         }
     </script>
