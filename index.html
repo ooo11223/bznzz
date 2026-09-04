@@ -3,683 +3,2006 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة التداول الذكية - الشموع اليابانية</title>
+    <title>Hadeel AL-Shami - الملف الشخصي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: Tahoma, sans-serif;
-            background-color: #121824;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
-        /* شريط التنويه العلوي */
-        .top-notice-bar {
-            background-color: #ffb300;
-            color: #000;
-            padding: 10px 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            border-bottom: 2px solid #e09f00;
-        }
-        header {
-            background-color: #1e2636;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #2a3447;
-        }
-        .logo { font-size: 20px; font-weight: bold; color: #2962ff; }
-        .withdraw-btn {
-            background: #00c853;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
+        body { background-color: #f0f2f5; color: #050505; }
+        .main-container { max-width: 600px; margin: 0 auto; background: #ffffff; min-height: 100vh; padding-bottom: 70px; }
+        
+        .profile-top-bar { display: flex; justify-content: space-between; padding: 12px 16px; align-items: center; font-size: 18px; border-bottom: 1px solid #ddd; background: #fff; font-weight: 700; }
+        .cover-wrapper { height: 210px; background: #ccc; position: relative; cursor: pointer; }
+        .cover-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .avatar-wrapper { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #fff; margin: -70px auto 10px; overflow: hidden; background: #e4e6eb; position: relative; z-index: 2; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+        .avatar-wrapper.has-story { border: 4px solid #1877f2; padding: 3px; background: linear-gradient(#fff, #fff) padding-box, linear-gradient(45deg, #1877f2, #e4405f, #f58529) border-box; }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        
+        .name { text-align: center; font-size: 24px; font-weight: 800; letter-spacing: -0.2px; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        
+        .verified-badge { color: #1877f2; font-size: 16px; display: inline-flex; align-items: center; vertical-align: middle; position: relative; }
 
-        .chart-section {
-            background-color: #1e2636;
-            border-radius: 10px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: #151a25;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .profit-value { color: #00c853; font-weight: bold; }
+        .bio { text-align: center; font-size: 14px; color: #65676b; margin: 8px 16px; line-height: 1.5; font-weight: 500; cursor: pointer; }
+        .profile-action-buttons { display: flex; gap: 8px; padding: 0 16px 15px 16px; }
+        .btn-add-friend { flex: 1; background: #1877f2; color: #fff; border: none; border-radius: 6px; padding: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+        .btn-message { flex: 1; background: #e4e6eb; color: #050505; border: none; border-radius: 6px; padding: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+        
+        .profile-tabs { display: flex; border-top: 1px solid #ddd; padding: 0 16px; margin-top: 10px; }
+        .tab-item { padding: 15px 20px; font-weight: 700; color: #65676b; cursor: pointer; border-bottom: 3px solid transparent; font-size: 15px; }
+        .tab-item.active { color: #1877f2; border-bottom-color: #1877f2; }
+        
+        .details-section { padding: 15px 16px; border-top: 1px solid #eee; font-weight: 500; }
+        .details-item { margin: 10px 0; display: flex; align-items: center; gap: 10px; color: #444; font-weight: 600; }
+        .btn-about { width: 100%; background: #e4e6eb; border: none; padding: 10px; border-radius: 6px; font-weight: 700; margin-top: 10px; cursor: pointer; font-size: 14px; color: #050505; }
 
-        /* شاشة الشموع اليابانية الحقيقية عبر Canvas */
-        .live-chart-box {
-            background: #0b0f17;
-            border-radius: 8px;
-            position: relative;
-            height: 380px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 1px solid #2a3447;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+        .post-card { background: #fff; margin-top: 10px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; }
+        .post-card.locked-post { opacity: 0.75; border: 2px dashed #ff4500; }
+        .post-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px 8px; }
+        .post-user-area { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #e4e6eb; }
+        .post-info { font-size: 14px; font-weight: 700; color: #050505; }
+        .post-time { font-size: 12px; color: #65676b; font-weight: 500; }
+        
+        .globe-icon { color: #65676b; filter: grayscale(100%); font-size: 11px; vertical-align: middle; }
 
-        /* قسم أزرار التداول تحت الشارت مباشرة وبجانب بعض */
-        .trade-controls-wrapper {
-            background: #151a25;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .trade-buttons-row {
-            display: flex;
-            gap: 15px;
-        }
-        .trade-btn {
-            flex: 1;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: white;
-            transition: opacity 0.2s;
-        }
-        .trade-btn:hover { opacity: 0.9; }
-        .btn-buy { background-color: #00c853; }
-        .btn-sell { background-color: #ff5252; }
+        .post-body { padding: 0 16px 12px; font-size: 15px; line-height: 1.5; color: #050505; word-break: break-word; font-weight: 500; }
+        .post-body a { color: #1877f2; text-decoration: none; font-weight: 600; }
+        
+        .post-stats { display: flex; justify-content: space-between; padding: 10px 16px; font-size: 13px; color: #65676b; border-bottom: 1px solid #eee; font-weight: 600; align-items: center; }
+        .post-stats span.clickable-comments:hover { text-decoration: underline; color: #1877f2; }
+        
+        .post-actions-bar { display: flex; justify-content: space-around; padding: 4px 0; }
+        .post-action-btn { flex: 1; text-align: center; padding: 8px 0; color: #65676b; font-weight: 700; font-size: 14px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .post-action-btn:hover { background: #f0f2f5; }
 
-        .support-box {
-            background: #1e2636;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #2a3447;
-        }
-        .support-box a { color: #64b5f6; text-decoration: none; font-weight: bold; }
+        .fb-reactions-display { display: inline-flex; align-items: center; gap: 4px; }
+        .fb-reaction-icon { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.2); font-size: 10px; }
+        .fb-reaction-icon.like { background: #1877f2; color: #fff; }
+        .fb-reaction-icon.love { background: #e4405f; color: #fff; font-size: 9px; }
+        .fb-reaction-icon.emoji { background: transparent; font-size: 14px; box-shadow: none; }
 
-        /* النوافذ المنبثقة */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #1e2636;
-            padding: 30px;
-            border-radius: 10px;
-            width: 340px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            border: 1px solid #2a3447;
-        }
-        .modal-content input, .modal-content select, .modal-content textarea {
-            padding: 10px;
-            background: #121824;
-            border: 1px solid #2a3447;
-            color: white;
-            border-radius: 5px;
-            font-family: Tahoma, sans-serif;
-        }
-        .modal-content button {
-            padding: 10px;
-            background: #2962ff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* إخفاء كلمة السر في الفوتر بحيث تبدو مخفية تماماً ولكن قابلة للنقر */
-        footer { padding: 15px 30px; font-size: 12px; color: #555; text-align: center; }
-        #secret-admin-trigger { 
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; width: 100%; max-width: 600px; height: 100%; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 12px 16px; border-bottom: 1px solid #ddd; font-weight: 700; text-align: center; position: relative; font-size: 16px; }
+        .comments-sort-bar { padding: 8px 16px; font-size: 13px; color: #65676b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f2f5; font-weight: 700; }
+        .modal-body { padding: 12px 16px; overflow-y: auto; flex: 1; background: #fff; }
+        .modal-footer { padding: 10px 16px; border-top: 1px solid #ddd; background: #fff; display: flex; flex-direction: column; gap: 8px; font-weight: 600; }
+        
+        .comment-item { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-start; }
+        .comment-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer; background: #e4e6eb; }
+        .comment-bubble-container { max-width: 85%; }
+        .comment-bubble { background: #f0f2f5; padding: 10px 14px; border-radius: 18px; font-size: 14px; color: #050505; line-height: 1.4; word-break: break-word; position: relative; font-weight: 500; }
+        .comment-author-name { font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 2px; cursor: pointer; }
+        .comment-badge { background: #e4e6eb; font-size: 11px; padding: 1px 6px; border-radius: 4px; color: #65676b; margin-right: 5px; font-weight: 600; }
+        .comment-meta { font-size: 11px; color: #65676b; margin-top: 3px; padding-right: 10px; display: flex; gap: 10px; align-items: center; font-weight: 600; }
+        .comment-meta span { font-weight: 700; }
+        
+        .comment-attachment { 
+            max-width: 180px; 
+            max-height: 180px; 
+            width: auto; 
+            height: auto; 
+            border-radius: 8px; 
+            margin-top: 8px; 
+            object-fit: contain; 
+            border: none; 
             cursor: pointer; 
-            display: inline-block; 
-            color: #121824; /* مطابقة تماماً لخلفية الفوتر لتكون مخفية تماماً */
-            user-select: none;
+            display: block; 
+            background: #fff;
         }
 
-        /* لوحة الأدمن */
-        #admin-panel {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #121824;
-            z-index: 2000;
-            padding: 40px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-        .admin-card {
-            background: #1e2636;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: inline-block;
-            min-width: 280px;
-            vertical-align: top;
-        }
-        .close-admin { background: #ff5252; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; float: left; }
+        .image-viewer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
+        .image-viewer-content { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 4px; }
+
+        .video-viewer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3500; flex-direction: column; justify-content: space-between; }
+
+        .story-viewer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; justify-content: center; align-items: center; flex-direction: column; }
+        .story-container { width: 100%; max-width: 450px; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 10px; }
+        .story-header { display: flex; align-items: center; justify-content: space-between; z-index: 5; }
+        .story-user-info { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; font-size: 14px; }
+        .story-media { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+        .story-footer-admin { z-index: 5; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; color: #fff; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+        .viewers-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 5000; justify-content: center; align-items: center; }
+        .viewers-modal-content { background: #fff; width: 90%; max-width: 450px; border-radius: 12px; padding: 20px; max-height: 80vh; overflow-y: auto; font-weight: 600; }
+
+        .create-post-fullscreen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; flex-direction: column; font-weight: 600; }
+        
+        .admin-controls-container { position: fixed; bottom: 20px; left: 20px; display: none; flex-direction: column; gap: 10px; z-index: 99; }
+        .admin-btn { background: #1877f2; color: #fff; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .admin-lock { position: fixed; bottom: 15px; left: 15px; width: 40px; height: 40px; cursor: pointer; z-index: 99; background: transparent; opacity: 0; }
     </style>
 </head>
 <body>
 
-    <!-- تنويه يظهر في أعلى الموقع -->
-    <div class="top-notice-bar" id="notice-display-bar">
-        ⚠️ تنويه هام: يجب إتمام 10 صفقات تداول لفتح خاصية سحب الأرباح بالكامل وتوثيق الحساب.
-    </div>
-
-    <header>
-        <div class="logo">PRO-TRADER 📈</div>
-        <button class="withdraw-btn" onclick="openModal('withdrawModal')">سحب الأرباح</button>
-    </header>
+    <input type="file" id="avatarFilePicker" accept="image/*" style="display:none;" onchange="handleAvatarFileSelect(event)">
+    <input type="file" id="coverFilePicker" accept="image/*" style="display:none;" onchange="handleCoverFileSelect(event)">
+    <input type="file" id="accountAvatarPicker" accept="image/*" style="display:none;" onchange="handleAccountAvatarFileSelect(event)">
+    <input type="file" id="commentFilePicker" accept="image/*,video/*" style="display:none;" onchange="handleCommentFileSelect(event)">
+    <input type="file" id="storyFilePicker" accept="image/*,video/*" style="display:none;" onchange="handleStoryFileSelect(event)">
 
     <div class="main-container">
-        <!-- قسم الشارت وأزرار التداول تحته مباشرة -->
-        <div class="chart-section">
-            <div class="stats-bar">
-                <div>الرصيد: <span id="balance-val">50.00</span> دينار</div>
-                <div>الأرباح: <span class="profit-value" id="profit-val">0.00</span> دينار</div>
+        <div class="profile-top-bar">
+            <i class="fa-solid fa-arrow-right" style="cursor: pointer;" onclick="goBack()" title="رجوع"></i>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-brands fa-facebook" style="color: #1877f2; font-size: 24px;"></i>
+                <span id="topBarProfileName">Hadeel AL-Shami</span>
+                <span id="topBarBadgeContainer">
+                    <span class="verified-badge" title="حساب موثق">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6.3 13l1.4-1.4 2.4 2.4 6.6-6.6 1.4 1.4-8 8z"/></svg>
+                    </span>
+                </span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <i class="fa-solid fa-magnifying-glass" style="cursor: pointer;"></i>
+                <i class="fa-solid fa-gear" id="settingsGearBtn" style="display:none; cursor:pointer; color:#1877f2;" onclick="openProfileSettings()" title="الإعدادات"></i>
+            </div>
+        </div>
+
+        <div class="cover-wrapper" onclick="handleCoverClick()">
+            <img src="" class="cover-img" id="coverImg" style="display: none;">
+        </div>
+        
+        <div class="avatar-wrapper" id="avatarWrapper" onclick="handleAvatarClick()" title="انقر لعرض الستوري أو تغيير الصورة">
+            <img src="" class="avatar-img" id="avatarImg" style="display: none;">
+            <i class="fa-solid fa-user" id="avatarPlaceholderIcon" style="font-size: 55px; color: #8a8d91;"></i>
+        </div>
+
+        <div class="name" id="mainProfileName" onclick="handleAccountClick(1)" style="cursor: pointer;">
+            <span id="mainProfileNameText"> Hadeel AL-Shami </span>
+            <span id="mainProfileBadgeContainer">
+                <span class="verified-badge" title="حساب موثق">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6.3 13l1.4-1.4 2.4 2.4 6.6-6.6 1.4 1.4-8 8z"/></svg>
+                </span>
+            </span>
+        </div>
+        
+        <div class="bio" id="bioTextContainer" onclick="handleBioClick()"> ⛔<br> </div>
+        
+        <div class="profile-action-buttons">
+            <button class="btn-add-friend">إضافة صديق</button>
+            <button class="btn-message">مراسلة</button>
+        </div>
+        
+        <div class="profile-tabs">
+            <div class="tab-item active">المنشورات</div>
+            <div class="tab-item">الصور</div>
+            <div class="tab-item">ريلز</div>
+        </div>
+
+        <div class="details-section">
+            <div class="details-item"><i class="fa-solid fa-house"></i> تقيم في عمان</div>
+            <div class="details-item"><i class="fa-solid fa-location-dot"></i> من دمشق</div>
+            <button class="btn-about" id="aboutBtnText">عرض معلومات القسم "حول" لـ اسيل</button>
+        </div>
+
+        <div id="postsFeed">
+            <div style="text-align: center; padding: 30px; color: #65676b; font-weight: 600;">جاري تحميل المنشورات...</div>
+        </div>
+    </div>
+
+    <div id="videoViewerModal" class="video-viewer-overlay">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; background:rgba(0,0,0,0.8); color:#fff; z-index:10;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <i class="fa-solid fa-arrow-right" style="font-size:20px; cursor:pointer;" onclick="closeVideoViewer()"></i>
+                <span style="font-size:16px; font-weight:700;">مزيد من مقاطع الفيديو</span>
+            </div>
+            <div style="display:flex; gap:15px; font-size:18px;">
+                <i class="fa-solid fa-ellipsis" style="cursor:pointer;"></i>
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeVideoViewer()"></i>
+            </div>
+        </div>
+        
+        <div style="position:relative; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#000; overflow:hidden;">
+            <div style="position:absolute; top:10px; right:15px; left:15px; display:flex; justify-content:space-between; align-items:center; z-index:5; pointer-events:none;">
+                <div style="display:flex; align-items:center; gap:10px; pointer-events:auto; cursor:pointer;" onclick="handleAccountClick(1)">
+                    <img id="videoViewerAvatar" src="" style="width:40px; height:40px; border-radius:50%; object-fit:cover; background:#e4e6eb;">
+                    <div style="color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);">
+                        <div style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:4px;">
+                            <span id="videoViewerName">Aseel Ali</span>
+                            <span id="videoViewerBadge"></span>
+                        </div>
+                        <div style="font-size:11px; color:#ccc;" id="videoViewerTime">منذ لحظات · <i class="fa-solid fa-globe globe-icon"></i></div>
+                    </div>
+                </div>
+                <div style="color:#fff; font-size:20px; cursor:pointer; pointer-events:auto;" onclick="closeVideoViewer()"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+
+            <video id="fullVideoViewerElement" controls controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" style="max-width:100%; max-height:75vh; object-fit:contain; background:#000; display:none;"></video>
+            <div id="fullVideoEmbedContainer" style="width: 100%; height: 75vh; display: none; align-items: center; justify-content: center;"></div>
+        </div>
+
+        <div style="background:#18191a; color:#fff; padding:12px 16px;">
+            <div style="display:flex; justify-content:space-between; font-size:13px; color:#b0b3b8; margin-bottom:10px; font-weight:600; align-items:center;">
+                <span id="videoViewerReactions" style="display:inline-flex; align-items:center; gap:6px;">
+                    <span style="display:inline-flex; align-items:center;"><span class="fb-reaction-icon like"><i class="fa-solid fa-thumbs-up"></i></span><span class="fb-reaction-icon love" style="margin-right:-6px;"><i class="fa-solid fa-heart"></i></span></span> <span id="videoViewerReactionsCount">8</span>
+                </span>
+                <span id="videoViewerStats" style="cursor:pointer;" onclick="openVideoViewersList()" title="عرض قائمة الأجهزة المشاهدة">٨ تعليقات · 0 مشاهدة</span>
+            </div>
+            <div style="display:flex; justify-content:space-around; border-top:1px solid #3a3b3c; padding-top:8px;">
+                <div style="flex:1; text-align:center; color:#b0b3b8; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-regular fa-thumbs-up"></i> أعجبني</div>
+                <div style="flex:1; text-align:center; color:#b0b3b8; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" onclick="openCommentsFromVideo()"><i class="fa-regular fa-comment"></i> تعليق</div>
+                <div style="flex:1; text-align:center; color:#b0b3b8; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-share"></i> مشاركة</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="storyViewerModal" class="story-viewer-overlay" onclick="closeStory()">
+        <div class="story-container" onclick="event.stopPropagation()">
+            <div class="story-header">
+                <div class="story-user-info" style="cursor: pointer;" onclick="handleAccountClick(1)">
+                    <img id="storyHeaderAvatar" src="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #e4e6eb;">
+                    <span id="storyHeaderName">Hadeel AL-Shami <span class="verified-badge"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6.3 13l1.4-1.4 2.4 2.4 6.6-6.6 1.4 1.4-8 8z"/></svg></span></span>
+                    <span style="font-size: 11px; color: #ccc; margin-right: 5px;" id="storyTimeText">منذ لحظات</span>
+                </div>
+                <span style="color: #fff; font-size: 24px; cursor: pointer; padding: 5px;" onclick="closeStory()">✕</span>
             </div>
             
-            <!-- شاشة الشموع اليابانية الحقيقية عبر Canvas -->
-            <div class="live-chart-box">
-                <canvas id="candlestickChart"></canvas>
+            <div style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center;">
+                <img id="storyMediaImg" class="story-media" style="display: block;">
+                <video id="storyMediaVid" class="story-media" controls autoplay controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" style="display: none;"></video>
             </div>
 
-            <!-- أزرار التنفيذ تحت الشارت مباشرة وبجانب بعض -->
-            <div class="trade-controls-wrapper">
-                <div class="trade-buttons-row">
-                    <button class="trade-btn btn-buy" onclick="executeTrade('BUY')">🟢 شراء (CALL)</button>
-                    <button class="trade-btn btn-sell" onclick="executeTrade('SELL')">🔴 بيع (PUT)</button>
+            <div id="storyAdminFooter" class="story-footer-admin" style="display: none;" onclick="openStoryViewers()">
+                <span>👁️ عدد المشاهدات: <b id="storyViewCount">0</b></span>
+                <span style="font-size: 12px; background: #1877f2; padding: 4px 8px; border-radius: 4px;">عرض الأجهزة المشاهدة</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewersModal" class="viewers-modal-overlay" onclick="if(event.target === this) closeViewersModal()">
+        <div class="viewers-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
+                <span id="viewersModalTitle" style="font-size: 16px; font-weight: 700;">سجل المشاهدات (حسب الأجهزة)</span>
+                <span style="cursor: pointer; font-size: 18px;" onclick="closeViewersModal()">✕</span>
+            </div>
+            <div id="viewersListContainer"></div>
+        </div>
+    </div>
+
+    <div id="commentsModal" class="modal-overlay" onclick="if(event.target === this) closeCommentsModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                التعليقات
+                <span style="cursor:pointer; position:absolute; left:16px; font-size:18px;" onclick="closeCommentsModal()">✕</span>
+            </div>
+            <div class="comments-sort-bar">
+                <span>الأكثر ملائمة <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i></span>
+            </div>
+            <div id="modalBody" class="modal-body"></div>
+            <div id="modalFooter" class="modal-footer"></div>
+        </div>
+    </div>
+
+    <div id="imageViewerModal" class="image-viewer-overlay" onclick="closeImageViewer()">
+        <span style="position:absolute; top:20px; right:20px; color:#fff; font-size:28px; cursor:pointer;" onclick="closeImageViewer()">✕</span>
+        <img id="fullImageView" class="image-viewer-content">
+    </div>
+
+    <div id="createPostScreen" class="create-post-fullscreen">
+        <div style="padding:15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd;">
+            <span onclick="closePostModal()" style="cursor:pointer; font-weight:700;">✕ إغلاق</span>
+            <span id="postModalTitle" style="font-weight:700;">إنشاء منشور</span>
+            <button onclick="publishPost()" style="background:#1877f2; color:#fff; border:none; padding:6px 16px; border-radius:6px; font-weight:700; cursor:pointer;" id="postModalSubmitBtn">نشر</button>
+        </div>
+        <div style="padding:15px; flex:1; overflow-y:auto;">
+            <div style="margin-bottom: 15px; background: #f0f2f5; padding: 10px; border-radius: 8px;">
+                <label style="font-size: 13px; font-weight: 700; color: #65676b; display: block; margin-bottom: 5px;">النشر بواسطة الحساب:</label>
+                <select id="postAuthorSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; outline: none; font-weight: 600;"></select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #e4e6eb; display: flex; align-items: center; justify-content: center;" id="modalUserAvatarWrapper">
+                    <img src="" class="post-avatar" id="modalUserAvatar" style="display: none; width: 100%; height: 100%;">
+                    <i class="fa-solid fa-user" id="modalUserAvatarIcon" style="font-size: 20px; color: #8a8d91;"></i>
                 </div>
-                <p id="trade-status" style="text-align: center; font-size: 14px; color: #aaa; margin: 0;"></p>
+                <span style="font-weight:700;" id="modalAuthorName">Hadeel AL-Shami</span>
+            </div>
+            
+            <textarea id="postText" style="width:100%; border:none; height:100px; font-size:16px; outline:none; font-weight:500;" placeholder="بم تفكر؟"></textarea>
+
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <label style="font-size: 13px; font-weight: 700; color: #65676b; display: block; margin-bottom: 5px;">اختر نوع التفاعل بجانب اللايك والقلب:</label>
+                <select id="postReactionTypeSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; outline: none; font-weight: 600; margin-bottom: 10px;">
+                    <option value="😆">😆 (ضحك)</option>
+                    <option value="😮">😮 (صدمة)</option>
+                    <option value="😢">😢 (حزن)</option>
+                    <option value="😡">😡 (غضب)</option>
+                </select>
+
+                <label style="font-size: 13px; font-weight: 700; color: #65676b; display: block; margin-bottom: 5px;">عدد التفاعلات (أو النص الظاهر):</label>
+                <input type="text" id="postReactionsInput" value="5" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; outline: none; font-weight: 600;">
+            </div>
+
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="postLockedCheckbox" style="width: 20px; height: 20px; cursor: pointer;">
+                <label for="postLockedCheckbox" style="font-size: 14px; font-weight: 700; color: #333; cursor: pointer;">قفل المنشور (إخفاء عن الزوار ولا يراه سوى الأدمن)</label>
+            </div>
+
+            <div style="margin-top:15px;">
+                <label style="background:#f0f2f5; padding:12px; display:block; text-align:center; cursor:pointer; border-radius:8px; font-weight:700; color:#1877f2;">
+                    <i class="fa-solid fa-images"></i> اختر صور أو فيديوهات من ملفات الهاتف (يتم ضغط الفيديو تلقائياً)
+                    <input type="file" id="filePicker" accept="image/*,video/*" multiple style="display:none;" onchange="handleFileSelect(event)">
+                </label>
+                <div id="filePreview" style="margin-top:10px; font-size:13px; color:green; text-align:center; font-weight:700;"></div>
             </div>
         </div>
-
-        <!-- صندوق الدعم والمساعدة -->
-        <div class="support-box">
-            <p style="margin: 0 0 8px 0;">تواجه مشكلة؟</p>
-            <a href="#" onclick="openModal('supportModal')">تواصل مع الإدارة (رد آلي)</a>
-        </div>
     </div>
 
-    <footer>
-        <span>منصة التداول الآمنة 2026</span> - <span id="secret-admin-trigger">ooddaayy</span>
-    </footer>
-
-    <!-- نافذة سحب الأرباح -->
-    <div id="withdrawModal" class="modal">
-        <div class="modal-content">
-            <h3>سحب الأرباح</h3>
-            <label>اختر نوع المحفظة</label>
-            <select id="walletType">
-                <option value="CliQ">كليك (CliQ)</option>
-                <option value="ZainCash">زين كاش</option>
-                <option value="UWallet">أورانج موني / UWallet</option>
-            </select>
-            <input type="text" id="walletNumber" placeholder="رقم الكليك أو اسم المستخدم">
-            <button onclick="submitWithdrawal()">تأكيد طلب السحب</button>
-            <button style="background:transparent; color:#aaa;" onclick="closeModals()">إلغاء</button>
-        </div>
+    <div id="adminControls" class="admin-controls-container">
+        <div class="admin-btn" onclick="openPostModal()" title="إنشاء منشور جديد"><i class="fa-solid fa-plus"></i></div>
+        <div class="admin-btn" onclick="document.getElementById('storyFilePicker').click()" title="إضافة أو تغيير الستوري" style="background: #ff4500;"><i class="fa-solid fa-circle-plus"></i></div>
+        <div class="admin-btn" onclick="manageAccounts()" title="إدارة الحسابات الوهمية والروابط والصور والتوثيق" style="background: #2e8b57; font-size: 18px;"><i class="fa-solid fa-users-gear"></i></div>
     </div>
+    <div class="admin-lock" onclick="handleLockClick()"></div>
 
-    <!-- نافذة إشعار الوصول لـ 500 دينار بعد 10 صفقات -->
-    <div id="targetReachedModal" class="modal">
-        <div class="modal-content">
-            <h3 style="color: #00c853;">🎉 مبروك! حققت الهدف</h3>
-            <p style="font-size: 14px; color: #ddd;">لقد أكملت 10 صفقات بنجاح ووصلت أرباحك إلى 500 دينار! يمكنك سحب أرباحك الآن.</p>
-            <button onclick="closeModals(); openModal('withdrawModal');">اسحب الأرباح الآن</button>
-        </div>
-    </div>
-
-    <!-- نافذة جاري التحويل -->
-    <div id="loadingModal" class="modal">
-        <div class="modal-content">
-            <h3>⏳ جاري عملية التحويل...</h3>
-            <p style="color: #aaa; font-size: 14px;">يرجى الانتظار...</p>
-        </div>
-    </div>
-
-    <!-- نافذة عرض الكود المطلوب تصويره -->
-    <div id="codeResultModal" class="modal">
-        <div class="modal-content">
-            <h3 style="color: #ffb300;">📸 مطلوب التقاط شاشة (Screenshot)</h3>
-            <p style="font-size: 13px; color: #ccc;">تم إتمام العملية بنجاح. هذا هو كود التحويل الخاص بك، يرجى أخذ لقطة شاشة وإرساله للأدمن:</p>
-            <div id="secret-code-display" style="background: #121824; padding: 12px; font-size: 20px; font-weight: bold; color: #00c853; border: 1px dashed #2962ff; border-radius: 5px;"></div>
-            <a id="admin-link-btn" href="https://t.me/YourBotLink" target="_blank" style="background: #2962ff; color: white; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; display: block; margin-top: 5px;">إرسال الكود للإدارة (تواصل)</a>
-            <button style="background:#555; margin-top: 5px;" onclick="closeModals()">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الرد الآلي -->
-    <div id="supportModal" class="modal">
-        <div class="modal-content">
-            <h3>🤖 الرد الآلي للإدارة</h3>
-            <p style="font-size: 14px; color: #ddd;">أهلاً بك. الموظفون مشغولون حالياً، تواصل معنا عبر الرابط أدناه:</p>
-            <a id="support-link-display" href="https://t.me/YourBotLink" target="_blank" style="color: #64b5f6; font-weight: bold;">اضغط هنا للتواصل عبر البوت</a>
-            <button style="background:#555; margin-top: 10px;" onclick="closeModals()">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة دخول الأدمن -->
-    <div id="adminLoginModal" class="modal">
-        <div class="modal-content">
-            <h3>🔐 دخول الأدمن</h3>
-            <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر">
-            <button onclick="verifyAdminPassword()">دخول</button>
-            <button style="background:transparent; color:#aaa;" onclick="closeModals()">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- لوحة الأدمن -->
-    <div id="admin-panel">
-        <button class="close-admin" onclick="closeAdminPanel()">إغلاق اللوحة</button>
-        <h2>لوحة التحكم السحابية (Firebase)</h2>
-        <hr style="border-color: #2a3447; margin-bottom: 20px;">
-        
-        <div class="admin-card">
-            <h3>👥 عدد الزوار الحقيقيين</h3>
-            <p id="admin-visitors" style="font-size: 28px; color: #2962ff; font-weight: bold;">جاري التحميل...</p>
-        </div>
-
-        <div class="admin-card">
-            <h3>💳 من أدخلوا الكليك والسحب</h3>
-            <p id="admin-cliq-users" style="font-size: 28px; color: #00c853; font-weight: bold;">جاري التحميل...</p>
-        </div>
-
-        <!-- تعديل التنويه -->
-        <div class="admin-card" style="display: block; margin-top: 15px;">
-            <h3>📢 تعديل نص التنويه العلوي</h3>
-            <textarea id="adminNoticeInput" rows="3" style="width: 100%; margin-bottom: 10px;"></textarea>
-            <button onclick="saveNoticeSettings()">حفظ التنويه سحابياً</button>
-        </div>
-
-        <!-- تعديل رابط التواصل -->
-        <div class="admin-card" style="display: block; margin-top: 15px;">
-            <h3>🔗 تعديل رابط التواصل (البوت)</h3>
-            <input type="text" id="adminLinkInput" style="width: 100%; margin-bottom: 10px;" placeholder="https://t.me/...">
-            <button onclick="saveLinkSettings()">حفظ الرابط سحابياً</button>
-        </div>
-    </div>
-
-    <!-- ربط Firebase عبر CDN (Modular SDK) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyAp3jL2QZ6iWqOVQ5aTbuKY9OmxmtYCfvM",
-            authDomain: "jjjj-9fbeb.firebaseapp.com",
-            projectId: "jjjj-9fbeb",
-            storageBucket: "jjjj-9fbeb.firebasestorage.app",
-            messagingSenderId: "906849394101",
-            appId: "1:906849394101:web:04956afdf266db51560dfc",
-            measurementId: "G-4K5ZY1HGVD"
+          apiKey: "AIzaSyDMMJ5MrggJkNMUCsjXsNvS6aTKZd3QzFM",
+          authDomain: "aseel-aeccd.firebaseapp.com",
+          projectId: "aseel-aeccd",
+          storageBucket: "aseel-aeccd.firebasestorage.app",
+          messagingSenderId: "1061891334093",
+          appId: "1:1061891334093:web:0e12afec0cbeaa0f82ae84",
+          measurementId: "G-NHF7X6SKJF"
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // جلب الإعدادات وزيادة عداد الزوار سحابياً
-        async function initCloudData() {
-            try {
-                const statsRef = doc(db, "siteData", "statistics");
-                const statsSnap = await getDoc(statsRef);
-
-                if (!statsSnap.exists()) {
-                    // إنشاء الوثيقة لأول مرة إذا لم تكن موجودة
-                    await setDoc(statsRef, {
-                        total_visitors: 1,
-                        cliq_submit_count: 0,
-                        site_notice: "⚠️ تنويه هام: يجب إتمام 10 صفقات تداول لفتح خاصية سحب الأرباح بالكامل وتوثيق الحساب.",
-                        support_link: "https://t.me/YourBotLink"
-                    });
-                    document.getElementById('notice-display-bar').innerText = "⚠️ تنويه هام: يجب إتمام 10 صفقات تداول لفتح خاصية سحب الأرباح بالكامل وتوثيق الحساب.";
-                } else {
-                    // زيادة عداد الزوار لكل زيارة جديدة (إذا لم يتم احتساب الجهاز في الجلسة الحالية)
-                    if (!sessionStorage.getItem('visited')) {
-                        await updateDoc(statsRef, {
-                            total_visitors: increment(1)
-                        });
-                        sessionStorage.setItem('visited', 'true');
-                    }
-
-                    const data = statsSnap.data();
-                    if(data.site_notice) {
-                        document.getElementById('notice-display-bar').innerText = data.site_notice;
-                    }
-                    if(data.support_link) {
-                        document.getElementById('admin-link-btn').href = data.support_link;
-                        document.getElementById('support-link-display').href = data.support_link;
-                    }
-                }
-            } catch (error) {
-                console.error("خطأ في الاتصال بقاعدة البيانات:", error);
-            }
-        }
-
-        initCloudData();
-
-        // جعل وظيفة سحب الأرباح تحدث عداد الكليك في Firebase
-        window.submitWithdrawalCloud = async function() {
-            let num = document.getElementById('walletNumber').value;
-            if(!num) { alert('الرجاء إدخال رقم الكليك أو اسم المستخدم'); return; }
-
-            closeModals();
-            let loadModal = document.getElementById('loadingModal');
-            loadModal.style.display = 'flex';
-
-            try {
-                const statsRef = doc(db, "siteData", "statistics");
-                await updateDoc(statsRef, {
-                    cliq_submit_count: increment(1)
-                });
-            } catch (e) {
-                console.error("خطأ في تحديث عداد السحب:", e);
-            }
-
-            setTimeout(() => {
-                loadModal.style.display = 'none';
-                
-                let randomCode = 'JO-' + Math.floor(100000 + Math.random() * 900000);
-                document.getElementById('secret-code-display').innerText = randomCode;
-                
-                openModal('codeResultModal');
-                document.getElementById('walletNumber').value = '';
-            }, 3000);
-        }
-
-        // حفظ التنويه سحابياً
-        window.saveNoticeSettingsCloud = async function() {
-            let newNotice = document.getElementById('adminNoticeInput').value;
-            if(newNotice) {
-                try {
-                    const statsRef = doc(db, "siteData", "statistics");
-                    await updateDoc(statsRef, { site_notice: newNotice });
-                    document.getElementById('notice-display-bar').innerText = newNotice;
-                    alert('تم تحديث التنويه سحابياً بنجاح!');
-                } catch(e) {
-                    alert('حدث خطأ أثناء الحفظ');
-                }
-            }
-        }
-
-        // حفظ رابط التواصل سحابياً
-        window.saveLinkSettingsCloud = async function() {
-            let newLink = document.getElementById('adminLinkInput').value;
-            if(newLink) {
-                try {
-                    const statsRef = doc(db, "siteData", "statistics");
-                    await updateDoc(statsRef, { support_link: newLink });
-                    document.getElementById('admin-link-btn').href = newLink;
-                    document.getElementById('support-link-display').href = newLink;
-                    alert('تم تحديث رابط التواصل سحابياً بنجاح!');
-                } catch(e) {
-                    alert('حدث خطأ أثناء الحفظ');
-                }
-            }
-        }
-
-        // التحقق من الأدمن وعرض البيانات الحية من Firebase
-        window.verifyAdminPasswordCloud = async function() {
-            let pass = document.getElementById('adminPassInput').value;
-            if(pass === 'ooddaayy') {
-                closeModals();
-                document.getElementById('admin-visitors').innerText = "جاري التحميل...";
-                document.getElementById('admin-cliq-users').innerText = "جاري التحميل...";
-                
-                try {
-                    const statsRef = doc(db, "siteData", "statistics");
-                    const snap = await getDoc(statsRef);
-                    if(snap.exists()) {
-                        let data = snap.data();
-                        document.getElementById('admin-visitors').innerText = data.total_visitors || 0;
-                        document.getElementById('admin-cliq-users').innerText = data.cliq_submit_count || 0;
-                        document.getElementById('adminNoticeInput').value = data.site_notice || '';
-                        document.getElementById('adminLinkInput').value = data.support_link || '';
-                    }
-                } catch(e) {
-                    console.error(e);
-                }
-
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('adminPassInput').value = '';
-            } else {
-                alert('كلمة المرور غير صحيحة');
-            }
-        }
+        window.db = db;
+        window.firebaseFirestore = { collection, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy };
+        
+        fetchInitialCloudData(db);
     </script>
 
     <script>
-        let currentBalance = 50.00;
-        let totalProfit = 0.00;
-        let tradeCount = 0;
+        window.history.pushState({ page: "main" }, "", window.location.href);
 
-        if (localStorage.getItem('has_user_won') === 'true') {
-            currentBalance = 550.00;
-            totalProfit = 500.00;
-            tradeCount = 10;
-            document.getElementById('balance-val').innerText = currentBalance.toFixed(2);
-            document.getElementById('profit-val').innerText = totalProfit.toFixed(2);
-            document.getElementById('profit-val').style.color = '#00c853';
-            document.getElementById('trade-status').style.color = '#00c853';
-            document.getElementById('trade-status').innerText = `لقد استهلكت فرصتك للربح مسبقاً (تم قفل الأرباح على 500 دينار).`;
+        let isAdmin = false;
+        let currentPostIdForComment = null;
+        let currentEditingPostId = null;
+        let currentReplyCommentIndex = null;
+        let currentVideoPostId = null;
+        
+        let lockClickCount = 0;
+        let lockTimer = null;
+
+        let visibleRepliesMap = {};
+
+        let currentDeviceId = localStorage.getItem('fb_viewer_device_id');
+        if (!currentDeviceId) {
+            currentDeviceId = 'dev_' + Math.random().toString(36).substring(2, 11);
+            localStorage.setItem('fb_viewer_device_id', currentDeviceId);
         }
 
-        // --- محرك رسم الشموع اليابانية الحقيقية (Candlestick Engine) ---
-        const canvas = document.getElementById('candlestickChart');
-        const ctx = canvas.getContext('2d');
+        let accounts = [
+            { id: 1, name: "Hadeel AL-Shami", avatar: "", isMain: true, isVerified: true, link: "" }
+        ];
 
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        let coverImgUrl = "";
+        let bioText = "........ <br> 👇";
+        
+        let activeStory = {
+            mediaUrl: "",
+            mediaType: "",
+            time: Date.now(),
+            viewers: []
+        };
 
-        let candles = [];
-        let basePrice = 1.2150;
-        for (let i = 0; i < 30; i++) {
-            let open = basePrice;
-            let close = open + (Math.random() * 0.0020 - 0.0010);
-            let high = Math.max(open, close) + Math.random() * 0.0008;
-            let low = Math.min(open, close) - Math.random() * 0.0008;
-            candles.push({ open, high, low, close });
-            basePrice = close;
-        }
+        let posts = [];
 
-        setInterval(() => {
-            let lastCandle = candles[candles.length - 1];
-            let open = lastCandle.close;
-            let close = open + (Math.random() * 0.0024 - 0.0011);
-            let high = Math.max(open, close) + Math.random() * 0.0009;
-            let low = Math.min(open, close) - Math.random() * 0.0009;
-
-            candles.push({ open, high, low, close });
-            if (candles.length > 35) {
-                candles.shift();
-            }
-        }, 1500);
-
-        function drawChart() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            let width = canvas.width;
-            let height = canvas.height;
-
-            ctx.strokeStyle = '#151d2a';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < height; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(width, i);
-                ctx.stroke();
+        // دالة تحويل الوقت إلى نظام زمني حقيقي متجدد
+        function getTimeAgo(timestamp) {
+            if (!timestamp) return "منذ لحظات";
+            
+            if (typeof timestamp === 'string' && !/^\d+$/.test(timestamp)) {
+                return timestamp;
             }
 
-            let candleWidth = width / candles.length - 6;
-            let prices = candles.flatMap(c => [c.high, c.low]);
-            let minPrice = Math.min(...prices);
-            let maxPrice = Math.max(...prices);
-            let priceRange = maxPrice - minPrice || 0.0001;
+            let now = Date.now();
+            let elapsed = Math.floor((now - Number(timestamp)) / 1000);
 
-            candles.forEach((c, index) => {
-                let x = index * (width / candles.length) + 3;
-                let isGreen = c.close >= c.open;
-                let color = isGreen ? '#00c853' : '#ff5252';
+            if (elapsed < 30) return "منذ لحظات";
+            if (elapsed < 60) return `منذ ${elapsed} ثانية`;
+            
+            let minutes = Math.floor(elapsed / 60);
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            
+            let hours = Math.floor(minutes / 60);
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            
+            let days = Math.floor(hours / 24);
+            if (days < 30) return `منذ ${days} يوم`;
+            
+            let months = Math.floor(days / 30);
+            if (months < 12) return `منذ ${months} شهر`;
+            
+            let years = Math.floor(days / 365);
+            return `منذ ${years} سنة`;
+        }
 
-                let yHigh = height - ((c.high - minPrice) / priceRange) * (height - 50) - 25;
-                let yLow = height - ((c.low - minPrice) / priceRange) * (height - 50) - 25;
-                let yOpen = height - ((c.open - minPrice) / priceRange) * (height - 50) - 25;
-                let yClose = height - ((c.close - minPrice) / priceRange) * (height - 50) - 25;
+        function renderReactionsHtml(reactionsStr, reactionType = "😆") {
+            let countVal = reactionsStr !== undefined && reactionsStr !== null && reactionsStr !== "undefined" ? String(reactionsStr).replace(/[^\d]/g, '') : "";
+            if (!countVal) countVal = "5";
+            let emojiToShow = reactionType ? reactionType : "😆";
+            return `
+                <div class="fb-reactions-display">
+                    <span style="display:inline-flex; align-items:center;">
+                        <span class="fb-reaction-icon like"><i class="fa-solid fa-thumbs-up"></i></span>
+                        <span class="fb-reaction-icon love" style="margin-right:-6px;"><i class="fa-solid fa-heart"></i></span>
+                        <span class="fb-reaction-icon emoji" style="margin-right:-6px;">${emojiToShow}</span>
+                    </span>
+                    <span style="margin-right: 4px;">${countVal}</span>
+                </div>
+            `;
+        }
 
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(x + candleWidth / 2, yHigh);
-                ctx.lineTo(x + candleWidth / 2, yLow);
-                ctx.stroke();
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
-                ctx.fillStyle = color;
-                let bodyY = Math.min(yOpen, yClose);
-                let bodyHeight = Math.max(Math.abs(yOpen - yClose), 2);
-                ctx.fillRect(x, bodyY, candleWidth, bodyHeight);
+        function compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.75) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = error => reject(error);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function compressVideo(file) {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.src = URL.createObjectURL(file);
+                video.muted = true;
+                video.playsInline = true;
+
+                video.onloadedmetadata = function() {
+                    window.URL.revokeObjectURL(video.src);
+                    let width = video.videoWidth;
+                    let height = video.videoHeight;
+                    
+                    const maxDim = 360;
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    video.width = width;
+                    video.height = height;
+                    video.currentTime = 0.5;
+                };
+
+                video.onseeked = function() {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.onerror = function() {
+                        fileToBase64(file).then(resolve).catch(() => resolve(""));
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                video.onerror = function() {
+                    fileToBase64(file).then(resolve).catch(() => resolve(""));
+                };
+
+                setTimeout(() => {
+                    fileToBase64(file).then(resolve).catch(() => resolve(""));
+                }, 3000);
+            });
+        }
+
+        function handleLockClick() {
+            lockClickCount++;
+            if (lockClickCount === 3) {
+                lockClickCount = 0;
+                clearTimeout(lockTimer);
+                loginAdmin();
+            } else {
+                clearTimeout(lockTimer);
+                lockTimer = setTimeout(() => {
+                    lockClickCount = 0;
+                }, 800);
+            }
+        }
+
+        async function saveAccountsToCloud() {
+            try {
+                if (window.db) {
+                    await window.firebaseFirestore.setDoc(window.firebaseFirestore.doc(window.db, "settings", "accounts_data"), { list: accounts });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveCoverToCloud() {
+            try {
+                if (window.db) {
+                    await window.firebaseFirestore.setDoc(window.firebaseFirestore.doc(window.db, "settings", "cover_data"), { url: coverImgUrl });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveBioToCloud() {
+            try {
+                if (window.db) {
+                    await window.firebaseFirestore.setDoc(window.firebaseFirestore.doc(window.db, "settings", "bio_data"), { text: bioText });
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveStoryToCloud() {
+            try {
+                if (window.db) {
+                    await window.firebaseFirestore.setDoc(window.firebaseFirestore.doc(window.db, "settings", "story_data"), activeStory);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function updateAvatarDisplay(imgElementId, iconElementId, avatarUrl) {
+            let imgEl = document.getElementById(imgElementId);
+            let iconEl = document.getElementById(iconElementId);
+            if (imgEl && iconEl) {
+                if (avatarUrl && avatarUrl.trim() !== "") {
+                    imgEl.src = avatarUrl;
+                    imgEl.style.display = 'block';
+                    iconEl.style.display = 'none';
+                } else {
+                    imgEl.src = "";
+                    imgEl.style.display = 'none';
+                    iconEl.style.display = 'block';
+                }
+            }
+        }
+
+        function updateCoverDisplay() {
+            let coverEl = document.getElementById('coverImg');
+            if (coverEl) {
+                if (coverImgUrl && coverImgUrl.trim() !== "") {
+                    coverEl.src = coverImgUrl;
+                    coverEl.style.display = 'block';
+                } else {
+                    coverEl.src = "";
+                    coverEl.style.display = 'none';
+                }
+            }
+        }
+
+        function updateStoryUI() {
+            let wrapper = document.getElementById('avatarWrapper');
+            if (activeStory && activeStory.mediaUrl && activeStory.mediaUrl.trim() !== "") {
+                wrapper.classList.add('has-story');
+            } else {
+                wrapper.classList.remove('has-story');
+            }
+        }
+
+        function getVerifiedBadgeHtml(accOrId) {
+            let acc = null;
+            if (typeof accOrId === 'object' && accOrId !== null) {
+                acc = accOrId;
+            } else if (typeof accOrId === 'number' || typeof accOrId === 'string') {
+                acc = accounts.find(a => a.id == accOrId);
+            }
+            if (acc && acc.isVerified) {
+                return `<span class="verified-badge" title="حساب موثق"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6.3 13l1.4-1.4 2.4 2.4 6.6-6.6 1.4 1.4-8 8z"/></svg></span>`;
+            }
+            return '';
+        }
+
+        function updateMainProfileVerificationDisplay() {
+            let mainAcc = accounts.find(a => a.isMain);
+            if (mainAcc) {
+                let badgeHtml = getVerifiedBadgeHtml(mainAcc);
+                document.getElementById('topBarBadgeContainer').innerHTML = badgeHtml;
+                document.getElementById('mainProfileBadgeContainer').innerHTML = badgeHtml;
+                updateAvatarDisplay('avatarImg', 'avatarPlaceholderIcon', mainAcc.avatar);
+            }
+        }
+
+        function updateMainProfileNameDisplay() {
+            let mainAcc = accounts.find(a => a.isMain);
+            if (mainAcc) {
+                document.getElementById('topBarProfileName').innerText = mainAcc.name;
+                document.getElementById('mainProfileNameText').innerText = mainAcc.name;
+                document.getElementById('aboutBtnText').innerText = `عرض معلومات القسم "حول" لـ ${mainAcc.name}`;
+                document.getElementById('storyHeaderName').innerHTML = `${mainAcc.name} <span class="verified-badge"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6.3 13l1.4-1.4 2.4 2.4 6.6-6.6 1.4 1.4-8 8z"/></svg></span>`;
+                updateAvatarDisplay('storyHeaderAvatar', 'storyHeaderAvatarIcon', mainAcc.avatar);
+                renderFeed();
+            }
+        }
+
+        async function handleBioClick() {
+            if (!isAdmin) return;
+            let bioEl = document.getElementById('bioTextContainer');
+            let currentBio = bioText.replace(/<br\s*[\/]?>/gi, "\n");
+            let newBio = prompt("تعديل البايو (السيرة الذاتية):", currentBio);
+            if (newBio !== null) {
+                bioText = newBio.trim().replace(/\n/g, "<br>");
+                bioEl.innerHTML = bioText;
+                await saveBioToCloud();
+                alert("تم تحديث وحفظ البايو سحابياً بنجاح للجميع.");
+            }
+        }
+
+        async function handleAvatarFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    let compressedUrl = await compressImage(file, 400, 400, 0.75);
+                    let mainAcc = accounts.find(a => a.isMain);
+                    if (mainAcc) {
+                        mainAcc.avatar = compressedUrl;
+                        updateAccountAvatarAcrossPostsAndComments(mainAcc.id, compressedUrl);
+                        await saveAccountsToCloud();
+                    }
+                    updateAvatarDisplay('avatarImg', 'avatarPlaceholderIcon', compressedUrl);
+                    renderFeed();
+                    alert("تم تحديث الصورة الشخصية وحفظها سحابياً بنجاح لجميع الزوار!");
+                } catch(err) {
+                    alert("حدث خطأ أثناء تحميل وضغط الصورة.");
+                }
+            }
+        }
+
+        let targetAccountIdForAvatar = null;
+        async function handleAccountAvatarFileSelect(e) {
+            const file = e.target.files[0];
+            if (file && targetAccountIdForAvatar !== null) {
+                try {
+                    let compressedUrl = await compressImage(file, 400, 400, 0.75);
+                    let acc = accounts.find(a => a.id === targetAccountIdForAvatar);
+                    if (acc) {
+                        acc.avatar = compressedUrl;
+                        if (acc.isMain) {
+                            updateAvatarDisplay('avatarImg', 'avatarPlaceholderIcon', compressedUrl);
+                        }
+                        updateAccountAvatarAcrossPostsAndComments(acc.id, compressedUrl);
+                        await saveAccountsToCloud();
+                    }
+                    renderFeed();
+                    alert("تم تحديث صورة الحساب وحفظها سحابياً بنجاح لجميع الزوار!");
+                    targetAccountIdForAvatar = null;
+                } catch(err) {
+                    alert("حدث خطأ أثناء تحميل وضغط الصورة.");
+                }
+            }
+        }
+
+        async function updateAccountAvatarAcrossPostsAndComments(accountId, newAvatarUrl) {
+            for (let p of posts) {
+                let updated = false;
+                if (p.comments) {
+                    p.comments.forEach(c => {
+                        if (c.authorId === accountId) {
+                            c.authorAvatar = newAvatarUrl;
+                            updated = true;
+                        }
+                        if (c.replies) {
+                            c.replies.forEach(r => {
+                                if (r.authorId === accountId) {
+                                    r.authorAvatar = newAvatarUrl;
+                                    updated = true;
+                                }
+                            });
+                        }
+                    });
+                }
+                if (updated) {
+                    await updatePostInCloud(p);
+                }
+            }
+        }
+
+        function handleAccountClick(accountId) {
+            let acc = accounts.find(a => a.id === accountId);
+            if (!acc) return;
+            if (isAdmin) {
+                let choice = prompt(`إدارة الحساب (${acc.name}):\n1. تغيير الصورة الشخصية للحساب\n2. تعديل اسم الحساب\n3. الانتقال للرابط الخاص`);
+                if (choice === "1") {
+                    targetAccountIdForAvatar = acc.id;
+                    document.getElementById('accountAvatarPicker').click();
+                } else if (choice === "2") {
+                    let newName = prompt("أدخل الاسم الجديد:", acc.name);
+                    if (newName !== null && newName.trim() !== "") {
+                        acc.name = newName.trim();
+                        saveAccountsToCloud();
+                        if (acc.isMain) updateMainProfileNameDisplay();
+                        renderFeed();
+                        alert("تم تحديث الاسم بنجاح.");
+                    }
+                } else if (choice === "3") {
+                    if (acc.link && acc.link.trim() !== "") window.open(acc.link, '_blank');
+                    else alert("لا يوجد رابط مخصص لهذا الحساب.");
+                }
+            } else {
+                if (acc.link && acc.link.trim() !== "") {
+                    window.open(acc.link, '_blank');
+                }
+            }
+        }
+
+        let commentTempFile = { url: "", type: "none" };
+        async function handleCommentFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    let base64Url = file.type.startsWith('video') ? await compressVideo(file) : await compressImage(file, 900, 900, 0.8);
+                    commentTempFile = {
+                        url: base64Url,
+                        type: file.type.startsWith('video') ? 'video' : 'image'
+                    };
+                    let previewEl = document.getElementById('commentFilePreview');
+                    if (previewEl) previewEl.innerText = "تم ضغط وإرفاق الملف بنجاح وحفظه سحابياً";
+                } catch(err) {
+                    alert("حدث خطأ أثناء رفع الملف.");
+                }
+            }
+        }
+
+        async function handleStoryFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    let base64Url = file.type.startsWith('video') ? await compressVideo(file) : await compressImage(file, 900, 1200, 0.8);
+                    let type = file.type.startsWith('video') ? 'video' : 'image';
+                    activeStory = {
+                        mediaUrl: base64Url,
+                        mediaType: type,
+                        time: Date.now(),
+                        viewers: []
+                    };
+                    updateStoryUI();
+                    await saveStoryToCloud();
+                    alert("تم ضغط ونشر الستوري سحابياً بنجاح لتظهر لجميع الزوار فوراً!");
+                } catch(err) {
+                    alert("حدث خطأ أثناء رفع الستوري.");
+                }
+            }
+        }
+
+        function handleAvatarClick() {
+            let mainAcc = accounts.find(a => a.isMain);
+            let hasStoryActive = activeStory && activeStory.mediaUrl && activeStory.mediaUrl.trim() !== "";
+
+            if (isAdmin) {
+                let storyStatus = hasStoryActive ? "1. تغيير الصورة الشخصية مباشرة (فتح ملفات الهاتف)\n2. عرض الستوري الحالي\n3. إزالة / حذف الستوري الحالي\n4. رفع / تغيير الستوري" : "1. تغيير الصورة الشخصية مباشرة (فتح ملفات الهاتف)\n2. رفع / إضافة ستوري جديد";
+                let choice = prompt(`إدارة الصورة الشخصية والستوري:\n${storyStatus}\n5. إدارة الحسابات والصور والتوثيق`);
+                
+                if (choice === "1") {
+                    if (mainAcc) targetAccountIdForAvatar = mainAcc.id;
+                    document.getElementById('accountAvatarPicker').click();
+                } else if (hasStoryActive) {
+                    if (choice === "2") handleAvatarClickStory();
+                    else if (choice === "3") removeActiveStory();
+                    else if (choice === "4") document.getElementById('storyFilePicker').click();
+                    else if (choice === "5") manageAccounts();
+                } else {
+                    if (choice === "2") document.getElementById('storyFilePicker').click();
+                    else if (choice === "5") manageAccounts();
+                }
+            } else {
+                if (hasStoryActive) {
+                    handleAvatarClickStory();
+                }
+            }
+        }
+
+        async function removeActiveStory() {
+            if (confirm("هل أنت متأكد من إزالة الستوري الحالي؟")) {
+                activeStory = { mediaUrl: "", mediaType: "", time: Date.now(), viewers: [] };
+                updateStoryUI();
+                await saveStoryToCloud();
+                alert("تمت إزالة الستوري وحذفه من السحابة بنجاح.");
+            }
+        }
+
+        async function handleAvatarClickStory() {
+            if (activeStory && activeStory.mediaUrl && activeStory.mediaUrl.trim() !== "") {
+                if (!activeStory.viewers) activeStory.viewers = [];
+                let existingViewer = activeStory.viewers.find(v => v.deviceId === currentDeviceId);
+                if (!existingViewer) {
+                    activeStory.viewers.push({
+                        deviceId: currentDeviceId,
+                        name: isAdmin ? "الأدمن (أنت)" : "زائر (" + currentDeviceId.substring(0, 8) + ")",
+                        time: Date.now(),
+                        avatar: ""
+                    });
+                    await saveStoryToCloud();
+                }
+
+                let imgEl = document.getElementById('storyMediaImg');
+                let vidEl = document.getElementById('storyMediaVid');
+                
+                if (activeStory.mediaType === 'video') {
+                    vidEl.src = activeStory.mediaUrl;
+                    vidEl.style.display = 'block';
+                    imgEl.style.display = 'none';
+                } else {
+                    imgEl.src = activeStory.mediaUrl;
+                    imgEl.style.display = 'block';
+                    vidEl.style.display = 'none';
+                }
+
+                document.getElementById('storyTimeText').innerText = getTimeAgo(activeStory.time);
+                document.getElementById('storyViewCount').innerText = activeStory.viewers.length;
+
+                if (isAdmin) {
+                    document.getElementById('storyAdminFooter').style.display = 'flex';
+                } else {
+                    document.getElementById('storyAdminFooter').style.display = 'none';
+                }
+
+                window.history.pushState({ modal: 'storyViewerModal' }, '');
+                document.getElementById('storyViewerModal').style.display = 'flex';
+            }
+        }
+
+        function closeStory() {
+            let el = document.getElementById('storyViewerModal');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        function openStoryViewers() {
+            document.getElementById('viewersModalTitle').innerText = "سجل مشاهدات الستوري (حسب الأجهزة)";
+            let container = document.getElementById('viewersListContainer');
+            let viewers = activeStory.viewers || [];
+            if (viewers.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #777; padding: 20px;">لم يشاهد الستوري أي جهاز بعد.</p>`;
+            } else {
+                container.innerHTML = viewers.map((v) => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #e4e6eb; display: flex; align-items: center; justify-content: center; overflow:hidden;">
+                                ${v.avatar ? `<img src="${v.avatar}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fa-solid fa-user" style="font-size: 16px; color: #8a8d91;"></i>`}
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700;">${v.name}</div>
+                                <div style="font-size: 11px; color: #65676b;">معرف الجهاز: ${v.deviceId}</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 12px; color: #1877f2; font-weight: 600;">${getTimeAgo(v.time)}</span>
+                    </div>
+                `).join('');
+            }
+            window.history.pushState({ modal: 'viewersModal' }, '');
+            document.getElementById('viewersModal').style.display = 'flex';
+        }
+
+        function openVideoViewersList() {
+            if (!isAdmin) return;
+            let post = posts.find(p => String(p.id) === String(currentVideoPostId));
+            if (!post) return;
+            
+            document.getElementById('viewersModalTitle').innerText = "سجل مشاهدات الفيديو (حسب الأجهزة)";
+            let container = document.getElementById('viewersListContainer');
+            let viewers = post.viewers || [];
+            
+            if (viewers.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #777; padding: 20px;">لم يشاهد هذا الفيديو أي جهاز بعد.</p>`;
+            } else {
+                container.innerHTML = viewers.map((v) => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #e4e6eb; display: flex; align-items: center; justify-content: center; overflow:hidden;">
+                                ${v.avatar ? `<img src="${v.avatar}" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fa-solid fa-user" style="font-size: 16px; color: #8a8d91;"></i>`}
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700;">${v.name}</div>
+                                <div style="font-size: 11px; color: #65676b;">معرف الجهاز: ${v.deviceId}</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 12px; color: #1877f2; font-weight: 600;">${getTimeAgo(v.time)}</span>
+                    </div>
+                `).join('');
+            }
+            window.history.pushState({ modal: 'viewersModal' }, '');
+            document.getElementById('viewersModal').style.display = 'flex';
+        }
+
+        function closeViewersModal() {
+            let el = document.getElementById('viewersModal');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        function goBack() {
+            let modals = ['createPostScreen', 'imageViewerModal', 'viewersModal', 'storyViewerModal', 'commentsModal', 'videoViewerModal'];
+            let openModalId = modals.find(id => {
+                let el = document.getElementById(id);
+                return el && el.style.display === 'flex';
             });
 
-            let lastC = candles[candles.length - 1];
-            ctx.fillStyle = lastC.close >= lastC.open ? '#00c853' : '#ff5252';
-            ctx.font = 'bold 15px Tahoma';
-            ctx.textAlign = 'left';
-            ctx.fillText("السعر الحقيقي: " + lastC.close.toFixed(4), 15, 25);
-
-            requestAnimationFrame(drawChart);
-        }
-        drawChart();
-
-        function executeTrade(type) {
-            if (localStorage.getItem('has_user_won') === 'true') {
-                document.getElementById('trade-status').style.color = '#ffb300';
-                document.getElementById('trade-status').innerText = `لقد استهلكت فرصتك للربح مسبقاً من هذا الهاتف/المتصفح.`;
-                return;
-            }
-
-            tradeCount++;
-
-            let amount = parseFloat((Math.random() * 7 + 2).toFixed(2));
-            let isProfit = Math.random() > 0.45; 
-            let delta = isProfit ? amount : -amount;
-            
-            if (currentBalance + delta < 0) {
-                delta = -currentBalance;
-            }
-
-            currentBalance += delta;
-            totalProfit += delta;
-
-            if (tradeCount === 10) {
-                totalProfit = 500.00;
-                currentBalance = 550.00;
-                
-                localStorage.setItem('has_user_won', 'true');
-
-                document.getElementById('balance-val').innerText = currentBalance.toFixed(2);
-                document.getElementById('profit-val').innerText = totalProfit.toFixed(2);
-                document.getElementById('profit-val').style.color = '#00c853';
-                
-                document.getElementById('trade-status').style.color = '#00c853';
-                document.getElementById('trade-status').innerText = `تمت الصفقة العاشرة بنجاح! تم قفل الأرباح على 500 دينار.`;
-                
-                setTimeout(() => {
-                    openModal('targetReachedModal');
-                }, 1000);
-                return;
-            }
-
-            document.getElementById('balance-val').innerText = currentBalance.toFixed(2);
-            
-            let profitEl = document.getElementById('profit-val');
-            profitEl.innerText = totalProfit.toFixed(2);
-            profitEl.style.color = totalProfit >= 0 ? '#00c853' : '#ff5252';
-
-            let statusEl = document.getElementById('trade-status');
-            if (isProfit) {
-                statusEl.style.color = '#00c853';
-                statusEl.innerText = `صفقة ${type === 'BUY' ? 'شراء' : 'بيع'} ناجحة! ربحت (+${amount} د) [صفقة رقم ${tradeCount}/10]`;
+            if (openModalId) {
+                window.history.back();
             } else {
-                statusEl.style.color = '#ff5252';
-                statusEl.innerText = `صفقة ${type === 'BUY' ? 'شراء' : 'بيع'} خاسرة! خسرت (-${amount} د) [صفقة رقم ${tradeCount}/10]`;
+                window.location.href = "https://ooo11223.github.io/fccb.com/";
             }
         }
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        window.addEventListener('popstate', function (event) {
+            let modals = [
+                { id: 'createPostScreen', cleanup: () => { document.getElementById('postText').value = ""; document.getElementById('filePreview').innerText = ""; tempFiles = []; currentEditingPostId = null; } },
+                { id: 'imageViewerModal', cleanup: () => {} },
+                { id: 'viewersModal', cleanup: () => {} },
+                { id: 'storyViewerModal', cleanup: () => { let vid = document.getElementById('storyMediaVid'); if(vid) vid.pause(); } },
+                { id: 'commentsModal', cleanup: () => { currentReplyCommentIndex = null; commentTempFile = { url: "", type: "none" }; } },
+                { id: 'videoViewerModal', cleanup: () => { 
+                    let vid = document.getElementById('fullVideoViewerElement'); 
+                    let embed = document.getElementById('fullVideoEmbedContainer');
+                    if(vid) { vid.pause(); vid.src = ""; vid.style.display = 'none'; }
+                    if(embed) { embed.innerHTML = ""; embed.style.display = 'none'; }
+                } }
+            ];
 
-        function submitWithdrawal() {
-            submitWithdrawalCloud();
-        }
+            let closedAnyModal = false;
+            for (let m of modals) {
+                let el = document.getElementById(m.id);
+                if (el && el.style.display === 'flex') {
+                    el.style.display = 'none';
+                    m.cleanup();
+                    closedAnyModal = true;
+                    break;
+                }
+            }
 
-        function saveNoticeSettings() {
-            saveNoticeSettingsCloud();
-        }
-
-        function saveLinkSettings() {
-            saveLinkSettingsCloud();
-        }
-
-        let clickCount = 0;
-        let clickTimer = null;
-        document.getElementById('secret-admin-trigger').addEventListener('click', () => {
-            clickCount++;
-            if(clickCount === 1) {
-                clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
-            } else if(clickCount === 3) {
-                clearTimeout(clickTimer);
-                clickCount = 0;
-                openModal('adminLoginModal');
+            if (!closedAnyModal) {
+                window.history.pushState({ page: "main" }, "", window.location.href);
+                window.location.href = "https://ooo11223.github.io/fccb.com/";
             }
         });
 
-        function verifyAdminPassword() {
-            verifyAdminPasswordCloud();
+        function linkify(text) {
+            if (!text) return '';
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, '<a href="$1" target="_blank" style="color:#1877f2; text-decoration:none; font-weight:600;" onclick="event.stopPropagation()">$1</a>');
         }
 
-        function closeAdminPanel() { document.getElementById('admin-panel').style.display = 'none'; }
+        function openImageViewer(url) {
+            document.getElementById('fullImageView').src = url;
+            window.history.pushState({ modal: 'imageViewerModal' }, '');
+            document.getElementById('imageViewerModal').style.display = 'flex';
+        }
+
+        function closeImageViewer() {
+            let el = document.getElementById('imageViewerModal');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        async function openVideoViewer(url, authorId, reactions, commentsCount, postId, reactionType) {
+            currentVideoPostId = String(postId);
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (post) {
+                if (!post.viewers) post.viewers = [];
+                let existingViewer = post.viewers.find(v => v.deviceId === currentDeviceId);
+                if (!existingViewer) {
+                    post.viewers.push({
+                        deviceId: currentDeviceId,
+                        name: isAdmin ? "الأدمن (أنت)" : "زائر (" + currentDeviceId.substring(0, 8) + ")",
+                        time: Date.now(),
+                        avatar: ""
+                    });
+                    await updatePostInCloud(post);
+                }
+            }
+
+            let author = accounts.find(a => a.id === authorId) || accounts[0];
+            let vidEl = document.getElementById('fullVideoViewerElement');
+            let embedContainer = document.getElementById('fullVideoEmbedContainer');
+            
+            vidEl.style.display = 'none';
+            embedContainer.style.display = 'none';
+            embedContainer.innerHTML = '';
+
+            vidEl.src = url;
+            vidEl.style.display = 'block';
+            vidEl.play();
+            
+            let currentViewsCount = post && post.viewers ? post.viewers.length : 1;
+            let vAvatarEl = document.getElementById('videoViewerAvatar');
+            if (author.avatar && author.avatar.trim() !== "") {
+                vAvatarEl.src = author.avatar;
+                vAvatarEl.style.display = 'block';
+            } else {
+                vAvatarEl.src = "";
+                vAvatarEl.style.display = 'none';
+            }
+
+            document.getElementById('videoViewerName').innerText = author.name;
+            document.getElementById('videoViewerBadge').innerHTML = getVerifiedBadgeHtml(author);
+            
+            let reactionsCountVal = reactions !== undefined && reactions !== null && reactions !== "undefined" ? String(reactions).replace(/[^\d]/g, '') : "8";
+            if(!reactionsCountVal) reactionsCountVal = "8";
+            document.getElementById('videoViewerReactionsCount').innerText = reactionsCountVal;
+
+            let safeCommentsCount = commentsCount && commentsCount !== "undefined" ? commentsCount : "٨ تعليقات";
+            document.getElementById('videoViewerStats').innerText = safeCommentsCount + " · " + currentViewsCount + " مشاهدة";
+            
+            window.history.pushState({ modal: 'videoViewerModal' }, '');
+            document.getElementById('videoViewerModal').style.display = 'flex';
+        }
+
+        function closeVideoViewer() {
+            let el = document.getElementById('videoViewerModal');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        function openCommentsFromVideo() {
+            closeVideoViewer();
+            if (currentVideoPostId !== null) openComments(currentVideoPostId);
+        }
+
+        function loginAdmin() {
+            let pass = prompt("أدخل كلمة مرور الأدمن:");
+            if (pass === "@odayoday@" || pass === "12345") {
+                isAdmin = true;
+                document.getElementById('adminControls').style.display = 'flex';
+                document.getElementById('settingsGearBtn').style.display = 'block';
+                renderFeed();
+                alert("مرحباً بك يا أدمن، تم تفعيل كامل الصلاحيات.");
+            } else if (pass !== null) {
+                alert("كلمة المرور غير صحيحة!");
+            }
+        }
+
+        function manageAccounts() {
+            let listStr = accounts.map((acc, index) => `${index + 1}. ${acc.name} ${acc.isVerified ? '✓(موثق)' : ''} [رابط: ${acc.link ? acc.link : 'غير محدد'}]`).join('\n');
+            let choice = prompt(`إدارة الحسابات والتوثيق والروابط:\n${listStr}\n\nاختر رقماً للإجراء:\n1. إضافة حساب جديد\n2. تغيير اسم الحساب\n3. تغيير صورة حساب\n4. تعديل رابط حساب\n5. تبديل حالة التوثيق`);
+            
+            if (choice === "1") {
+                let name = prompt("أدخل اسم الحساب الجديد:");
+                if (name && name.trim()) {
+                    let newId = Date.now();
+                    let verifiedConfirm = confirm("هل تريد توثيق هذا الحساب بعلامة التوثيق الزرقاء؟");
+                    let linkInput = prompt("أدخل رابط التحويل المباشر (اتركه فارغاً إن لم يكن هناك رابط):", "");
+                    accounts.push({ id: newId, name: name.trim(), avatar: "", isMain: false, isVerified: verifiedConfirm, link: linkInput ? linkInput.trim() : "" });
+                    saveAccountsToCloud();
+                    alert("تم إضافة الحساب بنجاح.");
+                }
+            } else if (choice === "2") {
+                let accNum = prompt(`اختر رقم الحساب لتعديل اسمه:\n` + accounts.map((acc, i) => `${i + 1}: ${acc.name}`).join('\n'));
+                let idx = parseInt(accNum) - 1;
+                if (!isNaN(idx) && accounts[idx]) {
+                    let newName = prompt(`أدخل الاسم الجديد لـ (${accounts[idx].name}):`, accounts[idx].name);
+                    if (newName !== null && newName.trim() !== "") {
+                        accounts[idx].name = newName.trim();
+                        saveAccountsToCloud();
+                        if (accounts[idx].isMain) updateMainProfileNameDisplay();
+                        renderFeed();
+                        alert("تم تغيير اسم الحساب بنجاح!");
+                    }
+                }
+            } else if (choice === "3") {
+                let accNum = prompt(`اختر رقم الحساب لتغيير صورته الشخصية:\n` + accounts.map((acc, i) => `${i + 1}: ${acc.name}`).join('\n'));
+                let idx = parseInt(accNum) - 1;
+                if (!isNaN(idx) && accounts[idx]) {
+                    targetAccountIdForAvatar = accounts[idx].id;
+                    document.getElementById('accountAvatarPicker').click();
+                }
+            } else if (choice === "4") {
+                let accNum = prompt(`اختر رقم الحساب لتعديل رابطه:\n` + accounts.map((acc, i) => `${i + 1}: ${acc.name}`).join('\n'));
+                let idx = parseInt(accNum) - 1;
+                if (!isNaN(idx) && accounts[idx]) {
+                    let newLink = prompt(`أدخل الرابط الجديد (${accounts[idx].name}):`, accounts[idx].link || "");
+                    if (newLink !== null) {
+                        accounts[idx].link = newLink.trim();
+                        saveAccountsToCloud();
+                        alert("تم تحديث الرابط بنجاح.");
+                    }
+                }
+            } else if (choice === "5") {
+                let accNum = prompt(`اختر رقم الحساب لتبديل حالة التوثيق:\n` + accounts.map((acc, i) => `${i + 1}: ${acc.name}`).join('\n'));
+                let idx = parseInt(accNum) - 1;
+                if (!isNaN(idx) && accounts[idx]) {
+                    accounts[idx].isVerified = !accounts[idx].isVerified;
+                    saveAccountsToCloud();
+                    updateMainProfileVerificationDisplay();
+                    renderFeed();
+                    alert("تم تغيير حالة التوثيق بنجاح.");
+                }
+            }
+        }
+
+        function handleCoverClick() {
+            if (!isAdmin) return;
+            let choice = prompt("صورة الغلاف:\n1. تعديل (اختيار صورة جديدة)\n2. إزالة الغلاف");
+            if (choice === "1") document.getElementById('coverFilePicker').click();
+            else if (choice === "2") {
+                coverImgUrl = "";
+                updateCoverDisplay();
+                saveCoverToCloud();
+                alert("تمت إزالة وحذف الغلاف سحابياً بنجاح لجميع الزوار!");
+            }
+        }
+
+        async function handleCoverFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    coverImgUrl = await compressImage(file, 1200, 600, 0.8);
+                    updateCoverDisplay();
+                    await saveCoverToCloud();
+                    alert("تم تحديث وحفظ الغلاف سحابياً بنجاح لجميع الزوار!");
+                } catch(err) {
+                    alert("حدث خطأ أثناء رفع صورة الغلاف.");
+                }
+            }
+        }
+
+        function openProfileSettings() {
+            if (!isAdmin) return;
+            manageAccounts();
+        }
+
+        async function deletePost(id) {
+            if(confirm("هل أنت متأكد من حذف هذا المنشور؟")) {
+                try {
+                    posts = posts.filter(p => String(p.id) !== String(id));
+                    renderFeed();
+
+                    if (window.db) {
+                        await window.firebaseFirestore.deleteDoc(window.firebaseFirestore.doc(window.db, "posts", String(id)));
+                        alert("تم حذف المنشور بنجاح من السحابة.");
+                    }
+                } catch(e) { 
+                    console.error(e); 
+                    alert("حدث خطأ أثناء حذف المنشور من السحابة.");
+                }
+            }
+        }
+
+        async function movePost(index, direction) {
+            let newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= posts.length) return;
+            
+            let temp = posts[index];
+            posts[index] = posts[newIndex];
+            posts[newIndex] = temp;
+
+            renderFeed();
+
+            try {
+                if (window.db) {
+                    for (let i = 0; i < posts.length; i++) {
+                        await updatePostInCloud(posts[i]);
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function editComment(postId, commentIndex) {
+            if (!isAdmin) return;
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (post && post.comments[commentIndex]) {
+                let choice = prompt("اختر ما تريد تعديله للتعليق:\n1. تعديل نص التعليق\n2. تعديل وقت التعليق");
+                if (choice === "1") {
+                    let newText = prompt("تعديل نص التعليق:", post.comments[commentIndex].text);
+                    if (newText !== null) {
+                        post.comments[commentIndex].text = newText.trim();
+                        await updatePostInCloud(post);
+                        openComments(postId);
+                        renderFeed();
+                    }
+                } else if (choice === "2") {
+                    let customVal = prompt("أدخل نص الوقت المخصص (أو اتركه ليعود تلقائياً):", "منذ دقيقة");
+                    if (customVal !== null) {
+                        post.comments[commentIndex].time = customVal.trim();
+                        await updatePostInCloud(post);
+                        openComments(postId);
+                        alert("تم تحديث الوقت بنجاح.");
+                    }
+                }
+            }
+        }
+
+        async function editReply(postId, commentIndex, replyIndex) {
+            if (!isAdmin) return;
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (post && post.comments[commentIndex] && post.comments[commentIndex].replies[replyIndex]) {
+                let choice = prompt("اختر ما تريد تعديله للرد:\n1. تعديل نص الرد\n2. تعديل وقت الرد");
+                if (choice === "1") {
+                    let newText = prompt("تعديل نص الرد:", post.comments[commentIndex].replies[replyIndex].text);
+                    if (newText !== null) {
+                        post.comments[commentIndex].replies[replyIndex].text = newText.trim();
+                        await updatePostInCloud(post);
+                        openComments(postId);
+                        renderFeed();
+                    }
+                } else if (choice === "2") {
+                    let customVal = prompt("أدخل نص الوقت المخصص للرد:", "منذ دقيقة");
+                    if (customVal !== null) {
+                        post.comments[commentIndex].replies[replyIndex].time = customVal.trim();
+                        await updatePostInCloud(post);
+                        openComments(postId);
+                        alert("تم تحديث الوقت المخصص للرد بنجاح.");
+                    }
+                }
+            }
+        }
+
+        async function deleteComment(postId, commentIndex) {
+            if (confirm("هل أنت متأكد من حذف هذا التعليق؟")) {
+                let post = posts.find(p => String(p.id) === String(postId));
+                if (post) {
+                    post.comments.splice(commentIndex, 1);
+                    updateCommentsCount(post);
+                    await updatePostInCloud(post);
+                    openComments(postId);
+                    renderFeed();
+                }
+            }
+        }
+
+        async function deleteReply(postId, commentIndex, replyIndex) {
+            if (confirm("هل أنت متأكد من حذف هذا الرد؟")) {
+                let post = posts.find(p => String(p.id) === String(postId));
+                if (post && post.comments[commentIndex] && post.comments[commentIndex].replies) {
+                    post.comments[commentIndex].replies.splice(replyIndex, 1);
+                    updateCommentsCount(post);
+                    await updatePostInCloud(post);
+                    openComments(postId);
+                    renderFeed();
+                }
+            }
+        }
+
+        function toggleReplies(postId, commentIndex) {
+            let key = `${postId}_${commentIndex}`;
+            visibleRepliesMap[key] = !visibleRepliesMap[key];
+            openComments(postId);
+        }
+
+        async function reactToComment(postId, commentIndex) {
+            if (!isAdmin) return;
+            let choice = prompt("اختر نوع التفاعل:\n1. 👍 لايك\n2. ❤️ قلب\n3. 😍 أحببته\n4. 😢 أحزنني\n5. 😮 واو\n6. 🗑️ إزالة التفاعل");
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (!post || !post.comments[commentIndex]) return;
+            let reactionMap = { "1": "👍 لايك", "2": "❤️ قلب", "3": "😍 أحببته", "4": "😢 أحزنني", "5": "😮 واو", "6": "" };
+            if (reactionMap[choice] !== undefined) {
+                post.comments[commentIndex].reaction = reactionMap[choice];
+                await updatePostInCloud(post);
+                openComments(postId);
+            }
+        }
+
+        async function reactToReply(postId, commentIndex, replyIndex) {
+            if (!isAdmin) return;
+            let choice = prompt("اختر نوع التفاعل:\n1. 👍 لايك\n2. ❤️ قلب\n3. 😍 أحببته\n4. 😢 أحزنني\n5. 😮 واو\n6. 🗑️ إزالة التفاعل");
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (!post || !post.comments[commentIndex] || !post.comments[commentIndex].replies[replyIndex]) return;
+            let reactionMap = { "1": "👍 لايك", "2": "❤️ قلب", "3": "😍 أحببته", "4": "😢 أحزنني", "5": "😮 واو", "6": "" };
+            if (reactionMap[choice] !== undefined) {
+                post.comments[commentIndex].replies[replyIndex].reaction = reactionMap[choice];
+                await updatePostInCloud(post);
+                openComments(postId);
+            }
+        }
+
+        function startReply(postId, commentIndex) {
+            currentReplyCommentIndex = commentIndex;
+            openComments(postId);
+        }
+
+        function cancelReply() {
+            currentReplyCommentIndex = null;
+            openComments(currentPostIdForComment);
+        }
+
+        function updateCommentsCount(post) {
+            let total = post.comments.length;
+            post.comments.forEach(c => { if (c.replies) total += c.replies.length; });
+            post.commentsCount = total + " تعليقات";
+        }
+
+        async function updatePostInCloud(post) {
+            try {
+                if (window.db) {
+                    await window.firebaseFirestore.setDoc(window.firebaseFirestore.doc(window.db, "posts", String(post.id)), post);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderMediaFiles(mediaFiles, postId) {
+            if (!mediaFiles || mediaFiles.length === 0) return '';
+            
+            if (mediaFiles.length === 1) {
+                let m = mediaFiles[0];
+                let currentPost = posts.find(p => String(p.id) === String(postId));
+                let authorId = currentPost ? currentPost.authorId : 1;
+                let reactions = currentPost && currentPost.reactions && currentPost.reactions !== "undefined" ? currentPost.reactions : "5";
+                let reactionType = currentPost && currentPost.reactionType ? currentPost.reactionType : "😆";
+                let commentsCount = currentPost && currentPost.commentsCount && currentPost.commentsCount !== "undefined" ? currentPost.commentsCount : "0 تعليقات";
+
+                if (m.type === 'video') {
+                    return `
+                        <div style="position:relative; width:100%; background:#000; cursor:pointer;" onclick="openVideoViewer('${m.url}', ${authorId}, '${reactions}', '${commentsCount}', '${postId}', '${reactionType}')">
+                            <video src="${m.url}" controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" style="width:100%; max-height:450px; object-fit:cover; display:block; pointer-events:none;"></video>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.6); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px;">
+                                <i class="fa-solid fa-play" style="margin-left:3px;"></i>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `<img src="${m.url}" class="post-media" style="width:100%; max-height:450px; object-fit:cover; display:block; cursor:pointer;" onclick="openImageViewer('${m.url}')" title="انقر لعرض الصورة">`;
+                }
+            }
+
+            let count = mediaFiles.length;
+            let gridStyle = 'display: grid; gap: 2px; width: 100%; max-height: 450px; overflow: hidden; background: #fff;';
+            
+            if (count === 2) {
+                gridStyle += ' grid-template-columns: 1fr 1fr; height: 350px;';
+            } else if (count === 3) {
+                gridStyle += ' grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; height: 380px;';
+            } else {
+                gridStyle += ' grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; height: 380px;';
+            }
+
+            let itemsHtml = mediaFiles.slice(0, 4).map((m, idx) => {
+                let currentPost = posts.find(p => String(p.id) === String(postId));
+                let authorId = currentPost ? currentPost.authorId : 1;
+                let reactions = currentPost && currentPost.reactions && currentPost.reactions !== "undefined" ? currentPost.reactions : "5";
+                let reactionType = currentPost && currentPost.reactionType ? currentPost.reactionType : "😆";
+                let commentsCount = currentPost && currentPost.commentsCount && currentPost.commentsCount !== "undefined" ? currentPost.commentsCount : "0 تعليقات";
+
+                let extraOverlay = '';
+                if (idx === 3 && count > 4) {
+                    extraOverlay = `<div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 26px; font-weight: 700;">+${count - 4}</div>`;
+                }
+                let itemStyle = 'position: relative; width: 100%; height: 100%; overflow: hidden; cursor: pointer; background: #000;';
+                if (count === 3 && idx === 0) {
+                    itemStyle += ' grid-row: span 2;';
+                }
+
+                if (m.type === 'video') {
+                    return `
+                        <div style="${itemStyle}" onclick="openVideoViewer('${m.url}', ${authorId}, '${reactions}', '${commentsCount}', '${postId}', '${reactionType}')">
+                            <video src="${m.url}" controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" style="width: 100%; height: 100%; object-fit: cover; display: block; pointer-events:none;"></video>
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.6); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;">
+                                <i class="fa-solid fa-play" style="margin-left:2px;"></i>
+                            </div>
+                            ${extraOverlay}
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div style="${itemStyle}" onclick="openImageViewer('${m.url}')">
+                            <img src="${m.url}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            ${extraOverlay}
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            return `<div style="${gridStyle}">${itemsHtml}</div>`;
+        }
+
+        function renderFeed() {
+            let feed = document.getElementById('postsFeed');
+            if (!posts || posts.length === 0) {
+                feed.innerHTML = `<div style="text-align: center; padding: 30px; color: #65676b; font-weight: 600;">لا توجد منشورات حالياً.</div>`;
+                return;
+            }
+
+            let filteredPosts = posts.filter(p => {
+                if (p.isLocked && !isAdmin) return false;
+                return true;
+            });
+
+            if (filteredPosts.length === 0) {
+                feed.innerHTML = `<div style="text-align: center; padding: 30px; color: #65676b; font-weight: 600;">لا توجد منشورات حالياً.</div>`;
+                return;
+            }
+
+            feed.innerHTML = filteredPosts.map((p, index) => {
+                let author = accounts.find(a => a.id === p.authorId) || accounts[0];
+                let mediaFilesList = p.mediaFiles || (p.mediaUrl ? [{url: p.mediaUrl, type: p.mediaType}] : []);
+                
+                let avatarHtml = author.avatar && author.avatar.trim() !== "" 
+                    ? `<img src="${author.avatar}" class="post-avatar">`
+                    : `<div class="post-avatar" style="background:#e4e6eb; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-user" style="font-size:18px; color:#8a8d91;"></i></div>`;
+
+                let lockedClass = p.isLocked ? ' locked-post' : '';
+                let lockedBadge = p.isLocked ? `<span style="background: #ff4500; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: 700;"><i class="fa-solid fa-lock"></i> مقفل (مخفي عن الزوار)</span>` : '';
+
+                let postTime = `${getTimeAgo(p.id)} · <i class='fa-solid fa-globe globe-icon'></i>`;
+                let postReactionsHtml = renderReactionsHtml(p.reactions, p.reactionType);
+                let postCommentsCount = p.commentsCount && p.commentsCount !== "undefined" ? p.commentsCount : "0 تعليقات";
+
+                return `
+                    <div class="post-card${lockedClass}">
+                        <div class="post-header">
+                            <div class="post-user-area" onclick="handleAccountClick(${author.id})">
+                                ${avatarHtml}
+                                <div class="post-info">
+                                    <span style="display:inline-flex; align-items:center; gap:4px;">${author.name} ${getVerifiedBadgeHtml(author)} ${lockedBadge}</span><br>
+                                    <span class="post-time">${postTime}</span>
+                                </div>
+                            </div>
+                            ${isAdmin ? `
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    ${index > 0 ? `<span onclick="movePost(${index}, -1)" style="cursor:pointer; color: #1877f2; font-weight:700;" title="نقل للأعلى"><i class="fa-solid fa-arrow-up"></i></span>` : ''}
+                                    ${index < filteredPosts.length - 1 ? `<span onclick="movePost(${index}, 1)" style="cursor:pointer; color: #1877f2; font-weight:700;" title="نقل للأسفل"><i class="fa-solid fa-arrow-down"></i></span>` : ''}
+                                    <span onclick="openPostModal('${p.id}')" style="cursor:pointer; color: #1877f2;" title="تعديل المنشور"><i class="fa-solid fa-pen"></i></span>
+                                    <span onclick="deletePost('${p.id}')" style="cursor:pointer; color: red;" title="حذف المنشور"><i class="fa-solid fa-trash"></i></span>
+                                </div>
+                            ` : `<i class="fa-solid fa-ellipsis" style="color: #65676b; cursor: pointer;"></i>`}
+                        </div>
+                        <div class="post-body">
+                            <div>${linkify(p.text)}</div>
+                        </div>
+                        
+                        ${renderMediaFiles(mediaFilesList, p.id)}
+                        
+                        <div class="post-stats">
+                            <span>${postReactionsHtml}</span>
+                            <span class="clickable-comments" style="cursor: pointer;" onclick="openComments('${p.id}')">${postCommentsCount}</span>
+                        </div>
+
+                        <div class="post-actions-bar">
+                            <div class="post-action-btn"><i class="fa-regular fa-thumbs-up"></i> أعجبني</div>
+                            <div class="post-action-btn" onclick="openComments('${p.id}')"><i class="fa-regular fa-comment"></i> تعليق</div>
+                            <div class="post-action-btn"><i class="fa-solid fa-share"></i> مشاركة</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPostModal(postId = null) { 
+            if (!isAdmin) {
+                alert("يجب تسجيل دخول الأدمن أولاً للنشر!");
+                return;
+            }
+            currentEditingPostId = postId !== null ? String(postId) : null;
+            let titleEl = document.getElementById('postModalTitle');
+            let submitBtn = document.getElementById('postModalSubmitBtn');
+            let textEl = document.getElementById('postText');
+            let reactionsEl = document.getElementById('postReactionsInput');
+            let reactionTypeSelect = document.getElementById('postReactionTypeSelect');
+            let lockedCheckbox = document.getElementById('postLockedCheckbox');
+            let filePreviewEl = document.getElementById('filePreview');
+            let filePickerEl = document.getElementById('filePicker');
+            
+            filePickerEl.value = "";
+            tempFiles = [];
+
+            let authorSelect = document.getElementById('postAuthorSelect');
+            authorSelect.innerHTML = accounts.map(acc => `<option value="${acc.id}">${acc.name} ${acc.isVerified ? '✓' : ''}</option>`).join('');
+
+            if (currentEditingPostId !== null) {
+                let post = posts.find(p => String(p.id) === currentEditingPostId);
+                titleEl.innerText = "تعديل المنشور";
+                submitBtn.innerText = "حفظ التعديلات";
+                textEl.value = post ? post.text : "";
+                
+                let extractedCount = post && post.reactions !== undefined ? String(post.reactions).replace(/[^\d]/g, '') : "";
+                reactionsEl.value = extractedCount ? extractedCount : "5";
+                if (post && post.reactionType) {
+                    reactionTypeSelect.value = post.reactionType;
+                } else {
+                    reactionTypeSelect.value = "😆";
+                }
+                
+                lockedCheckbox.checked = post ? !!post.isLocked : false;
+                if (post && post.authorId) authorSelect.value = post.authorId;
+                if (post && post.mediaFiles && post.mediaFiles.length > 0) {
+                    tempFiles = [...post.mediaFiles];
+                    filePreviewEl.innerText = `يوجد ${tempFiles.length} ملف/ملفات مرفقة حالياً.`;
+                } else {
+                    filePreviewEl.innerText = "";
+                }
+            } else {
+                titleEl.innerText = "إنشاء منشور";
+                submitBtn.innerText = "نشر";
+                textEl.value = "";
+                reactionsEl.value = "5";
+                reactionTypeSelect.value = "😆";
+                lockedCheckbox.checked = false;
+                filePreviewEl.innerText = "";
+            }
+            
+            updateModalAuthorPreview();
+            authorSelect.onchange = updateModalAuthorPreview;
+
+            let screen = document.getElementById('createPostScreen');
+            if (screen.style.display !== 'flex') {
+                window.history.pushState({ modal: 'createPostScreen' }, '');
+                screen.style.display = 'flex';
+            }
+        }
+
+        function updateModalAuthorPreview() {
+            let authorSelect = document.getElementById('postAuthorSelect');
+            let selectedAcc = accounts.find(a => a.id == authorSelect.value);
+            if (selectedAcc) {
+                updateAvatarDisplay('modalUserAvatar', 'modalUserAvatarIcon', selectedAcc.avatar);
+                document.getElementById('modalAuthorName').innerHTML = `${selectedAcc.name} ${getVerifiedBadgeHtml(selectedAcc)}`;
+            }
+        }
+        
+        function closePostModal() { 
+            let el = document.getElementById('createPostScreen');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        let tempFiles = [];
+        async function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                if (tempFiles.length + files.length > 5) {
+                    alert("يمكنك إرفاق بحد أقصى 5 صور أو فيديوهات فقط لكل منشور.");
+                    return;
+                }
+                document.getElementById('filePreview').innerText = "جاري ضغط ومعالجة الملفات تلقائياً...";
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    try {
+                        let base64Url = "";
+                        if (file.type.startsWith('video')) {
+                            document.getElementById('filePreview').innerText = `جاري ضغط الفيديو (${i + 1} من ${files.length})... يرجى الانتظار قليلاً.`;
+                            base64Url = await compressVideo(file);
+                        } else {
+                            base64Url = await compressImage(file, 1000, 1000, 0.75);
+                        }
+                        tempFiles.push({
+                            url: base64Url,
+                            type: file.type.startsWith('video') ? 'video' : 'image'
+                        });
+                    } catch(err) { console.error(err); }
+                }
+                document.getElementById('filePreview').innerText = `تم ضغط وإرفاق ${tempFiles.length} ملفات بنجاح.`;
+            }
+            e.target.value = "";
+        }
+
+        async function publishPost() {
+            let text = document.getElementById('postText').value;
+            let reactions = document.getElementById('postReactionsInput').value;
+            let reactionType = document.getElementById('postReactionTypeSelect').value;
+            let isLocked = document.getElementById('postLockedCheckbox').checked;
+            let authorId = parseInt(document.getElementById('postAuthorSelect').value);
+            
+            if(!text.trim() && tempFiles.length === 0 && currentEditingPostId === null) {
+                alert("اكتب شيئاً أو أرفق صور أو فيديوهات من هاتفك للنشر.");
+                return;
+            }
+            
+            let submitBtn = document.getElementById('postModalSubmitBtn');
+            submitBtn.innerText = "جاري النشر...";
+            submitBtn.disabled = true;
+
+            let finalReactionsVal = reactions && reactions.trim() !== "" ? reactions.trim() : "5";
+
+            try {
+                if (currentEditingPostId !== null) {
+                    let post = posts.find(p => String(p.id) === String(currentEditingPostId));
+                    if (post) {
+                        post.text = text;
+                        post.reactions = finalReactionsVal;
+                        post.reactionType = reactionType;
+                        post.isLocked = isLocked;
+                        post.authorId = authorId;
+                        post.mediaFiles = [...tempFiles];
+                        await updatePostInCloud(post);
+                    }
+                    alert("تم تحديث المنشور بنجاح.");
+                } else {
+                    let newPost = { 
+                        id: Date.now(), 
+                        authorId: authorId,
+                        text: text, 
+                        mediaFiles: [...tempFiles],
+                        reactions: finalReactionsVal,
+                        reactionType: reactionType,
+                        isLocked: isLocked,
+                        commentsCount: "0 تعليقات",
+                        viewers: [],
+                        comments: []
+                    };
+                    posts.unshift(newPost);
+                    await updatePostInCloud(newPost);
+                    alert("تم النشر بنجاح!");
+                }
+                
+                tempFiles = [];
+                document.getElementById('filePreview').innerText = "";
+                closePostModal();
+            } catch (err) {
+                console.error(err);
+                alert("حدث خطأ أثناء النشر.");
+            } finally {
+                submitBtn.innerText = currentEditingPostId !== null ? "حفظ التعديلات" : "نشر";
+                submitBtn.disabled = false;
+            }
+        }
+
+        function openComments(postId) {
+            currentPostIdForComment = String(postId);
+            let post = posts.find(p => String(p.id) === String(postId));
+            let body = document.getElementById('modalBody');
+            let footer = document.getElementById('modalFooter');
+            
+            if (!post) return;
+
+            if (!post.comments || post.comments.length === 0) {
+                body.innerHTML = `<p style="text-align:center; color:#777; margin-top:30px; font-weight:600;">لا توجد تعليقات بعد.</p>`;
+            } else {
+                body.innerHTML = post.comments.map((c, index) => {
+                    let accObj = accounts.find(a => a.id === c.authorId) || { isVerified: c.authorName === "Hadeel AL-Shami", avatar: c.authorAvatar };
+                    let currentAvatar = accObj.avatar || c.authorAvatar;
+                    let repliesHtml = '';
+                    
+                    let commentAvatarHtml = currentAvatar && currentAvatar.trim() !== ""
+                        ? `<img src="${currentAvatar}" class="comment-avatar" onclick="handleAccountClick(${c.authorId || 1})">`
+                        : `<div class="comment-avatar" style="background:#e4e6eb; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="handleAccountClick(${c.authorId || 1})"><i class="fa-solid fa-user" style="font-size:14px; color:#8a8d91;"></i></div>`;
+
+                    if (c.replies && c.replies.length > 0) {
+                        let key = `${postId}_${index}`;
+                        let isVisible = visibleRepliesMap[key] === true;
+                        
+                        let toggleRepliesBtn = `<div style="margin-top: 6px; font-size: 12px; color: #1877f2; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" onclick="toggleReplies('${postId}', ${index})">
+                            <i class="fa-solid fa-reply fa-rotate-180" style="font-size: 10px;"></i> ${isVisible ? 'إخفاء الردود' : `إظهار الردود (${c.replies.length})`}
+                        </div>`;
+
+                        if (isVisible) {
+                            let renderedReplies = c.replies.map((rep, repIndex) => {
+                                let repAcc = accounts.find(a => a.id === rep.authorId) || { isVerified: rep.authorName === "Hadeel AL-Shami", avatar: rep.authorAvatar };
+                                let repAvatar = repAcc.avatar || rep.authorAvatar;
+                                
+                                let repAvatarHtml = repAvatar && repAvatar.trim() !== ""
+                                    ? `<img src="${repAvatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer;" onclick="handleAccountClick(${rep.authorId || 1})">`
+                                    : `<div style="width: 28px; height: 28px; border-radius: 50%; background:#e4e6eb; display:flex; align-items:center; justify-content:center; flex-shrink: 0; cursor: pointer;" onclick="handleAccountClick(${rep.authorId || 1})"><i class="fa-solid fa-user" style="font-size:12px; color:#8a8d91;"></i></div>`;
+
+                                let repTimeFormatted = getTimeAgo(rep.time);
+
+                                return `
+                                    <div style="display: flex; gap: 8px; margin-top: 10px; margin-right: 20px; align-items: flex-start;">
+                                        ${repAvatarHtml}
+                                        <div style="max-width: 85%;">
+                                            <div style="background: #f0f2f5; padding: 8px 12px; border-radius: 14px; font-size: 13px; color: #050505; line-height: 1.4; word-break: break-word; font-weight: 500;">
+                                                <span style="font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 2px; cursor: pointer;" onclick="handleAccountClick(${rep.authorId || 1})">
+                                                    ${rep.authorName} ${getVerifiedBadgeHtml(repAcc)}
+                                                </span>
+                                                ${rep.badge ? `<span class="comment-badge">${rep.badge}</span>` : ''}
+                                                <div style="margin-top: 2px;">${linkify(rep.text)}</div>
+                                                ${rep.attachment ? (rep.attachmentType === 'video' ? `<video src="${rep.attachment}" controls controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" class="comment-attachment"></video>` : `<img src="${rep.attachment}" class="comment-attachment" onclick="openImageViewer('${rep.attachment}')">`) : ''}
+                                            </div>
+                                            <div style="font-size: 11px; color: #65676b; margin-top: 3px; padding-right: 8px; display: flex; gap: 10px; align-items: center; font-weight: 600;">
+                                                <span>${repTimeFormatted}</span>
+                                                <span onclick="reactToReply('${postId}', ${index}, ${repIndex})" style="color:${rep.reaction ? '#1877f2' : 'inherit'}; font-weight:700; cursor:${isAdmin ? 'pointer' : 'default'};">${rep.reaction || 'أعجبني'}</span>
+                                                ${isAdmin ? `<span onclick="editReply('${postId}', ${index}, ${repIndex})" style="color:#1877f2; cursor:pointer; font-weight:700;">تعديل</span>` : ''}
+                                                ${isAdmin ? `<span onclick="deleteReply('${postId}', ${index}, ${repIndex})" style="color:red; cursor:pointer; font-weight:700;">حذف</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                            repliesHtml = toggleRepliesBtn + renderedReplies;
+                        } else {
+                            repliesHtml = toggleRepliesBtn;
+                        }
+                    }
+
+                    let commentTimeFormatted = getTimeAgo(c.time);
+
+                    return `
+                        <div class="comment-item">
+                            ${commentAvatarHtml}
+                            <div class="comment-bubble-container">
+                                <div class="comment-bubble">
+                                    <span class="comment-author-name" onclick="handleAccountClick(${c.authorId || 1})">${c.authorName} ${getVerifiedBadgeHtml(accObj)}</span>
+                                    ${c.badge ? `<span class="comment-badge">${c.badge}</span>` : ''}
+                                    <div style="margin-top:2px; word-break: break-word;">${linkify(c.text)}</div>
+                                    ${c.attachment ? (c.attachmentType === 'video' ? `<video src="${c.attachment}" controls controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;" class="comment-attachment"></video>` : `<img src="${c.attachment}" class="comment-attachment" onclick="openImageViewer('${c.attachment}')">`) : ''}
+                                </div>
+                                <div class="comment-meta">
+                                    <span>${commentTimeFormatted}</span>
+                                    <span onclick="reactToComment('${postId}', ${index})" style="color:${c.reaction ? '#1877f2' : 'inherit'}; font-weight:700; cursor:${isAdmin ? 'pointer' : 'default'};">${c.reaction || 'أعجبني'}</span>
+                                    <span onclick="startReply('${postId}', ${index})" style="color: #1877f2; cursor: pointer; font-weight:700;">رد</span>
+                                    ${isAdmin ? `<span onclick="editComment('${postId}', ${index})" style="color:#1877f2; cursor:pointer; font-weight:700;">تعديل</span>` : ''}
+                                    ${isAdmin ? `<span onclick="deleteComment('${postId}', ${index})" style="color:red; cursor:pointer; font-weight:700;">حذف</span>` : ''}
+                                </div>
+                                ${repliesHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            let replyBanner = currentReplyCommentIndex !== null ? `
+                <div style="background: #e4e6eb; padding: 6px 10px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; color: #050505; font-weight: 600;">
+                    <span>جاري الرد على تعليق رقم (${currentReplyCommentIndex + 1})</span>
+                    <span style="color: red; cursor: pointer; font-weight: 700;" onclick="cancelReply()">إلغاء</span>
+                </div>
+            ` : '';
+
+            let inputFieldHtml = isAdmin 
+                ? `<input type="text" id="commentTextInput" placeholder="اكتب تعليقاً..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 14px; background: #f0f2f5; font-weight: 500;" onkeydown="if(event.key === 'Enter') submitComment('${postId}')">`
+                : `<input type="text" id="commentTextInput" readonly placeholder="اكتب تعليقاً..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 14px; background: #f0f2f5; font-weight: 500; cursor: default;">`;
+
+            let authorSelectHtml = isAdmin ? `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <select id="commentAuthorSelect" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; font-weight: 600; outline: none; flex: 1;">
+                        ${accounts.map(acc => `<option value="${acc.id}">${acc.name} ${acc.isVerified ? '✓' : ''}</option>`).join('')}
+                    </select>
+                    <input type="text" id="commentBadgeInput" placeholder="شارة اختيارية" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px; font-weight: 600; outline: none; width: 130px;">
+                </div>
+            ` : '';
+
+            footer.innerHTML = `
+                ${replyBanner}
+                ${authorSelectHtml}
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    ${inputFieldHtml}
+                    ${isAdmin ? `
+                        <label style="cursor: pointer; color: #1877f2; font-size: 18px; padding: 5px;" title="إرفاق صورة أو فيديو">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" id="commentFilePickerInput" accept="image/*,video/*" style="display: none;" onchange="handleCommentFileSelect(event)">
+                        </label>
+                        <button onclick="submitComment('${postId}')" style="background: #1877f2; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer;"><i class="fa-solid fa-paper-plane" style="font-size: 14px;"></i></button>
+                    ` : ''}
+                </div>
+                <div id="commentFilePreview" style="font-size: 11px; color: green; font-weight: 600; text-align: center;"></div>
+            `;
+
+            let commentsModalEl = document.getElementById('commentsModal');
+            if (commentsModalEl.style.display !== 'flex') {
+                window.history.pushState({ modal: 'commentsModal' }, '');
+                commentsModalEl.style.display = 'flex';
+            }
+        }
+
+        function closeCommentsModal() {
+            let el = document.getElementById('commentsModal');
+            if (el && el.style.display === 'flex') window.history.back();
+        }
+
+        async function submitComment(postId) {
+            if (!isAdmin) return;
+            let textInput = document.getElementById('commentTextInput');
+            let text = textInput.value.trim();
+            if (!text && !commentTempFile.url) {
+                alert("اكتب تعليقاً أو أرفق صورة/فيديو.");
+                return;
+            }
+
+            let post = posts.find(p => String(p.id) === String(postId));
+            if (!post) return;
+
+            let authorId = 1;
+            let authorName = "Hadeel AL-Shami";
+            let authorAvatar = "";
+            let badge = "";
+
+            if (isAdmin) {
+                let authorSelect = document.getElementById('commentAuthorSelect');
+                let badgeInput = document.getElementById('commentBadgeInput');
+                if (authorSelect) {
+                    authorId = parseInt(authorSelect.value);
+                    let acc = accounts.find(a => a.id === authorId);
+                    if (acc) {
+                        authorName = acc.name;
+                        authorAvatar = acc.avatar;
+                    }
+                }
+                if (badgeInput) badge = badgeInput.value.trim();
+            }
+
+            let newEntry = {
+                authorId: authorId,
+                authorName: authorName,
+                authorAvatar: authorAvatar,
+                badge: badge,
+                text: text,
+                time: Date.now(),
+                attachment: commentTempFile.url,
+                attachmentType: commentTempFile.type,
+                reaction: ""
+            };
+
+            if (!post.comments) post.comments = [];
+
+            if (currentReplyCommentIndex !== null) {
+                if (!post.comments[currentReplyCommentIndex].replies) {
+                    post.comments[currentReplyCommentIndex].replies = [];
+                }
+                post.comments[currentReplyCommentIndex].replies.push(newEntry);
+                let key = `${postId}_${currentReplyCommentIndex}`;
+                visibleRepliesMap[key] = true;
+                currentReplyCommentIndex = null;
+            } else {
+                post.comments.push(newEntry);
+            }
+
+            updateCommentsCount(post);
+            commentTempFile = { url: "", type: "none" };
+            textInput.value = "";
+            
+            await updatePostInCloud(post);
+            openComments(postId);
+            renderFeed();
+        }
+
+        async function fetchInitialCloudData(db) {
+            try {
+                const postsQuery = window.firebaseFirestore.getDocs(window.firebaseFirestore.collection(db, "posts"));
+                const accountsDoc = window.firebaseFirestore.getDoc(window.firebaseFirestore.doc(db, "settings", "accounts_data"));
+                const coverDoc = window.firebaseFirestore.getDoc(window.firebaseFirestore.doc(db, "settings", "cover_data"));
+                const bioDoc = window.firebaseFirestore.getDoc(window.firebaseFirestore.doc(db, "settings", "bio_data"));
+                const storyDoc = window.firebaseFirestore.getDoc(window.firebaseFirestore.doc(db, "settings", "story_data"));
+
+                const [postsSnap, accountsSnap, coverSnap, bioSnap, storySnap] = await Promise.all([
+                    postsQuery, accountsDoc, coverDoc, bioDoc, storyDoc
+                ]);
+
+                let loadedPosts = [];
+                postsSnap.forEach((docSnap) => {
+                    loadedPosts.push(docSnap.data());
+                });
+
+                if (loadedPosts.length > 0) {
+                    loadedPosts.sort((a, b) => b.id - a.id);
+                    posts = loadedPosts;
+                } else {
+                    posts = [
+                        {
+                            id: 1722000000000,
+                            authorId: 1,
+                            text: "تفضلو رابط الواتساب الخاص بي للتواصل والاستفسارات 👇\nhttps://wa.me/",
+                            mediaFiles: [],
+                            reactions: "8",
+                            reactionType: "😆",
+                            isLocked: false,
+                            commentsCount: "8 تعليقات",
+                            viewers: [],
+                            comments: []
+                        }
+                    ];
+                }
+                renderFeed();
+
+                if (accountsSnap.exists() && accountsSnap.data().list) {
+                    accounts = accountsSnap.data().list;
+                    updateMainProfileVerificationDisplay();
+                    updateMainProfileNameDisplay();
+                }
+
+                if (coverSnap.exists()) {
+                    coverImgUrl = coverSnap.data().url || "";
+                    updateCoverDisplay();
+                }
+
+                if (bioSnap.exists() && bioSnap.data().text) {
+                    bioText = bioSnap.data().text;
+                    document.getElementById('bioTextContainer').innerHTML = bioText;
+                }
+
+                if (storySnap.exists()) {
+                    activeStory = storySnap.data();
+                    updateStoryUI();
+                }
+
+                window.firebaseFirestore.onSnapshot(window.firebaseFirestore.collection(db, "posts"), (snapshot) => {
+                    let updatedPosts = [];
+                    snapshot.forEach((docSnap) => {
+                        updatedPosts.push(docSnap.data());
+                    });
+                    if (updatedPosts.length > 0) {
+                        updatedPosts.sort((a, b) => b.id - a.id);
+                        posts = updatedPosts;
+                    } else {
+                        posts = [];
+                    }
+                    renderFeed();
+                    if (currentPostIdForComment !== null) {
+                        let openModal = document.getElementById('commentsModal');
+                        if (openModal && openModal.style.display === 'flex') {
+                            openComments(currentPostIdForComment);
+                        }
+                    }
+                });
+
+                window.firebaseFirestore.onSnapshot(window.firebaseFirestore.doc(db, "settings", "accounts_data"), (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().list) {
+                        accounts = docSnap.data().list;
+                        updateMainProfileVerificationDisplay();
+                        updateMainProfileNameDisplay();
+                        renderFeed();
+                    }
+                });
+
+                window.firebaseFirestore.onSnapshot(window.firebaseFirestore.doc(db, "settings", "cover_data"), (docSnap) => {
+                    if (docSnap.exists()) {
+                        coverImgUrl = docSnap.data().url || "";
+                        updateCoverDisplay();
+                    }
+                });
+
+                window.firebaseFirestore.onSnapshot(window.firebaseFirestore.doc(db, "settings", "bio_data"), (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().text) {
+                        bioText = docSnap.data().text;
+                        document.getElementById('bioTextContainer').innerHTML = bioText;
+                    }
+                });
+
+                window.firebaseFirestore.onSnapshot(window.firebaseFirestore.doc(db, "settings", "story_data"), (docSnap) => {
+                    if (docSnap.exists()) {
+                        activeStory = docSnap.data();
+                        updateStoryUI();
+                    }
+                });
+
+            } catch (e) {
+                console.error("Cloud fetch error:", e);
+                posts = [
+                    {
+                        id: 1722000000000,
+                        authorId: 1,
+                        text: "تفضلو رابط الواتساب الخاص بي للتواصل والاستفسارات 👇\nhttps://wa.me/",
+                        mediaFiles: [],
+                        reactions: "8",
+                        reactionType: "😆",
+                        isLocked: false,
+                        commentsCount: "8 تعليقات",
+                        viewers: [],
+                        comments: []
+                    }
+                ];
+                renderFeed();
+            }
+        }
     </script>
 </body>
 </html>
